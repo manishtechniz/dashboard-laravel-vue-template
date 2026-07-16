@@ -193,9 +193,9 @@
                     if (datagrids?.length) {
                         const currentDatagrid = datagrids.find(({ src }) => src === this.src);
 
-                        this.applied.pagination = currentDatagrid.applied.pagination;
-
                         if (currentDatagrid) {
+                            this.applied.pagination = currentDatagrid.applied.pagination;
+
                             if ("{{ ! empty($perPage) }}" == "1") {
                                 this.applied.pagination.perPage = "{{ $perPage }}";
                             }

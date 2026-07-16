@@ -4,22 +4,13 @@
         <h1 class="page-title">User Management</h1>
         <div class="page-breadcrumb">Home / Users</div>
     </div>
+ 
 
     <v-test />
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-test-template">
-            {{-- DataGrid Component --}}
-            {{-- <x-admin::datagrid
-                ::isQuickTable="true" 
-                :perPage='51'
-                ref="dg1"
-                src="{{ route('admin.users.index')}}"
-            /> --}}
-
-            <x-admin::datagrid
-                :is-multi-row="true"  
-                ref="dg12"
+            <x-admin::datagrid 
                 src="{{ route('admin.users.index')}}"
             />
         </script>

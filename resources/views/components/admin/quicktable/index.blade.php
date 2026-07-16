@@ -185,8 +185,8 @@
                  * @returns {void}
                  */
                 performAction(action) {
-                    alert();
-                    return;
+                    // alert();
+                    // return;
                     const method = action.method.toLowerCase();
 
                     switch (method) {

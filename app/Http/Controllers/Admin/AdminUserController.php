@@ -7,13 +7,12 @@ use Illuminate\Http\Request;
 class AdminUserController extends Controller
 {
   public function index()
-  {
+  { 
     if (request()->ajax()) {
         return datagrid(UserDataGrid::class)->process();
     }
 
-    // return view('admin::users.index');
-    return view('admin::global-config.index');
+    return view('admin::users.index');
   }
 
   public function edit($id=0)
