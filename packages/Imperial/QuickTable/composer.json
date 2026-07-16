@@ -1,0 +1,25 @@
+{
+  "name": "imperial/datagrid",
+  "require": {
+    "php": ">=8.2",
+    "laravel/framework": ">=10.0"
+  },
+  "suggest": {
+    "maatwebsite/excel": "Required for Excel export support"
+  },
+  "autoload": {
+    "psr-4": {
+      "Imperial\\DataGrid\\": "src/"
+    },
+    "files": [
+       
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Imperial\\DataGrid\\Providers\\DataGridServiceProvider"
+      ]
+    }
+  }
+}

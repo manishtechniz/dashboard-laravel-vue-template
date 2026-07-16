@@ -1,0 +1,73 @@
+Now i am  creation final project for club booking table including apis and admin dashboard. This project has same page theme design like as previus laravel vue remmeber it.
+
+I already discuss tech stack, even i tell you agaiin
+
+Tech Stack:
+-------------------------------------
+Laravel, VUE, I alreday told page design layout prevous,
+
+
+now i tell you datagrid rendering from server and how to use
+-------------------------------------------------------------------------
+I attacked some file related datagrid amd form layout and how call and page Design also. You can take proper reffence.
+
+
+
+
+DB tables:
+----------------------------------------------------
+clubs
+branches
+floors
+tables
+events
+bookings
+booking_guests
+payments
+transactions
+promo_codes
+notifications
+device_tokens
+reviews
+settings
+audit_logs
+clients
+
+# Project Modules
+----------------------------------------- 
+Clinets
+Club
+Tables
+Events 
+Booking
+Payment
+Notification 
+
++
+
+Dashboard
+Customer management
+Table management
+Floor management
+Event management
+Booking management
+Payments
+Promo codes
+Notification management
+Reports
+Roles & permissions
+
+# Backend APIs  
+-----------------------------------------
+Authentication
+Booking APIs
+Event APIs
+Table APIs
+Payment APIs
+Notification APIs
+Admin APIs
+QR Code APIs
+ 
+
+
+
