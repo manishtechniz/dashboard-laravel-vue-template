@@ -4,10 +4,10 @@
             <h1 class="page-title">Event Management</h1>
             <div class="page-breadcrumb">Home / Events</div>
         </div>
-        <Button label="Create Event" icon="pi pi-plus" size="small" @click="emitter.emit('open-event-modal')" />
+        <Button label="Create Event" icon="pi pi-plus" size="small" @click="$refs.event.visible = true" />
     </div>
 
-    <v-events :clubs='@json($clubs)'></v-events>
+    <v-events ref="event" :clubs='@json($clubs)'></v-events>
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-events-template">
@@ -44,7 +44,6 @@
                                     rules="required"
                                     placeholder="Enter event name"
                                 />
-                                <x-admin::form.control-group.error name="name" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -66,7 +65,6 @@
                                     rules="required"
                                     placeholder="Select start date & time"
                                 />
-                                <x-admin::form.control-group.error name="start_time" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -78,7 +76,6 @@
                                     rules="required"
                                     placeholder="Select end date & time"
                                 />
-                                <x-admin::form.control-group.error name="end_time" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -90,7 +87,6 @@
                                     rules="required"
                                     placeholder="e.g. 20.00"
                                 />
-                                <x-admin::form.control-group.error name="cover_charge" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -136,6 +132,15 @@
                         emitter: null
                     };
                 },
+                watch: {
+                    visible(val) {
+                        if (val && !this.editMode) {
+                            this.event = { id: null, club_id: null, name: '', description: '', start_time: '', end_time: '', cover_charge: 0.00, capacity: null };
+                        } else if (!val) {
+                            this.editMode = false;
+                        }
+                    }
+                },
                 provide() {
                     return {
                         customActions: {
@@ -145,12 +150,6 @@
                     };
                 },
                 mounted() {
-                    this.emitter = this.$emitter;
-                    this.emitter.on('open-event-modal', () => {
-                        this.editMode = false;
-                        this.event = { id: null, club_id: null, name: '', description: '', start_time: '', end_time: '', cover_charge: 0.00, capacity: null };
-                        this.visible = true;
-                    });
                 },
                 methods: {
                     onEdit(row) {

@@ -4,7 +4,7 @@
 ])
 
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="light">
 <head>
     <!-- Title slot -->
     <title>{{ $title ?? '' }}</title>
@@ -119,7 +119,7 @@ adminVueApp.component('admin-layout', {
     },
 
     mounted() {
-        const saved = localStorage.getItem('admin-theme') || '{{ session("theme", "dark") }}';
+        const saved = localStorage.getItem('admin-theme') || '{{ session("theme", "light") }}';
 
         this.applyTheme(saved); 
     }
@@ -182,7 +182,7 @@ adminVueApp.component('admin-layout', {
                 <div class="header-spacer"></div>
 
                 {{-- Theme Switcher --}}
-                {{-- <div style="display:flex; gap:4px;">
+                  <div style="display:flex; gap:4px;">
                     <button
                         v-for="t in themes"
                         :key="t.key"
@@ -193,7 +193,7 @@ adminVueApp.component('admin-layout', {
                     >
                         <i :class="t.icon" style="font-size:13px;"></i>
                     </button>
-                </div> --}}
+                </div>  
 
                 <button class="header-icon-btn">
                     <i class="pi pi-bell" style="font-size:14px;"></i>

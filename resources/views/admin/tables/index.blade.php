@@ -4,10 +4,10 @@
             <h1 class="page-title">Table Management</h1>
             <div class="page-breadcrumb">Home / Tables</div>
         </div>
-        <Button label="Create Table" icon="pi pi-plus" size="small" @click="emitter.emit('open-table-modal')" />
+        <Button label="Create Table" icon="pi pi-plus" size="small" @click="$refs.table.visible = true" />
     </div>
 
-    <v-tables :floors='@json($floors)'></v-tables>
+    <v-tables ref="table" :floors='@json($floors)'></v-tables>
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-tables-template">
@@ -44,7 +44,6 @@
                                     rules="required"
                                     placeholder="e.g. T1, T2, VIP-1"
                                 />
-                                <x-admin::form.control-group.error name="name" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -56,7 +55,6 @@
                                     rules="required"
                                     placeholder="e.g. 4, 6, 8"
                                 />
-                                <x-admin::form.control-group.error name="capacity" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -131,6 +129,15 @@
                         emitter: null
                     };
                 },
+                watch: {
+                    visible(val) {
+                        if (val && !this.editMode) {
+                            this.table = { id: null, floor_id: null, name: '', capacity: 4, status: 'available', x_position: null, y_position: null };
+                        } else if (!val) {
+                            this.editMode = false;
+                        }
+                    }
+                },
                 provide() {
                     return {
                         customActions: {
@@ -140,12 +147,6 @@
                     };
                 },
                 mounted() {
-                    this.emitter = this.$emitter;
-                    this.emitter.on('open-table-modal', () => {
-                        this.editMode = false;
-                        this.table = { id: null, floor_id: null, name: '', capacity: 4, status: 'available', x_position: null, y_position: null };
-                        this.visible = true;
-                    });
                 },
                 methods: {
                     onEdit(row) {

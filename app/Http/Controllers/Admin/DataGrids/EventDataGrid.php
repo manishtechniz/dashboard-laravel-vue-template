@@ -48,7 +48,16 @@ class EventDataGrid extends DataGrid
             'label' => 'Starts At',
             'type' => 'datetime',
             'filterable' => true,
-            'filterable_type' => 'date_range',
+            // 'filterable_type' => 'datetime_range',
+            'sortable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'start_time',
+            'label' => 'Starts At2',
+            'type' => 'date',
+            'filterable' => true,
+            // 'filterable_type' => 'date_range',
             'sortable' => true,
         ]);
 
@@ -78,21 +87,23 @@ class EventDataGrid extends DataGrid
     public function prepareActions()
     {
         $this->addAction([
+            'type' => 'custom',
             'icon' => 'icon-edit',
             'title' => 'Edit Event',
-            'method' => 'GET',
+            'method' => 'edit',
             'url' => function ($row) {
-                return route('admin.events.edit', $row->id);
-            },
+                return '';
+            }
         ]);
 
         $this->addAction([
+            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Event',
-            'method' => 'DELETE',
+            'method' => 'delete',
             'url' => function ($row) {
-                return route('admin.events.delete', $row->id);
-            },
+                return '';
+            }
         ]);
     }
 }

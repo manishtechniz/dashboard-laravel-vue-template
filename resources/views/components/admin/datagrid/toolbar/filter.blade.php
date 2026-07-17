@@ -201,12 +201,12 @@
                                             </div>
 
                                             <!-- Date -->
-                                            <div v-else-if="column.type === 'date'">
+                                            <div v-else-if="column.type === 'date'" class="-mt-4">
                                                 <!-- Range -->
                                                 <template v-if="column.filterable_type === 'date_range'">
                                                     <div class="flex items-center justify-between">
                                                         <p
-                                                            class="text-xs font-medium text-gray-800 dark:text-white"
+                                                            class="text-base font-semibold text-[var(--text-base)]"
                                                             v-text="column.label"
                                                         >
                                                         </p>
@@ -291,11 +291,11 @@
                                                 <!-- Basic -->
                                                 <template v-else>
                                                     <div class="flex items-center justify-between">
-                                                        <p
-                                                            class="text-xs font-medium text-gray-800 dark:text-white"
+                                                        <!-- <p
+                                                            class="text-base font-semibold text-[var(--text-base)]"
                                                             v-text="column.label"
                                                         >
-                                                        </p>
+                                                        </p> -->
 
                                                         <div
                                                             class="flex items-center gap-x-1.5"
@@ -310,18 +310,18 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="mt-1.5 grid">
+                                                    <div class="my-4 grid">
                                                         <x-admin::flat-picker.date ::allow-input="false">
                                                             <input
                                                                 type="date"
                                                                 :name="column.index"
                                                                 value=""
-                                                                class="flex min-h-[39px] w-full rounded-md border px-3 py-2 text-sm text-gray-600 transition-all hover:border-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-400"
+                                                                class="w-full p-inputtext p-component p-inputtext-fluid p-datepicker-input"
                                                                 :placeholder="column.label"
                                                                 :ref="column.index"
                                                                 @change="addFilter($event, column)"
                                                             />
-                                                        </x-admin::flat-picker.date>
+                                                        </x-admin::flat-picker.date> 
 
                                                         <div class="mb-4 flex flex-wrap gap-2">
                                                             <p
@@ -344,12 +344,12 @@
                                             </div>
 
                                             <!-- Date Time -->
-                                            <div v-else-if="column.type === 'datetime'">
+                                            <div v-else-if="column.type === 'datetime'" class="-mt-4">
                                                 <!-- Range -->
                                                 <template v-if="column.filterable_type === 'datetime_range'">
                                                     <div class="flex items-center justify-between">
                                                         <p
-                                                            class="text-xs font-medium text-gray-800 dark:text-white"
+                                                            class="text-base font-semibold text-[var(--text-base)]"
                                                             v-text="column.label"
                                                         >
                                                         </p>
@@ -434,11 +434,11 @@
                                                 <!-- Basic -->
                                                 <template v-else>
                                                     <div class="flex items-center justify-between">
-                                                        <p
+                                                        <!-- <p
                                                             class="text-xs font-medium text-gray-800 dark:text-white"
                                                             v-text="column.label"
                                                         >
-                                                        </p>
+                                                        </p> -->
 
                                                         <div
                                                             class="flex items-center gap-x-1.5"
@@ -459,7 +459,7 @@
                                                                 type="datetime-local"
                                                                 :name="column.index"
                                                                 value=""
-                                                                class="flex min-h-[39px] w-full rounded-md border px-3 py-2 text-sm text-gray-600 transition-all hover:border-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-400"
+                                                                class="w-full p-inputtext p-component p-inputtext-fluid p-datepicker-input"
                                                                 :placeholder="column.label"
                                                                 :ref="column.index"
                                                                 @change="addFilter($event, column)"

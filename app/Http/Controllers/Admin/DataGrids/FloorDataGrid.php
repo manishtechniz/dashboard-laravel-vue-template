@@ -67,21 +67,23 @@ class FloorDataGrid extends DataGrid
     public function prepareActions()
     {
         $this->addAction([
+            'type' => 'custom',
             'icon' => 'icon-edit',
             'title' => 'Edit Floor',
-            'method' => 'GET',
+            'method' => 'edit',
             'url' => function ($row) {
-                return route('admin.floors.edit', $row->id);
-            },
+                return '';
+            }
         ]);
 
         $this->addAction([
+            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Floor',
-            'method' => 'DELETE',
+            'method' => 'delete',
             'url' => function ($row) {
-                return route('admin.floors.delete', $row->id);
-            },
+                return '';
+            }
         ]);
     }
 }

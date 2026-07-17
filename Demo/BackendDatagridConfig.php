@@ -26,6 +26,15 @@ class DemoDatagrid extends DataGrid
                 'users.phone',
                 'users.user_type'
             ); 
+
+
+        /**
+         * NOTE: Very Important.
+         * ---------------------------------------------------------------------
+         * Add advance filter for determine coloumns when we use joins
+         * 
+         * REFFERENE: Demo\ProductDataGridCompleteExample.php
+         */
              
         return $queryBuilder;
     }
@@ -112,6 +121,16 @@ class DemoDatagrid extends DataGrid
             'type' => 'date',
             'filterable' => true,
             'filterable_type' => 'date_range',
+            'sortable' => true,
+        ]);
+
+        // Add date time range filter if column is date related
+        $this->addColumn([
+            'index' => 'datetime',
+            'label' => 'datetime',
+            'type' => 'datetime',
+            'filterable' => true,
+            'filterable_type' => 'datetime_range',
             'sortable' => true,
         ]);
  

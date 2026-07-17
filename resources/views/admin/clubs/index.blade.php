@@ -5,12 +5,12 @@
             <div class="page-breadcrumb">Home / Clubs & Branches</div>
         </div>
         <div class="flex gap-2">
-            <Button label="Create Club" icon="pi pi-plus" size="small" outlined @click="emitter.emit('open-club-modal')" />
-            <Button label="Create Branch" icon="pi pi-plus" size="small" @click="emitter.emit('open-branch-modal')" />
+            <Button label="Create Club" icon="pi pi-plus" size="small" outlined @click="$refs.clubsBranches.clubVisible = true" />
+            <Button label="Create Branch" icon="pi pi-plus" size="small" @click="$refs.clubsBranches.branchVisible = true" />
         </div>
     </div>
 
-    <v-clubs-branches :clubs-list='@json($clubs)'></v-clubs-branches>
+    <v-clubs-branches ref="clubsBranches" :clubs-list='@json($clubs)'></v-clubs-branches>
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-clubs-branches-template">
@@ -45,7 +45,6 @@
                                     rules="required"
                                     placeholder="Enter club name"
                                 />
-                                <x-admin::form.control-group.error name="name" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -116,7 +115,6 @@
                                     rules="required"
                                     placeholder="Enter branch name"
                                 />
-                                <x-admin::form.control-group.error name="name" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -184,6 +182,22 @@
                         emitter: null
                     };
                 },
+                watch: {
+                    clubVisible(val) {
+                        if (val && !this.clubEditMode) {
+                            this.club = { id: null, name: '', description: '', address: '', city: '', is_active: true };
+                        } else if (!val) {
+                            this.clubEditMode = false;
+                        }
+                    },
+                    branchVisible(val) {
+                        if (val && !this.branchEditMode) {
+                            this.branch = { id: null, club_id: null, name: '', description: '', address: '', phone: '', is_active: true };
+                        } else if (!val) {
+                            this.branchEditMode = false;
+                        }
+                    }
+                },
                 provide() {
                     return {
                         customActions: {
@@ -193,17 +207,6 @@
                     };
                 },
                 mounted() {
-                    this.emitter = this.$emitter;
-                    this.emitter.on('open-club-modal', () => {
-                        this.clubEditMode = false;
-                        this.club = { id: null, name: '', description: '', address: '', city: '', is_active: true };
-                        this.clubVisible = true;
-                    });
-                    this.emitter.on('open-branch-modal', () => {
-                        this.branchEditMode = false;
-                        this.branch = { id: null, club_id: null, name: '', description: '', address: '', phone: '', is_active: true };
-                        this.branchVisible = true;
-                    });
                 },
                 methods: {
                     onEdit(row) {

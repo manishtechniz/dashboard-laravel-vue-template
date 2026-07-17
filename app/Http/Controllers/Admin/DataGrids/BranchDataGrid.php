@@ -66,21 +66,23 @@ class BranchDataGrid extends DataGrid
     public function prepareActions()
     {
         $this->addAction([
+            'type' => 'custom',
             'icon' => 'icon-edit',
             'title' => 'Edit Branch',
-            'method' => 'GET',
+            'method' => 'edit',
             'url' => function ($row) {
-                return route('admin.branches.edit', $row->id);
-            },
+                return '';
+            }
         ]);
 
         $this->addAction([
+            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Branch',
-            'method' => 'DELETE',
+            'method' => 'delete',
             'url' => function ($row) {
-                return route('admin.branches.delete', $row->id);
-            },
+                return '';
+            }
         ]);
     }
 }

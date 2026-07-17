@@ -92,12 +92,13 @@ class PaymentDataGrid extends DataGrid
     public function prepareActions()
     {
         $this->addAction([
+            'type' => 'custom',
             'icon' => 'icon-edit',
             'title' => 'Edit Payment',
-            'method' => 'GET',
+            'method' => 'edit',
             'url' => function ($row) {
-                return route('admin.payments.edit', $row->id);
-            },
+                return '';
+            }
         ]);
     }
 }

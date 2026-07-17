@@ -4,10 +4,10 @@
             <h1 class="page-title">Promo Codes</h1>
             <div class="page-breadcrumb">Home / Promo Codes</div>
         </div>
-        <Button label="Create Promo Code" icon="pi pi-plus" size="small" @click="emitter.emit('open-promo-modal')" />
+        <Button label="Create Promo Code" icon="pi pi-plus" size="small" @click="$refs.promo.visible = true" />
     </div>
 
-    <v-promo-codes></v-promo-codes>
+    <v-promo-codes ref="promo"></v-promo-codes>
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-promo-codes-template">
@@ -37,7 +37,6 @@
                                     </div>
                                     <Button type="button" label="Generate" icon="pi pi-refresh" severity="secondary" @click="generateCode" />
                                 </div>
-                                <x-admin::form.control-group.error name="code" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -61,7 +60,6 @@
                                     rules="required"
                                     placeholder="e.g. 10.00 or 15"
                                 />
-                                <x-admin::form.control-group.error name="value" />
                             </x-admin::form.control-group>
 
                             <div class="grid grid-cols-2 gap-4">
@@ -137,6 +135,15 @@
                         emitter: null
                     };
                 },
+                watch: {
+                    visible(val) {
+                        if (val && !this.editMode) {
+                            this.promo = { id: null, code: '', type: 'fixed', value: 0.00, start_date: '', end_date: '', usage_limit: null, is_active: true };
+                        } else if (!val) {
+                            this.editMode = false;
+                        }
+                    }
+                },
                 provide() {
                     return {
                         customActions: {
@@ -146,12 +153,6 @@
                     };
                 },
                 mounted() {
-                    this.emitter = this.$emitter;
-                    this.emitter.on('open-promo-modal', () => {
-                        this.editMode = false;
-                        this.promo = { id: null, code: '', type: 'fixed', value: 0.00, start_date: '', end_date: '', usage_limit: null, is_active: true };
-                        this.visible = true;
-                    });
                 },
                 methods: {
                     generateCode() {

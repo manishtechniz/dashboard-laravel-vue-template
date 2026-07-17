@@ -43,7 +43,6 @@
                                     rules="required"
                                     placeholder="Enter notification title"
                                 />
-                                <x-admin::form.control-group.error name="title" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -55,7 +54,6 @@
                                     rules="required"
                                     placeholder="Enter message body"
                                 />
-                                <x-admin::form.control-group.error name="body" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>

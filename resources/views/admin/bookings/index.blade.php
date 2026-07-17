@@ -4,10 +4,10 @@
             <h1 class="page-title">Booking Management</h1>
             <div class="page-breadcrumb">Home / Bookings</div>
         </div>
-        <Button label="Create Booking" icon="pi pi-plus" size="small" @click="emitter.emit('open-booking-modal')" />
+        <Button label="Create Booking" icon="pi pi-plus" size="small" @click="$refs.booking.visible = true" />
     </div>
 
-    <v-bookings :clients='@json($clients)' :tables='@json($tables)' :events='@json($events)'></v-bookings>
+    <v-bookings ref="booking" :clients='@json($clients)' :tables='@json($tables)' :events='@json($events)'></v-bookings>
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-bookings-template">
@@ -68,7 +68,6 @@
                                     rules="required"
                                     placeholder="Select date"
                                 />
-                                <x-admin::form.control-group.error name="booking_date" />
                             </x-admin::form.control-group>
 
                             <div class="grid grid-cols-2 gap-4">
@@ -81,7 +80,6 @@
                                         rules="required"
                                         placeholder="e.g. 20:00"
                                     />
-                                    <x-admin::form.control-group.error name="start_time" />
                                 </x-admin::form.control-group>
 
                                 <x-admin::form.control-group>
@@ -93,7 +91,6 @@
                                         rules="required"
                                         placeholder="e.g. 02:00"
                                     />
-                                    <x-admin::form.control-group.error name="end_time" />
                                 </x-admin::form.control-group>
                             </div>
 
@@ -106,7 +103,6 @@
                                     rules="required"
                                     placeholder="e.g. 4"
                                 />
-                                <x-admin::form.control-group.error name="guest_count" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -172,6 +168,15 @@
                         emitter: null
                     };
                 },
+                watch: {
+                    visible(val) {
+                        if (val && !this.editMode) {
+                            this.booking = { id: null, client_id: null, table_id: null, event_id: null, booking_date: '', start_time: '', end_time: '', guest_count: 2, status: 'pending', special_requests: '' };
+                        } else if (!val) {
+                            this.editMode = false;
+                        }
+                    }
+                },
                 provide() {
                     return {
                         customActions: {
@@ -181,12 +186,6 @@
                     };
                 },
                 mounted() {
-                    this.emitter = this.$emitter;
-                    this.emitter.on('open-booking-modal', () => {
-                        this.editMode = false;
-                        this.booking = { id: null, client_id: null, table_id: null, event_id: null, booking_date: '', start_time: '', end_time: '', guest_count: 2, status: 'pending', special_requests: '' };
-                        this.visible = true;
-                    });
                 },
                 methods: {
                     onEdit(row) {

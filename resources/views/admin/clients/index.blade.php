@@ -31,7 +31,6 @@
                                     rules="required"
                                     placeholder="Enter client name"
                                 />
-                                <x-admin::form.control-group.error name="name" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -43,7 +42,6 @@
                                     rules="email"
                                     placeholder="Enter email address"
                                 />
-                                <x-admin::form.control-group.error name="email" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -54,7 +52,6 @@
                                     v-model="client.phone"
                                     placeholder="Enter phone number"
                                 />
-                                <x-admin::form.control-group.error name="phone" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -65,7 +62,6 @@
                                     v-model="client.password"
                                     placeholder="Enter password (optional)"
                                 />
-                                <x-admin::form.control-group.error name="password" />
                             </x-admin::form.control-group>
 
                             <div class="flex items-center gap-2 pt-2">
@@ -99,9 +95,17 @@
                             phone: '',
                             password: '',
                             is_active: true
-                        },
-                        emitter: null
+                        }
                     };
+                },
+                watch: {
+                    visible(val) {
+                        if (val && !this.editMode) {
+                            this.client = { id: null, name: '', email: '', phone: '', password: '', is_active: true };
+                        } else if (!val) {
+                            this.editMode = false;
+                        }
+                    }
                 },
                 provide() {
                     return {
@@ -112,12 +116,6 @@
                     };
                 },
                 mounted() {
-                    this.emitter = this.$emitter;
-                    this.emitter.on('open-client-modal', () => {
-                        this.editMode = false;
-                        this.client = { id: null, name: '', email: '', phone: '', password: '', is_active: true };
-                        this.visible = true;
-                    });
                 },
                 methods: {
                     onEdit(row) {

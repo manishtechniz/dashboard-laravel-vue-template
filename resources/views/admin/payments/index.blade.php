@@ -4,10 +4,10 @@
             <h1 class="page-title">Payments & Transactions</h1>
             <div class="page-breadcrumb">Home / Payments</div>
         </div>
-        <Button label="Record Payment" icon="pi pi-plus" size="small" @click="emitter.emit('open-payment-modal')" />
+        <Button label="Record Payment" icon="pi pi-plus" size="small" @click="$refs.payment.visible = true" />
     </div>
 
-    <v-payments :bookings='@json($bookings)'></v-payments>
+    <v-payments ref="payment" :bookings='@json($bookings)'></v-payments>
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-payments-template">
@@ -44,7 +44,6 @@
                                     rules="required"
                                     placeholder="e.g. 50.00"
                                 />
-                                <x-admin::form.control-group.error name="amount" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -56,7 +55,6 @@
                                     rules="required"
                                     placeholder="e.g. Card, Cash, Stripe"
                                 />
-                                <x-admin::form.control-group.error name="payment_method" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -118,6 +116,15 @@
                         emitter: null
                     };
                 },
+                watch: {
+                    visible(val) {
+                        if (val && !this.editMode) {
+                            this.payment = { id: null, booking_id: null, amount: 0.00, payment_method: '', status: 'pending', transaction_reference: '' };
+                        } else if (!val) {
+                            this.editMode = false;
+                        }
+                    }
+                },
                 provide() {
                     return {
                         customActions: {
@@ -126,12 +133,6 @@
                     };
                 },
                 mounted() {
-                    this.emitter = this.$emitter;
-                    this.emitter.on('open-payment-modal', () => {
-                        this.editMode = false;
-                        this.payment = { id: null, booking_id: null, amount: 0.00, payment_method: '', status: 'pending', transaction_reference: '' };
-                        this.visible = true;
-                    });
                 },
                 methods: {
                     onEdit(row) {

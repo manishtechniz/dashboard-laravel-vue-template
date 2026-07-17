@@ -4,10 +4,10 @@
             <h1 class="page-title">Floor Management</h1>
             <div class="page-breadcrumb">Home / Floors</div>
         </div>
-        <Button label="Create Floor" icon="pi pi-plus" size="small" @click="emitter.emit('open-floor-modal')" />
+        <Button label="Create Floor" icon="pi pi-plus" size="small" @click="$refs.floor.visible = true" />
     </div>
 
-    <v-floors :branches='@json($branches)'></v-floors>
+    <v-floors ref="floor" :branches='@json($branches)'></v-floors>
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-floors-template">
@@ -44,7 +44,6 @@
                                     rules="required"
                                     placeholder="e.g. Ground Floor, Rooftop"
                                 />
-                                <x-admin::form.control-group.error name="name" />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
@@ -56,7 +55,6 @@
                                     rules="required"
                                     placeholder="e.g. 0, 1, 2"
                                 />
-                                <x-admin::form.control-group.error name="level" />
                             </x-admin::form.control-group>
 
                             <div class="flex items-center gap-2 pt-2">
@@ -94,6 +92,15 @@
                         emitter: null
                     };
                 },
+                watch: {
+                    visible(val) {
+                        if (val && !this.editMode) {
+                            this.floor = { id: null, branch_id: null, name: '', level: 0, is_active: true };
+                        } else if (!val) {
+                            this.editMode = false;
+                        }
+                    }
+                },
                 provide() {
                     return {
                         customActions: {
@@ -103,12 +110,6 @@
                     };
                 },
                 mounted() {
-                    this.emitter = this.$emitter;
-                    this.emitter.on('open-floor-modal', () => {
-                        this.editMode = false;
-                        this.floor = { id: null, branch_id: null, name: '', level: 0, is_active: true };
-                        this.visible = true;
-                    });
                 },
                 methods: {
                     onEdit(row) {
