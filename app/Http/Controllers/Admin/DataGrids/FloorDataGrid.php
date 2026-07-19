@@ -10,9 +10,17 @@ class FloorDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('floors')
+        $queryBuilder = DB::table('floors')
             ->join('branches', 'floors.branch_id', '=', 'branches.id')
             ->select('floors.id', 'floors.name as floor_name', 'branches.name as branch_name', 'floors.level', 'floors.is_active');
+
+        $this->addFilter('id', 'floors.id');
+        $this->addFilter('floor_name', 'floors.name');
+        $this->addFilter('branch_name', 'branches.name');
+        $this->addFilter('level', 'floors.level');
+        $this->addFilter('is_active', 'floors.is_active');
+
+        return $queryBuilder;
     }
 
     public function prepareColumns()
@@ -77,12 +85,11 @@ class FloorDataGrid extends DataGrid
         ]);
 
         $this->addAction([
-            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Floor',
-            'method' => 'delete',
+            'method' => 'DELETE',
             'url' => function ($row) {
-                return '';
+                return route('admin.floors.delete', $row->id);
             }
         ]);
     }

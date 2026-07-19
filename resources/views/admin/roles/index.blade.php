@@ -76,7 +76,7 @@
     </div>
 
     {{-- Create Role Dialog --}}
-    <Dialog v-model:visible="showRoleDialog" header="Create New Role" :style="{ width: '480px' }" modal>
+    <Dialog v-model:visible="showRoleDialog" header="Create New Role" :style="{ width: '580px', maxWidth: '95vw' }" modal>
         <div style="display:flex; flex-direction:column; gap:16px; padding-top:8px;">
             <div>
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Role Name</label>

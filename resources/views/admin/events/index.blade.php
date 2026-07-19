@@ -20,7 +20,7 @@
                 />
 
                 <!-- Create/Edit Event Modal -->
-                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Event' : 'Create Event'" :style="{ width: '450px' }" modal>
+                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Event' : 'Create Event'" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
                         <form @submit="handleSubmit($event, saveEvent)" class="space-y-4 pt-3">
                             <x-admin::form.control-group>
@@ -144,8 +144,7 @@
                 provide() {
                     return {
                         customActions: {
-                            edit: this.onEdit,
-                            delete: this.onDelete
+                            edit: this.onEdit
                         }
                     };
                 },
@@ -167,15 +166,7 @@
                         };
                         this.visible = true;
                     },
-                    onDelete(row) {
-                        if (confirm('Are you sure you want to delete this event?')) {
-                            this.$axios.delete(`{{ route('admin.events.index') }}/${row.id}`)
-                                .then(response => {
-                                    this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                    window.location.reload();
-                                });
-                        }
-                    },
+
                     saveEvent(params) {
                         this.loading = true;
                         const url = this.editMode 
@@ -192,7 +183,7 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
                                 this.visible = false;
                                 this.loading = false;
-                                setTimeout(() => window.location.reload(), 1000);
+                                this.$refs.eventsGrid.get();
                             })
                             .catch(error => {
                                 this.loading = false;

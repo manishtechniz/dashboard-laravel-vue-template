@@ -19,7 +19,7 @@
                 />
 
                 <!-- Create/Edit Client Modal -->
-                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Client' : 'Create Client'" :style="{ width: '450px' }" modal>
+                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Client' : 'Create Client'" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
                         <form @submit="handleSubmit($event, saveClient)" class="space-y-4 pt-3">
                             <x-admin::form.control-group>
@@ -110,8 +110,7 @@
                 provide() {
                     return {
                         customActions: {
-                            edit: this.onEdit,
-                            delete: this.onDelete
+                            edit: this.onEdit
                         }
                     };
                 },
@@ -130,16 +129,7 @@
                         };
                         this.visible = true;
                     },
-                    onDelete(row) {
-                        if (confirm('Are you sure you want to delete this client?')) {
-                            this.$axios.delete(`{{ route('admin.clients.index') }}/${row.id}`)
-                                .then(response => {
-                                    this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                    // Refresh Datatable
-                                    window.location.reload();
-                                });
-                        }
-                    },
+
                     saveClient(params) {
                         this.loading = true;
                         const url = this.editMode 
@@ -156,7 +146,7 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
                                 this.visible = false;
                                 this.loading = false;
-                                setTimeout(() => window.location.reload(), 1000);
+                                this.$refs.clientsGrid.get();
                             })
                             .catch(error => {
                                 this.loading = false;

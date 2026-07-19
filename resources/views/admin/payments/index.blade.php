@@ -20,7 +20,7 @@
                 />
 
                 <!-- Record Payment Modal -->
-                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Payment Status' : 'Record Payment'" :style="{ width: '450px' }" modal>
+                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Payment Status' : 'Record Payment'" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
                         <form @submit="handleSubmit($event, savePayment)" class="space-y-4 pt-3">
                             <x-admin::form.control-group v-if="!editMode">
@@ -166,7 +166,7 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
                                 this.visible = false;
                                 this.loading = false;
-                                setTimeout(() => window.location.reload(), 1000);
+                                this.$refs.paymentsGrid.get();
                             })
                             .catch(error => {
                                 this.loading = false;

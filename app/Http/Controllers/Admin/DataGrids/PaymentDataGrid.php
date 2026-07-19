@@ -10,10 +10,19 @@ class PaymentDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('payments')
+        $queryBuilder = DB::table('payments')
             ->join('bookings', 'payments.booking_id', '=', 'bookings.id')
             ->join('clients', 'bookings.client_id', '=', 'clients.id')
             ->select('payments.id', 'clients.name as client_name', 'payments.amount', 'payments.payment_method', 'payments.status', 'payments.created_at');
+
+        $this->addFilter('id', 'payments.id');
+        $this->addFilter('client_name', 'clients.name');
+        $this->addFilter('amount', 'payments.amount');
+        $this->addFilter('payment_method', 'payments.payment_method');
+        $this->addFilter('status', 'payments.status');
+        $this->addFilter('created_at', 'payments.created_at');
+
+        return $queryBuilder;
     }
 
     public function prepareColumns()

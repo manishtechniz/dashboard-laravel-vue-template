@@ -10,10 +10,18 @@ class ReviewDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('reviews')
+        $queryBuilder = DB::table('reviews')
             ->join('clients', 'reviews.client_id', '=', 'clients.id')
             ->join('clubs', 'reviews.club_id', '=', 'clubs.id')
             ->select('reviews.id', 'clients.name as client_name', 'clubs.name as club_name', 'reviews.rating', 'reviews.comment', 'reviews.created_at');
+
+        $this->addFilter('id', 'reviews.id');
+        $this->addFilter('client_name', 'clients.name');
+        $this->addFilter('club_name', 'clubs.name');
+        $this->addFilter('rating', 'reviews.rating');
+        $this->addFilter('comment', 'reviews.comment');
+
+        return $queryBuilder;
     }
 
     public function prepareColumns()

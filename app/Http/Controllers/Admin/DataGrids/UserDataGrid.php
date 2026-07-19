@@ -3,43 +3,25 @@
 namespace App\Http\Controllers\Admin\DataGrids;
 
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB; 
-use Imperial\DataGrid\DataGrid; 
+use Illuminate\Support\Facades\DB;
+use Imperial\DataGrid\DataGrid;
 
 class UserDataGrid extends DataGrid
 {
-    /**
-     * Prepare query builder.
-     *
-     * @return Builder
-     */
     public function prepareQueryBuilder()
-    { 
-        $queryBuilder = DB::table('users')
-            ->addSelect(
-                'users.id',
-                'users.name', 
-                'users.email',
-                'users.phone',
-                'users.user_type'
-            ); 
-             
-        return $queryBuilder;
+    {
+        return DB::table('users')
+            ->select('id', 'name', 'email', 'phone', 'is_active', 'created_at');
     }
 
-    /**
-     * Add columns.
-     *
-     * @return void
-     */
     public function prepareColumns()
-    { 
-
+    {
         $this->addColumn([
             'index' => 'id',
             'label' => 'ID',
             'type' => 'integer',
             'filterable' => true,
+            'sortable' => true,
         ]);
 
         $this->addColumn([
@@ -70,59 +52,37 @@ class UserDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'user_type',
-            'label' => 'User Type',
-            'type' => 'string',
-            'searchable' => true,
+            'index' => 'is_active',
+            'label' => 'Status',
+            'type' => 'boolean',
             'filterable' => true,
-            'sortable' => true,
+            'closure' => function ($row) {
+                return $row->is_active
+                    ? '<span class="label-active">Active</span>'
+                    : '<span class="label-inactive">Inactive</span>';
+            },
         ]);
     }
 
-    /**
-     * Prepare actions.
-     *
-     * @return void
-     */
     public function prepareActions()
     {
         $this->addAction([
+            'type' => 'custom',
             'icon' => 'icon-edit',
-            'title' => 'Edit',
-            'method' => 'GET',
+            'title' => 'Edit Client',
+            'method' => 'edit',
             'url' => function ($row) {
                 return '';
-            },
+            }
         ]);
 
         $this->addAction([
             'icon' => 'icon-delete',
-            'title' => 'Delete',
-            'method' => 'GET',
-            'target' => 'blank',
+            'title' => 'Delete Client',
+            'method' => 'DELETE',
             'url' => function ($row) {
-                return '';
-            },
+                return route('admin.users.delete', $row->id);
+            }
         ]);
-
-        $this->addAction([
-            'type' => 'custom',  
-            'icon' => 'icon-view', 
-            // 'title' => '', 
-            'method' => 'test',
-            'url' => function ($row) {
-                return '';
-            } 
-        ]);
-    }
-
-    /**
-     * Prepare mass actions.
-     *
-     * @return void
-     */
-    public function prepareMassActions()
-    {
-        
     }
 }

@@ -142,7 +142,7 @@
     </div>
 
     {{-- Tenant Dialog --}}
-    <Dialog v-model:visible="showTenantDialog" header="Add New Tenant" :style="{ width:'460px' }" modal>
+    <Dialog v-model:visible="showTenantDialog" header="Add New Tenant" :style="{ width: '580px', maxWidth: '95vw' }" modal>
         <div style="display:flex; flex-direction:column; gap:14px; padding-top:8px;">
             <div>
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Tenant Name</label>

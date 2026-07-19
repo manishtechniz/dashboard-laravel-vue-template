@@ -376,7 +376,7 @@
     </div>{{-- /tp-layout --}}
 
     {{-- Export CSS Dialog --}}
-    <Dialog v-model:visible="showExportDialog" header="Export CSS Variables" :style="{ width: '580px' }" modal>
+    <Dialog v-model:visible="showExportDialog" header="Export CSS Variables" :style="{ width: '580px', maxWidth: '95vw' }" modal>
         <div style="padding-top:10px;">
             <div style="display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;">
                 <Button v-for="k in ['light','dark','ocean','rose']" :key="k"

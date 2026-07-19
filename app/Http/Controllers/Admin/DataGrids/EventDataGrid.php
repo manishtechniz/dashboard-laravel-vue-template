@@ -10,9 +10,19 @@ class EventDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('events')
+        $queryBuilder = DB::table('events')
             ->join('clubs', 'events.club_id', '=', 'clubs.id')
             ->select('events.id', 'events.name as event_name', 'clubs.name as club_name', 'events.start_time', 'events.end_time', 'events.cover_charge', 'events.capacity');
+
+        $this->addFilter('id', 'events.id');
+        $this->addFilter('event_name', 'events.name');
+        $this->addFilter('club_name', 'clubs.name');
+        $this->addFilter('start_time', 'events.start_time');
+        $this->addFilter('end_time', 'events.end_time');
+        $this->addFilter('cover_charge', 'events.cover_charge');
+        $this->addFilter('capacity', 'events.capacity');
+
+        return $queryBuilder;
     }
 
     public function prepareColumns()
@@ -97,12 +107,11 @@ class EventDataGrid extends DataGrid
         ]);
 
         $this->addAction([
-            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Event',
-            'method' => 'delete',
+            'method' => 'DELETE',
             'url' => function ($row) {
-                return '';
+                return route('admin.events.delete', $row->id);
             }
         ]);
     }

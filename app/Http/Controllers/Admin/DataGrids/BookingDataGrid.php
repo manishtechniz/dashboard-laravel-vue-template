@@ -10,7 +10,7 @@ class BookingDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('bookings')
+        $queryBuilder = DB::table('bookings')
             ->join('clients', 'bookings.client_id', '=', 'clients.id')
             ->leftJoin('tables', 'bookings.table_id', '=', 'tables.id')
             ->leftJoin('events', 'bookings.event_id', '=', 'events.id')
@@ -24,6 +24,16 @@ class BookingDataGrid extends DataGrid
                 'bookings.guest_count',
                 'bookings.status'
             );
+
+        $this->addFilter('id', 'bookings.id');
+        $this->addFilter('client_name', 'clients.name');
+        $this->addFilter('table_name', 'tables.name');
+        $this->addFilter('event_name', 'events.name');
+        $this->addFilter('booking_date', 'bookings.booking_date');
+        $this->addFilter('guest_count', 'bookings.guest_count');
+        $this->addFilter('status', 'bookings.status');
+
+        return $queryBuilder;
     }
 
     public function prepareColumns()
@@ -120,12 +130,11 @@ class BookingDataGrid extends DataGrid
         ]);
 
         $this->addAction([
-            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Booking',
-            'method' => 'delete',
+            'method' => 'DELETE',
             'url' => function ($row) {
-                return '';
+                return route('admin.bookings.delete', $row->id);
             }
         ]);
     }

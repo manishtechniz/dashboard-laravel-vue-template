@@ -174,7 +174,7 @@
             </div>
 
             {{-- <!-- Add Dynamic Column Dialog -->
-            <Dialog v-model:visible="showAddFieldDialog" header="Add Dynamic Column" :style="{ width: '420px' }" modal>
+            <Dialog v-model:visible="showAddFieldDialog" header="Add Dynamic Column" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                 <div class="space-y-4 pt-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Column Label (Display Name)</label>

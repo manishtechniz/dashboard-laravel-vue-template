@@ -10,9 +10,17 @@ class BranchDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('branches')
+        $queryBuilder = DB::table('branches')
             ->join('clubs', 'branches.club_id', '=', 'clubs.id')
             ->select('branches.id', 'branches.name as branch_name', 'clubs.name as club_name', 'branches.address', 'branches.phone', 'branches.is_active');
+
+        $this->addFilter('id', 'branches.id');
+        $this->addFilter('branch_name', 'branches.name');
+        $this->addFilter('club_name', 'clubs.name');
+        $this->addFilter('phone', 'branches.phone');
+        $this->addFilter('is_active', 'branches.is_active');
+
+        return $queryBuilder;
     }
 
     public function prepareColumns()
@@ -76,12 +84,11 @@ class BranchDataGrid extends DataGrid
         ]);
 
         $this->addAction([
-            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Branch',
-            'method' => 'delete',
+            'method' => 'DELETE',
             'url' => function ($row) {
-                return '';
+                return route('admin.clubs.delete_branch', $row->id);
             }
         ]);
     }

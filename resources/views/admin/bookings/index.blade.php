@@ -20,9 +20,9 @@
                 />
 
                 <!-- Create/Edit Booking Modal -->
-                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Booking' : 'Create Booking'" :style="{ width: '480px' }" modal>
+                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Booking' : 'Create Booking'" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
-                        <form @submit="handleSubmit($event, saveBooking)" class="space-y-4 pt-3 max-h-[500px] overflow-y-auto pr-1">
+                        <form @submit="handleSubmit($event, saveBooking)" class="space-y-4 pt-3">
                             <x-admin::form.control-group>
                                 <x-admin::form.control-group.label label="Client" />
                                 <Select
@@ -180,8 +180,7 @@
                 provide() {
                     return {
                         customActions: {
-                            edit: this.onEdit,
-                            delete: this.onDelete
+                            edit: this.onEdit
                         }
                     };
                 },
@@ -210,15 +209,7 @@
                         };
                         this.visible = true;
                     },
-                    onDelete(row) {
-                        if (confirm('Are you sure you want to delete this booking?')) {
-                            this.$axios.delete(`{{ route('admin.bookings.index') }}/${row.id}`)
-                                .then(response => {
-                                    this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                    window.location.reload();
-                                });
-                        }
-                    },
+
                     saveBooking(params) {
                         this.loading = true;
                         const url = this.editMode 
@@ -238,7 +229,7 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
                                 this.visible = false;
                                 this.loading = false;
-                                setTimeout(() => window.location.reload(), 1000);
+                                this.$refs.bookingsGrid.get();
                             })
                             .catch(error => {
                                 this.loading = false;

@@ -86,12 +86,11 @@ class PromoCodeDataGrid extends DataGrid
         ]);
 
         $this->addAction([
-            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Promo Code',
-            'method' => 'delete',
+            'method' => 'DELETE',
             'url' => function ($row) {
-                return '';
+                return route('admin.promo_codes.delete', $row->id);
             }
         ]);
     }

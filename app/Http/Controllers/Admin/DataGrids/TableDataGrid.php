@@ -10,9 +10,17 @@ class TableDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('tables')
+        $queryBuilder = DB::table('tables')
             ->join('floors', 'tables.floor_id', '=', 'floors.id')
             ->select('tables.id', 'tables.name as table_name', 'floors.name as floor_name', 'tables.capacity', 'tables.status');
+
+        $this->addFilter('id', 'tables.id');
+        $this->addFilter('table_name', 'tables.name');
+        $this->addFilter('floor_name', 'floors.name');
+        $this->addFilter('capacity', 'tables.capacity');
+        $this->addFilter('status', 'tables.status');
+
+        return $queryBuilder;
     }
 
     public function prepareColumns()
@@ -93,12 +101,11 @@ class TableDataGrid extends DataGrid
         ]);
 
         $this->addAction([
-            'type' => 'custom',
             'icon' => 'icon-delete',
             'title' => 'Delete Table',
-            'method' => 'delete',
+            'method' => 'DELETE',
             'url' => function ($row) {
-                return '';
+                return route('admin.tables.delete', $row->id);
             }
         ]);
     }

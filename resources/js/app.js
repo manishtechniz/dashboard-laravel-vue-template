@@ -28,10 +28,10 @@ window.adminVueApp = createApp({
             dynamicFields: {},
             dynamicValidations: {}
         };
-    }, 
+    },
 
     methods: {
-        onSubmit() {},
+        onSubmit() { },
 
         onInvalidSubmit({ values, errors, results }) {
             setTimeout(() => {
@@ -49,14 +49,14 @@ window.adminVueApp = createApp({
 
                     // If not found and the key doesn't end with [], try with the [] suffix (for array fields like categories[], channels[]).
                     if (
-                        ! firstErrorElement
-                        && ! errorKey.endsWith('[]')
+                        !firstErrorElement
+                        && !errorKey.endsWith('[]')
                     ) {
                         firstErrorElement = document.querySelector('[name="' + errorKey + '[]"]');
                     }
 
                     // If still not found, try to find any element that starts with this name (for nested fields).
-                    if (! firstErrorElement) {
+                    if (!firstErrorElement) {
                         firstErrorElement = document.querySelector('[name^="' + errorKey + '"]');
                     }
 
@@ -150,8 +150,11 @@ import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Select from "primevue/select";
 import Password from 'primevue/password';
-import TabView from 'primevue/tabs';
+import TabView from 'primevue/tab';
+import TabViews from 'primevue/tabs';
 import TabPanel from "primevue/tabpanel";
+import TabPanels from 'primevue/tabpanels';
+import TabList from 'primevue/tablist';
 import ToggleSwitch from "primevue/toggleswitch";
 import Timeline from "primevue/timeline";
 import FloatLabel from 'primevue/floatlabel';
@@ -166,7 +169,7 @@ import Slider from 'primevue/slider';
 import RadioButton from 'primevue/radiobutton';
 import RadioButtonGroup from 'primevue/radiobuttongroup';
 import Toast from 'primevue/toast';
-import {Form} from '@primevue/forms';
+import { Form } from '@primevue/forms';
 import Paginator from 'primevue/paginator';
 
 /**
@@ -192,7 +195,12 @@ import Skeleton from 'boneyard-js/vue'
     ["Select", Select],
     ["Password", Password],
     ["TabView", TabView],
+    ["TabViews", TabViews],
     ["TabPanel", TabPanel],
+    ["TabPanels", TabPanels],
+    ["TabList", TabList],
+    ["Tab", TabView],
+    ["Tabs", TabViews],
     ["ToggleSwitch", ToggleSwitch],
     ["Timeline", Timeline],
     ["FloatLabel", FloatLabel],

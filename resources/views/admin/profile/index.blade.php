@@ -83,154 +83,150 @@
 
                 {{-- Right: Form Tabs --}}
                 <div class="card" style="padding:0; overflow:hidden;">
-                    <TabView>
                         <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
                             <form @submit="handleSubmit($event, update)" ref="updateProfileForm" >
                                 {{-- Personal Info Tab --}}
-                                <TabPanel header="Personal Info">
+                                 <div style="padding:24px; display:flex; flex-direction:column; gap:18px;">
+                                        {{-- <input type="file" class="hidden" name="avatar" id="avatar"/> --}}
+
+                                        {{-- <x-admin::form.control-group.control
+                                            type="file"
+                                            id="avatar"
+                                            name="avatar" 
+                                            class="hidden" 
+                                            accept="image/*"
+                                            @change="handleImagePreview"
+                                        />  --}}
+
+                                        <input 
+                                            type="file"
+                                            id="avatar"
+                                            name="avatar" 
+                                            class="hidden" 
+                                            accept="image/*"
+                                            @change="handleImagePreview"
+                                        />    
+
+                                        <x-admin::form.control-group>
+                                            <x-admin::form.control-group.control
+                                                type="text"
+                                                id="name"
+                                                name="name"
+                                                rules="required"
+                                                label="Name"
+                                                :placeholder="'Enter your name'" 
+                                                value="{{$admin->name ?? ''}}"
+                                                v-model="form.name" 
+                                            />
+                                        </x-admin::form.control-group> 
+
+                                    <x-admin::form.control-group>
+                                        <x-admin::form.control-group.control
+                                            type="email"
+                                            id="email"
+                                            name="email"
+                                            rules="required|email"
+                                            label="Email Address"
+                                            :placeholder="'Enter your email'" 
+                                            value="{{$admin->email ?? ''}}"
+                                            v-model="form.email" 
+                                        />
+                                    </x-admin::form.control-group>
+
+                                    <x-admin::form.control-group>
+                                        <x-admin::form.control-group.control
+                                            type="text"
+                                            id="phone"
+                                            name="phone"
+                                            label="Phone"
+                                            :placeholder="'+91 00000 00000'" 
+                                            value="{{$admin->phone ?? ''}}"
+                                            v-model="form.phone" 
+                                        />
+                                    </x-admin::form.control-group>
                                     
-                                            <div style="padding:24px; display:flex; flex-direction:column; gap:18px;">
-                                                    {{-- <input type="file" class="hidden" name="avatar" id="avatar"/> --}}
+                                    @php
+                                        $roles = [
+                                            ['code' => 1, 'name' => 'All'], 
+                                        ];
+                                    @endphp
 
-                                                    {{-- <x-admin::form.control-group.control
-                                                        type="file"
-                                                        id="avatar"
-                                                        name="avatar" 
-                                                        class="hidden" 
-                                                        accept="image/*"
-                                                        @change="handleImagePreview"
-                                                    />  --}}
-
-                                                    <input 
-                                                        type="file"
-                                                        id="avatar"
-                                                        name="avatar" 
-                                                        class="hidden" 
-                                                        accept="image/*"
-                                                        @change="handleImagePreview"
-                                                    />    
-
-                                                    <x-admin::form.control-group>
-                                                        <x-admin::form.control-group.control
-                                                            type="text"
-                                                            id="name"
-                                                            name="name"
-                                                            rules="required"
-                                                            label="Name"
-                                                            :placeholder="'Enter your name'" 
-                                                            value="{{$admin->name ?? ''}}"
-                                                            v-model="form.name" 
-                                                        />
-                                                    </x-admin::form.control-group> 
-
-                                                <x-admin::form.control-group>
-                                                    <x-admin::form.control-group.control
-                                                        type="email"
-                                                        id="email"
-                                                        name="email"
-                                                        rules="required|email"
-                                                        label="Email Address"
-                                                        :placeholder="'Enter your email'" 
-                                                        value="{{$admin->email ?? ''}}"
-                                                        v-model="form.email" 
-                                                    />
-                                                </x-admin::form.control-group>
-
-                                                <x-admin::form.control-group>
-                                                    <x-admin::form.control-group.control
-                                                        type="text"
-                                                        id="phone"
-                                                        name="phone"
-                                                        label="Phone"
-                                                        :placeholder="'+91 00000 00000'" 
-                                                        value="{{$admin->phone ?? ''}}"
-                                                        v-model="form.phone" 
-                                                    />
-                                                </x-admin::form.control-group>
-                                                
-                                                @php
-                                                    $roles = [
-                                                        ['code' => 1, 'name' => 'All'], 
-                                                    ];
-                                                @endphp
-
-                                                <x-admin::form.control-group>
-                                                    <x-admin::form.control-group.control
-                                                        type="select"
-                                                        ::options="{{json_encode($roles)}}"
-                                                        optionLabel="name"
-                                                        rules="required"
-                                                        optionValue="code"
-                                                        name="role_id"
-                                                        placeholder="Select"
-                                                        label="Role" 
-                                                        ::value="{{ $admin->role_id ?? '' }}"
-                                                    />
-                                                </x-admin::form.control-group>  
+                                    <x-admin::form.control-group>
+                                        <x-admin::form.control-group.control
+                                            type="select"
+                                            ::options="{{json_encode($roles)}}"
+                                            optionLabel="name"
+                                            rules="required"
+                                            optionValue="code"
+                                            name="role_id"
+                                            placeholder="Select"
+                                            label="Role" 
+                                            ::value="{{ $admin->role_id ?? '' }}"
+                                        />
+                                    </x-admin::form.control-group>  
 
 
-                                                <x-admin::form.control-group>
-                                                    <x-admin::form.control-group.control
-                                                        type="password"
-                                                        id="current_password"
-                                                        name="current_password"
-                                                        label="Current Password"
-                                                        v-model="form.current_password" 
-                                                    />
-                                                </x-admin::form.control-group>
+                                    <x-admin::form.control-group>
+                                        <x-admin::form.control-group.control
+                                            type="password"
+                                            id="current_password"
+                                            name="current_password"
+                                            label="Current Password"
+                                            v-model="form.current_password" 
+                                        />
+                                    </x-admin::form.control-group>
 
-                                                <x-admin::form.control-group>
-                                                    <x-admin::form.control-group.control
-                                                        type="password"
-                                                        id="password"
-                                                        name="password"
-                                                        rules="min:8"
-                                                        label="New Password"
-                                                        v-model="form.password" 
-                                                    />
-                                                </x-admin::form.control-group>
+                                    <x-admin::form.control-group>
+                                        <x-admin::form.control-group.control
+                                            type="password"
+                                            id="password"
+                                            name="password"
+                                            rules="min:8"
+                                            label="New Password"
+                                            v-model="form.password" 
+                                        />
+                                    </x-admin::form.control-group>
 
-                                                <x-admin::form.control-group>
-                                                    <x-admin::form.control-group.control
-                                                        type="password"
-                                                        id="password_confirmation"
-                                                        name="password_confirmation"
-                                                        rules="confirmed:@password"
-                                                        label="Confirm New Password"
-                                                        v-model="form.password_confirmation"
-                                                    />
-                                                </x-admin::form.control-group>
+                                    <x-admin::form.control-group>
+                                        <x-admin::form.control-group.control
+                                            type="password"
+                                            id="password_confirmation"
+                                            name="password_confirmation"
+                                            rules="confirmed:@password"
+                                            label="Confirm New Password"
+                                            v-model="form.password_confirmation"
+                                        />
+                                    </x-admin::form.control-group>
 
-                                                <div style="padding:14px; background:var(--bg-subtle); border-radius:8px; border:1px solid var(--border);">
-                                                    <div style="font-size:12px; font-weight:600; color:var(--text-base); margin-bottom:8px;">Strong Password Format</div>
-                                                    <div v-for="req in passRequirements" :key="req.label" style="display:flex; align-items:center; gap:6px; margin-bottom:5px;">
-                                                        <i :class="['pi', req.met ? 'pi-check-circle' : 'pi-times-circle']"
-                                                            :style="{ color: req.met ? 'var(--success)' : 'var(--text-muted)', fontSize:'12px' }"></i>
-                                                        <span style="font-size:12px; color:var(--text-muted);">@{{ req.label }}</span>
-                                                    </div>
-                                                </div>
+                                    <div style="padding:14px; background:var(--bg-subtle); border-radius:8px; border:1px solid var(--border);">
+                                        <div style="font-size:12px; font-weight:600; color:var(--text-base); margin-bottom:8px;">Strong Password Format</div>
+                                        <div v-for="req in passRequirements" :key="req.label" style="display:flex; align-items:center; gap:6px; margin-bottom:5px;">
+                                            <i :class="['pi', req.met ? 'pi-check-circle' : 'pi-times-circle']"
+                                                :style="{ color: req.met ? 'var(--success)' : 'var(--text-muted)', fontSize:'12px' }"></i>
+                                            <span style="font-size:12px; color:var(--text-muted);">@{{ req.label }}</span>
+                                        </div>
+                                    </div>
 
 
-                                                {{-- <x-admin::form.control-group>
-                                                    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px; background:var(--bg-subtle); border-radius:8px; border:1px solid var(--border);">
-                                                        <div>
-                                                            <div style="font-size:13px; font-weight:500; color:var(--text-base);">Authenticator App (TOTP)</div>
-                                                            <div style="font-size:12px; color:var(--text-muted);">Use Google Authenticator or similar</div>
-                                                        </div>
-                                                        <x-admin::form.control-group.control
-                                                            type="switch"
-                                                            name="twoFA"
-                                                            inputId="twoFA"
-                                                            for="twoFA"
-                                                            value="enabled"
-                                                            label=""
-                                                            ::checked="security.twoFA"
-                                                        />
-                                                    </div>
-                                                </x-admin::form.control-group> --}}
-                                                
+                                    {{-- <x-admin::form.control-group>
+                                        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px; background:var(--bg-subtle); border-radius:8px; border:1px solid var(--border);">
+                                            <div>
+                                                <div style="font-size:13px; font-weight:500; color:var(--text-base);">Authenticator App (TOTP)</div>
+                                                <div style="font-size:12px; color:var(--text-muted);">Use Google Authenticator or similar</div>
                                             </div>
-                                </TabPanel> 
+                                            <x-admin::form.control-group.control
+                                                type="switch"
+                                                name="twoFA"
+                                                inputId="twoFA"
+                                                for="twoFA"
+                                                value="enabled"
+                                                label=""
+                                                ::checked="security.twoFA"
+                                            />
+                                        </div>
+                                    </x-admin::form.control-group> --}}
+                                    
+                                </div> 
 
                                 <div style="display:flex; justify-content:flex-end; gap:10px;">
                                     <Button label="Discard" severity="secondary" text type="button" />
@@ -238,28 +234,25 @@
                                 </div>
 
                                 {{-- Activity Log --}}
-                                <TabPanel header="Activity">
-                                    <div style="padding:24px;">
-                                        <Timeline :value="activityLog">
-                                            <template #content="{ item }">
-                                                <div style="padding-bottom:16px;">
-                                                    <div style="font-size:13px; font-weight:500; color:var(--text-base);">@{{ item.action }}</div>
-                                                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">@{{ item.time }} · @{{ item.ip }}</div>
-                                                </div>
-                                            </template>
-                                            <template #marker="{ item }">
-                                                <span :style="{
-                                                    width:'10px', height:'10px', borderRadius:'50%',
-                                                    background: item.type === 'success' ? 'var(--success)' : item.type === 'warning' ? 'var(--warning)' : 'var(--accent)',
-                                                    display:'inline-block'
-                                                }"></span>
-                                            </template>
-                                        </Timeline>
-                                    </div>
-                                </TabPanel> 
+                                <div style="padding:24px;">
+                                    <Timeline :value="activityLog">
+                                        <template #content="{ item }">
+                                            <div style="padding-bottom:16px;">
+                                                <div style="font-size:13px; font-weight:500; color:var(--text-base);">@{{ item.action }}</div>
+                                                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">@{{ item.time }} · @{{ item.ip }}</div>
+                                            </div>
+                                        </template>
+                                        <template #marker="{ item }">
+                                            <span :style="{
+                                                width:'10px', height:'10px', borderRadius:'50%',
+                                                background: item.type === 'success' ? 'var(--success)' : item.type === 'warning' ? 'var(--warning)' : 'var(--accent)',
+                                                display:'inline-block'
+                                            }"></span>
+                                        </template>
+                                    </Timeline>
+                                </div> 
                             </form>
                         </x-admin::form>
-                    </TabView>
                 </div>
             </div>
         </script>

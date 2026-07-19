@@ -20,7 +20,7 @@
                 />
 
                 <!-- Create/Edit Floor Modal -->
-                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Floor' : 'Create Floor'" :style="{ width: '450px' }" modal>
+                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Floor' : 'Create Floor'" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
                         <form @submit="handleSubmit($event, saveFloor)" class="space-y-4 pt-3">
                             <x-admin::form.control-group>
@@ -104,8 +104,7 @@
                 provide() {
                     return {
                         customActions: {
-                            edit: this.onEdit,
-                            delete: this.onDelete
+                            edit: this.onEdit
                         }
                     };
                 },
@@ -124,15 +123,7 @@
                         };
                         this.visible = true;
                     },
-                    onDelete(row) {
-                        if (confirm('Are you sure you want to delete this floor?')) {
-                            this.$axios.delete(`{{ route('admin.floors.index') }}/${row.id}`)
-                                .then(response => {
-                                    this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                    window.location.reload();
-                                });
-                        }
-                    },
+
                     saveFloor(params) {
                         this.loading = true;
                         const url = this.editMode 
@@ -150,7 +141,7 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
                                 this.visible = false;
                                 this.loading = false;
-                                setTimeout(() => window.location.reload(), 1000);
+                                this.$refs.floorsGrid.get();
                             })
                             .catch(error => {
                                 this.loading = false;

@@ -15,25 +15,31 @@
     @pushOnce('scripts')
         <script type="text/x-template" id="v-clubs-branches-template">
             <div>
-                <TabView class="card p-0 overflow-hidden border border-gray-200">
-                    <TabPanel header="Clubs List">
-                        <x-admin::datagrid
-                            :is-multi-row="true"
-                            ref="clubsGrid"
-                            src="{{ route('admin.clubs.index') }}"
-                        />
-                    </TabPanel>
-                    <TabPanel header="Branches List">
-                        <x-admin::datagrid
-                            :is-multi-row="true"
-                            ref="branchesGrid"
-                            src="{{ route('admin.clubs.index') }}?branches=1"
-                        />
-                    </TabPanel>
-                </TabView>
+                <TabViews value="0">
+                    <TabList class="mb-4">
+                        <Tab value="0">Clubs List</Tab>
+                        <Tab value="1">Branches List</Tab>
+                    </TabList>
+                    <TabPanels>
+                        <TabPanel value="0">
+                            <x-admin::datagrid
+                                :is-multi-row="true"
+                                ref="clubsGrid"
+                                src="{{ route('admin.clubs.index') }}"
+                            />
+                        </TabPanel>
+                        <TabPanel value="1">
+                            <x-admin::datagrid
+                                :is-multi-row="true"
+                                ref="branchesGrid"
+                                src="{{ route('admin.clubs.index') }}?branches=1"
+                            />
+                        </TabPanel>
+                    </TabPanels>
+                </TabViews>
 
                 <!-- Create/Edit Club Modal -->
-                <Dialog v-model:visible="clubVisible" :header="clubEditMode ? 'Edit Club' : 'Create Club'" :style="{ width: '450px' }" modal>
+                <Dialog v-model:visible="clubVisible" :header="clubEditMode ? 'Edit Club' : 'Create Club'" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
                         <form @submit="handleSubmit($event, saveClub)" class="space-y-4 pt-3">
                             <x-admin::form.control-group>
@@ -91,14 +97,14 @@
                 </Dialog>
 
                 <!-- Create/Edit Branch Modal -->
-                <Dialog v-model:visible="branchVisible" :header="branchEditMode ? 'Edit Branch' : 'Create Branch'" :style="{ width: '450px' }" modal>
+                <Dialog v-model:visible="branchVisible" :header="branchEditMode ? 'Edit Branch' : 'Create Branch'" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
                         <form @submit="handleSubmit($event, saveBranch)" class="space-y-4 pt-3">
                             <x-admin::form.control-group>
                                 <x-admin::form.control-group.label label="Club" />
                                 <Select
                                     v-model="branch.club_id"
-                                    :options="clubsList"
+                                    :options="localClubsList"
                                     optionLabel="name"
                                     optionValue="id"
                                     placeholder="Select Club"
@@ -169,6 +175,7 @@
                 props: ['clubsList'],
                 data() {
                     return {
+                        localClubsList: [...this.clubsList],
                         clubVisible: false,
                         clubEditMode: false,
                         clubLoading: false,
@@ -183,6 +190,9 @@
                     };
                 },
                 watch: {
+                    clubsList(newVal) {
+                        this.localClubsList = [...newVal];
+                    },
                     clubVisible(val) {
                         if (val && !this.clubEditMode) {
                             this.club = { id: null, name: '', description: '', address: '', city: '', is_active: true };
@@ -191,6 +201,12 @@
                         }
                     },
                     branchVisible(val) {
+                        if (val) {
+                            this.$axios.get("{{ route('admin.clubs.index') }}?list=1")
+                                .then(response => {
+                                    this.localClubsList = response.data;
+                                });
+                        }
                         if (val && !this.branchEditMode) {
                             this.branch = { id: null, club_id: null, name: '', description: '', address: '', phone: '', is_active: true };
                         } else if (!val) {
@@ -201,8 +217,7 @@
                 provide() {
                     return {
                         customActions: {
-                            edit: this.onEdit,
-                            delete: this.onDelete
+                            edit: this.onEdit
                         }
                     };
                 },
@@ -238,21 +253,7 @@
                             this.clubVisible = true;
                         }
                     },
-                    onDelete(row) {
-                        const isBranch = (row.branch_name !== undefined);
-                        const label = isBranch ? 'branch' : 'club';
-                        if (confirm(`Are you sure you want to delete this ${label}?`)) {
-                            const url = isBranch
-                                ? `{{ route('admin.clubs.index') }}/branch/${row.id}`
-                                : `{{ route('admin.clubs.index') }}/club/${row.id}`;
-                            
-                            this.$axios.delete(url)
-                                .then(response => {
-                                    this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                    window.location.reload();
-                                });
-                        }
-                    },
+
                     saveClub(params) {
                         this.clubLoading = true;
                         const url = this.clubEditMode
@@ -264,7 +265,11 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
                                 this.clubVisible = false;
                                 this.clubLoading = false;
-                                setTimeout(() => window.location.reload(), 1000);
+                                if (response.data.clubs) {
+                                    this.localClubsList = response.data.clubs;
+                                }
+                                this.$refs.clubsGrid.get();
+                                this.$refs.branchesGrid.get();
                             })
                             .catch(err => { this.clubLoading = false; });
                     },
@@ -283,7 +288,8 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
                                 this.branchVisible = false;
                                 this.branchLoading = false;
-                                setTimeout(() => window.location.reload(), 1000);
+                                this.$refs.clubsGrid.get();
+                                this.$refs.branchesGrid.get();
                             })
                             .catch(err => { this.branchLoading = false; });
                     }

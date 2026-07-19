@@ -13,6 +13,9 @@ class AdminClubController extends Controller
     public function index()
     {
         if (request()->ajax()) {
+            if (request()->has('list')) {
+                return response()->json(Club::all());
+            }
             if (request()->has('branches')) {
                 return datagrid(BranchDataGrid::class)->process();
             }
@@ -35,7 +38,10 @@ class AdminClubController extends Controller
 
         Club::create($validated);
 
-        return response()->json(['message' => 'Club created successfully.']);
+        return response()->json([
+            'message' => 'Club created successfully.',
+            'clubs' => Club::all()
+        ]);
     }
 
     public function updateClub(Request $request, $id)
@@ -52,7 +58,10 @@ class AdminClubController extends Controller
 
         $club->update($validated);
 
-        return response()->json(['message' => 'Club updated successfully.']);
+        return response()->json([
+            'message' => 'Club updated successfully.',
+            'clubs' => Club::all()
+        ]);
     }
 
     public function destroyClub($id)
@@ -60,7 +69,10 @@ class AdminClubController extends Controller
         $club = Club::findOrFail($id);
         $club->delete();
 
-        return response()->json(['message' => 'Club deleted successfully.']);
+        return response()->json([
+            'message' => 'Club deleted successfully.',
+            'clubs' => Club::all()
+        ]);
     }
 
     // Branch Operations

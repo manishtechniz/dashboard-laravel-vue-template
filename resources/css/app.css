@@ -10,7 +10,7 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    }
+}
 
 
 
@@ -142,21 +142,41 @@ html.rose {
 }
 
 @layer components {
-* {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-gray-400) transparent;
-}
-*::-webkit-scrollbar { width: 6px; height: 6px; }
-*::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb { background: #888780; border-radius: 99px; }
-*::-webkit-scrollbar-thumb:hover { background: #5F5E5A; }
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-gray-400) transparent;
+    }
 
-/* Dark mode - bg-gray-900 */
-.dark * {
-    scrollbar-color: var(--color-gray-700) transparent;
-}
-.dark *::-webkit-scrollbar-thumb { background: #444441; }
-.dark *::-webkit-scrollbar-thumb:hover { background: #B4B2A9; }
+    *::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: #888780;
+        border-radius: 99px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background: #5F5E5A;
+    }
+
+    /* Dark mode - bg-gray-900 */
+    .dark * {
+        scrollbar-color: var(--color-gray-700) transparent;
+    }
+
+    .dark *::-webkit-scrollbar-thumb {
+        background: #444441;
+    }
+
+    .dark *::-webkit-scrollbar-thumb:hover {
+        background: #B4B2A9;
+    }
 
 
 
@@ -375,7 +395,8 @@ html.rose {
         color: var(--text-muted) !important;
     }
 
-    .border, .border-b  {
+    .border,
+    .border-b {
         border-color: var(--border) !important;
     }
 
@@ -561,8 +582,7 @@ html.rose {
 
 
     .p-inputtext,
-    .p-textarea
-    {
+    .p-textarea {
         background: var(--bg-subtle) !important;
         color: var(--text-base) !important;
         border-color: var(--border) !important;
@@ -574,7 +594,7 @@ html.rose {
         color: var(--text-base) !important;
     } */
 
-    .p-card  {
+    .p-card {
         background: var(--bg-surface) !important;
         color: var(--text-base) !important;
     }
@@ -602,7 +622,7 @@ html.rose {
         color: var(--text-base) !important;
     } */
 
-     .datagrid-table .dg-row,
+    .datagrid-table .dg-row,
     .p-datatable .p-datatable-tbody>tr {
         background: var(--bg-surface) !important;
         color: var(--text-base) !important;
@@ -660,12 +680,10 @@ html.rose {
         animation-timing-function: linear;
         background-size: 1250px 100%;
 
-        background: linear-gradient(
-            to right,
-            var(--shimmer1) 8%,
-            var(--shimmer2) 18%,
-            var(--shimmer1) 33%
-        );
+        background: linear-gradient(to right,
+                var(--shimmer1) 8%,
+                var(--shimmer2) 18%,
+                var(--shimmer1) 33%);
     }
 
     /* .shimmer::before {
@@ -1258,8 +1276,7 @@ html.rose {
 }
 
 .p-inputtext:focus,
-.p-textarea:focus
- {
+.p-textarea:focus {
     border-color: var(--accent) !important;
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent) !important;
 }
@@ -1288,9 +1305,13 @@ html.rose {
 .p-inputtext,
 .p-select,
 .p-multiselect,
-.p-multiselect-label
-{
+.p-multiselect-label {
     height: 44px !important;
+}
+
+.p-select-label {
+    font-size: 13px !important;
+    padding: 12px 12px !important;
 }
 
 .p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-link) {

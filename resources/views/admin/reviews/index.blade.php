@@ -21,25 +21,7 @@
 
         <script type="module">
             adminVueApp.component('v-reviews', {
-                template: '#v-reviews-template',
-                provide() {
-                    return {
-                        customActions: {
-                            delete: this.onDelete
-                        }
-                    };
-                },
-                methods: {
-                    onDelete(row) {
-                        if (confirm('Are you sure you want to delete this review?')) {
-                            this.$axios.delete(`{{ route('admin.reviews.index') }}/${row.id}`)
-                                .then(response => {
-                                    this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                    window.location.reload();
-                                });
-                        }
-                    }
-                }
+                template: '#v-reviews-template'
             });
         </script>
     @endPushOnce

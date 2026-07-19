@@ -18,10 +18,13 @@ Route::withoutMiddleware(['auth:admin'])->group(function () {
 
 /**
  * User Management Routes
- */
+ */ 
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', [AdminUserController::class, 'index'])->name('users.index');
-    Route::get('/edit/{id?}', [AdminUserController::class, 'edit'])->name('users.edit');
+    Route::post('/', [AdminUserController::class, 'store'])->name('users.store');
+    Route::post('/{id}', [AdminUserController::class, 'update'])->name('users.update');
+    Route::get('/edit/{id}', [AdminUserController::class, 'index'])->name('users.edit');
+    Route::delete('/{id}', [AdminUserController::class, 'destroy'])->name('users.delete');
 });
 
 /**

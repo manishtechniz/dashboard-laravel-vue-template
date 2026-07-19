@@ -67,6 +67,63 @@ Payment APIs
 Notification APIs
 Admin APIs
 QR Code APIs
+
+
+
+Prompt 2
+---------------------------
+
+[php](terminal;16104) [CustomOperationDatagridConfig.php](file;file:///d%3A/Repos/imperial/Demo/CustomOperationDatagridConfig.php) [CustomOperationOnSamePageFromDatagrid.blade.php](file;file:///d%3A/Repos/imperial/Demo/CustomOperationOnSamePageFromDatagrid.blade.php)
+
+NOTE:: I am using also PrimeVue-v4 in project but you can use for it make attreactive design except in form because already layout made.
+
+NOTE:: Dont use this compoent in forms and remove this which you generated because this already use in form compoent
+
+<x-admin::form.control-group.error>
+
+
+NOTE:: Dont use Softdelete in modals
+
+
+if you made route for edit please dont use datatable, you can create attreactive edit page if you create otherwise you can use edit and create dialoag in same index file using custom operarion
+
+
+Make Sure font size shouldbe match accroing this project .  
+
+
+
+
+# prompt 3:
+----------------------------------
+@[ProductDataGridCompleteExample.php](file;file:///d%3A/Repos/imperial/Demo/ProductDataGridCompleteExample.php) 
+
+NOTE:: Add filter if need when prepare datagrid using joins
+
+
+NOTE:: When we create record and update record from datagrid, dont refresh entire page. instead of this, yoiu can use:
+
+this.$refs.datagrid-ref-name.get();
+
+
+NOTE:: increase width of dialog in desktop 580px width and in mobile, make responseive
+
+
+NOTE:: Keep single horizontal scroll bar in blade in dialog box
+
+Example (Optional):
+
+Right Dialog Scroll: resources\views\admin\clients\index.blade.php
+
+Wrong Dialog Scrool: 
+resources\views\admin\bookings\index.blade.php
+
+
+
+
+
+
+
+
  
 
 

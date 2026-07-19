@@ -10,7 +10,7 @@ class AdminSettingController extends Controller
     public function index()
     {
         $settings = Setting::all()->pluck('value', 'key');
-        return view('admin::settings.index', compact('settings'));
+        return view('admin::global-config.index', compact('settings'));
     }
 
     public function store(Request $request)
