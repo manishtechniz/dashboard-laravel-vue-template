@@ -10,11 +10,12 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique()->nullable();
-            $table->string('phone')->unique()->nullable();
+            $table->string('name')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
             $table->string('avatar')->nullable();
             $table->string('password')->nullable();
+            $table->string('google_id')->nullable();
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();

@@ -5,7 +5,6 @@ namespace App\Model;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable; 
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -13,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable;
 
     protected $guarded = ['id'];
     protected $appends = ['avatar_url', 'avatar_preview_url'];

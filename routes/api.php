@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 */
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/send-otp', [AuthController::class, 'sendOtp']);
+Route::post('/auth/login-otp', [AuthController::class, 'loginOtp']);
+Route::post('/auth/google', [AuthController::class, 'googleAuth']);
 
 Route::get('/events', [ClientEventController::class, 'index']);
 Route::get('/events/{id}', [ClientEventController::class, 'show']);

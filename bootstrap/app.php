@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         commands: __DIR__.'/../routes/console.php',
+        api: __DIR__.'/../routes/api.php',
         health: '/up',
         then: function () {
             Route::middleware(['web', 'auth:admin'])
