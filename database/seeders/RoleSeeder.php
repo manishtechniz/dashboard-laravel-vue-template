@@ -11,7 +11,8 @@ class RoleSeeder extends Seeder
         // Global default theme (white / clean)
         Role::create([
             'name' => 'Administrator',
-            'permission_type' => 'all',
+            'type' => 'system',
+            'permissions' => '["*"]',
         ]);
 
         $this->command->info('✅ Default roles seeded successfully.');

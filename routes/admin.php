@@ -43,6 +43,9 @@ Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dash
 
 Route::group(['prefix' => 'roles'], function () {
     Route::get('/', [AdminRoleController::class, 'index'])->name('roles.index');
+    Route::post('/', [AdminRoleController::class, 'store'])->name('roles.store');
+    Route::post('/{id}', [AdminRoleController::class, 'update'])->name('roles.update');
+    Route::delete('/{id}', [AdminRoleController::class, 'destroy'])->name('roles.delete');
 }); 
 
 /**

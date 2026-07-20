@@ -10,8 +10,14 @@ class UserDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('users')
-            ->select('id', 'name', 'email', 'phone', 'is_active', 'created_at');
+        $queryBuilder =  DB::table('users')
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+            ->select('users.id', 'users.name', 'users.email', 'users.phone', 'users.role_id', 'roles.name as role_name', 'users.is_active', 'users.created_at');
+
+        $this->addFilter('name', 'users.name');
+        $this->addFilter('role_name', 'roles.name');
+        
+        return $queryBuilder;
     }
 
     public function prepareColumns()
@@ -49,6 +55,18 @@ class UserDataGrid extends DataGrid
             'searchable' => true,
             'filterable' => true,
             'sortable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'role_name',
+            'label' => 'Role',
+            'type' => 'string',
+            'searchable' => true,
+            'filterable' => true,
+            'sortable' => true,
+            'closure' => function ($row) {
+                return $row->role_name ?? '-';
+            },
         ]);
 
         $this->addColumn([

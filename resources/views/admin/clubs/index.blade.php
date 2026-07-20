@@ -1,12 +1,12 @@
 <x-admin::layouts>
     <div class="page-header flex justify-between items-center">
         <div>
-            <h1 class="page-title">Clubs & Branches</h1>
-            <div class="page-breadcrumb">Home / Clubs & Branches</div>
+            <h1 class="page-title">Clubs</h1>
+            <div class="page-breadcrumb">Home / Clubs</div>
         </div>
         <div class="flex gap-2">
             <Button label="Create Club" icon="pi pi-plus" size="small" outlined @click="$refs.clubsBranches.clubVisible = true" />
-            <Button label="Create Branch" icon="pi pi-plus" size="small" @click="$refs.clubsBranches.branchVisible = true" />
+            <!-- <Button label="Create Branch" icon="pi pi-plus" size="small" @click="$refs.clubsBranches.branchVisible = true" /> -->
         </div>
     </div>
 
@@ -15,7 +15,7 @@
     @pushOnce('scripts')
         <script type="text/x-template" id="v-clubs-branches-template">
             <div>
-                <TabViews value="0">
+                <!-- <TabViews value="0">
                     <TabList class="mb-4">
                         <Tab value="0">Clubs List</Tab>
                         <Tab value="1">Branches List</Tab>
@@ -36,7 +36,13 @@
                             />
                         </TabPanel>
                     </TabPanels>
-                </TabViews>
+                </TabViews> -->
+
+                <x-admin::datagrid
+                    :is-multi-row="true"
+                    ref="clubsGrid"
+                    src="{{ route('admin.clubs.index') }}"
+                />
 
                 <!-- Create/Edit Club Modal -->
                 <Dialog v-model:visible="clubVisible" :header="clubEditMode ? 'Edit Club' : 'Create Club'" :style="{ width: '580px', maxWidth: '95vw' }" modal>

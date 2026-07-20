@@ -169,8 +169,7 @@
             v-slot="{ field, errors }"
             {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules' ]) }} 
         >
-            <FloatLabel variant="on"
-                :class="[errors.length ? 'border !border-red-600 hover:border-red-600' : '']"
+            <FloatLabel variant="on" 
             >
                 <Select 
                     :modelValue="field.value"

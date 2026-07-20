@@ -7,7 +7,7 @@
         <Button label="Create User" icon="pi pi-plus" size="small" @click="$refs.clinet.visible = true" />
     </div>
 
-    <v-clients ref="clinet"></v-clients>
+    <v-clients ref="clinet" :initial-roles="{{ json_encode($roles ?? []) }}"></v-clients>
 
     @pushOnce('scripts')
         <script type="text/x-template" id="v-clients-template">
@@ -39,7 +39,7 @@
                                     type="email"
                                     name="email"
                                     v-model="user.email"
-                                    rules="email"
+                                    rules="email|required"
                                     placeholder="Enter email address"
                                 />
                             </x-admin::form.control-group>
@@ -53,6 +53,21 @@
                                     placeholder="Enter phone number"
                                 />
                             </x-admin::form.control-group>
+
+                            <x-admin::form.control-group>
+                                <x-admin::form.control-group.label label="Role" /> 
+
+                                <x-admin::form.control-group.control
+                                    type="select"
+                                    ::options="roles" 
+                                    optionLabel="name" 
+                                    optionValue="id" 
+                                    rules="required" 
+                                    v-model="user.role_id"
+                                    ::value="user.role_id" 
+                                    name="role_id" 
+                                />
+                            </x-admin::form.control-group> 
 
                             <x-admin::form.control-group>
                                 <x-admin::form.control-group.label label="Password" />
@@ -83,16 +98,24 @@
         <script type="module">
             adminVueApp.component('v-clients', {
                 template: '#v-clients-template',
+                props: {
+                    initialRoles: {
+                        type: Array,
+                        default: () => []
+                    }
+                },
                 data() {
                     return {
                         visible: false,
                         editMode: false,
                         loading: false,
+                        roles: this.initialRoles,
                         user: {
                             id: null,
                             name: '',
                             email: '',
                             phone: '',
+                            role_id: null,
                             password: '',
                             is_active: true
                         }
@@ -101,7 +124,7 @@
                 watch: {
                     visible(val) {
                         if (val && !this.editMode) {
-                            this.user = { id: null, name: '', email: '', phone: '', password: '', is_active: true };
+                            this.user = { id: null, name: '', email: '', phone: '', role_id: null, password: '', is_active: true };
                         } else if (!val) {
                             this.editMode = false;
                         }
@@ -118,12 +141,14 @@
                 },
                 methods: {
                     onEdit(row) {
+                       
                         this.editMode = true;
                         this.user = {
                             id: row.id,
                             name: row.name,
                             email: row.email,
                             phone: row.phone,
+                            role_id: parseInt(row.role_id) || null,
                             password: '',
                             is_active: !!row.is_active
                         };
@@ -138,6 +163,7 @@
                         
                         const payload = {
                             ...params,
+                            role_id: this.user.role_id,
                             is_active: this.user.is_active ? 1 : 0
                         };
 
@@ -160,3 +186,4 @@
         </script>
     @endPushOnce
 </x-admin::layouts>
+
