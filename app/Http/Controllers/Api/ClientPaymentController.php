@@ -2,14 +2,48 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Model\Booking;
 use App\Model\Payment;
 use App\Model\Transaction;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: "Payments", description: "API Endpoints for Client Payments")]
 class ClientPaymentController extends Controller
 {
+    #[OA\Post(
+        path: "/api/payments/pay",
+        summary: "Process payment for a booking",
+        tags: ["Payments"],
+        security: [["bearerAuth" => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["booking_id", "amount", "payment_method", "token"],
+                properties: [
+                    new OA\Property(property: "booking_id", type: "integer", example: 1),
+                    new OA\Property(property: "amount", type: "number", format: "float", example: 100.50),
+                    new OA\Property(property: "payment_method", type: "string", example: "card"),
+                    new OA\Property(property: "token", type: "string", example: "tok_visa")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Payment processed and booking confirmed",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "Payment processed and booking confirmed."),
+                        new OA\Property(property: "payment", type: "object"),
+                        new OA\Property(property: "transaction", type: "object")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Validation errors"),
+            new OA\Response(response: 401, description: "Unauthenticated")
+        ]
+    )]
     public function pay(Request $request)
     {
         $validated = $request->validate([

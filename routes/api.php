@@ -19,6 +19,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/send-otp', [AuthController::class, 'sendOtp']);
 Route::post('/auth/login-otp', [AuthController::class, 'loginOtp']);
 Route::post('/auth/google', [AuthController::class, 'googleAuth']);
+Route::post('/auth/test-token', [AuthController::class, 'testToken']);
 
 Route::get('/events', [ClientEventController::class, 'index']);
 Route::get('/events/{id}', [ClientEventController::class, 'show']);
@@ -31,7 +32,7 @@ Route::get('/qrcode/{code}', [QrCodeController::class, 'show']);
 | Authenticated Client Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/auth/profile', [AuthController::class, 'profile']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 

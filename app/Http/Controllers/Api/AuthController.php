@@ -7,18 +7,48 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: "Authentication", description: "API Endpoints for Client Authentication")]
 class AuthController extends Controller
 {
-    /**
-     * Register a new client using Email and Password.
-     */
+    #[OA\Post(
+        path: "/api/auth/register",
+        summary: "Register a new client using Email/Phone and Password",
+        tags: ["Authentication"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["name", "phone", "password"],
+                properties: [
+                    new OA\Property(property: "name", type: "string", example: "John Doe"),
+                    new OA\Property(property: "phone", type: "string", example: "+1234567890"),
+                    new OA\Property(property: "email", type: "string", format: "email", example: "john@example.com"),
+                    new OA\Property(property: "password", type: "string", format: "password", example: "secret123")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: "Client registered successfully",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "access_token", type: "string"),
+                        new OA\Property(property: "token_type", type: "string", example: "Bearer"),
+                        new OA\Property(property: "client", type: "object")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Validation errors")
+        ]
+    )]
     public function register(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'nullable|string|email|unique:clients,email|max:255',
-            'phone' => 'required|string|unique:clients,phone',
+            'email' => 'nullable|required_without:phone|string|email|unique:clients,email|max:255',
+            'phone' => 'nullable|required_without:email|string|unique:clients,phone',
             'password' => 'required|string|min:6',
         ]);
 
@@ -38,9 +68,36 @@ class AuthController extends Controller
         ], 201);
     }
 
-    /**
-     * Login client using Email/Phone and Password.
-     */
+    #[OA\Post(
+        path: "/api/auth/login",
+        summary: "Login client using Email/Phone and Password",
+        tags: ["Authentication"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["password"],
+                properties: [
+                    new OA\Property(property: "email", type: "string", format: "email", example: "john@example.com"),
+                    new OA\Property(property: "phone", type: "string", example: "+1234567890"),
+                    new OA\Property(property: "password", type: "string", format: "password", example: "secret123")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Login successful",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "access_token", type: "string"),
+                        new OA\Property(property: "token_type", type: "string", example: "Bearer"),
+                        new OA\Property(property: "client", type: "object")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Invalid credentials")
+        ]
+    )]
     public function login(Request $request)
     {
         $validated = $request->validate([
@@ -77,9 +134,32 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Send OTP to client's phone or email.
-     */
+    #[OA\Post(
+        path: "/api/auth/send-otp",
+        summary: "Send OTP to client's phone number",
+        tags: ["Authentication"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["phone"],
+                properties: [
+                    new OA\Property(property: "phone", type: "string", example: "+1234567890")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "OTP sent successfully",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "OTP sent successfully.")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Validation errors")
+        ]
+    )]
     public function sendOtp(Request $request)
     {
         $request->validate([
@@ -97,9 +177,36 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Verify OTP and log in / auto-register client.
-     */
+    #[OA\Post(
+        path: "/api/auth/login-otp",
+        summary: "Verify OTP and log in / auto-register client",
+        tags: ["Authentication"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["phone", "otp"],
+                properties: [
+                    new OA\Property(property: "phone", type: "string", example: "+1234567890"),
+                    new OA\Property(property: "otp", type: "string", example: "123456"),
+                    new OA\Property(property: "name", type: "string", example: "John Doe")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "OTP verified & logged in successfully",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "access_token", type: "string"),
+                        new OA\Property(property: "token_type", type: "string", example: "Bearer"),
+                        new OA\Property(property: "client", type: "object")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Invalid or expired OTP")
+        ]
+    )]
     public function loginOtp(Request $request)
     {
         $request->validate([
@@ -148,9 +255,37 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Sign up or Login via Google OAuth payload.
-     */
+    #[OA\Post(
+        path: "/api/auth/google",
+        summary: "Sign up or Login via Google OAuth payload",
+        tags: ["Authentication"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["google_id", "email"],
+                properties: [
+                    new OA\Property(property: "google_id", type: "string", example: "109238409128309"),
+                    new OA\Property(property: "email", type: "string", format: "email", example: "john@gmail.com"),
+                    new OA\Property(property: "name", type: "string", example: "John Doe"),
+                    new OA\Property(property: "avatar", type: "string", example: "https://lh3.googleusercontent.com/a/...")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Google authentication successful",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "access_token", type: "string"),
+                        new OA\Property(property: "token_type", type: "string", example: "Bearer"),
+                        new OA\Property(property: "client", type: "object")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Validation errors")
+        ]
+    )]
     public function googleAuth(Request $request)
     {
         $validated = $request->validate([
@@ -200,17 +335,94 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Get authenticated client profile.
-     */
+    #[OA\Post(
+        path: "/api/auth/test-token",
+        summary: "Generate a Sanctum Bearer token for testing authenticated APIs",
+        tags: ["Authentication"],
+        requestBody: new OA\RequestBody(
+            required: false,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: "email", type: "string", format: "email", example: "test@example.com"),
+                    new OA\Property(property: "phone", type: "string", example: "+1234567890")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Bearer token generated successfully",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "access_token", type: "string"),
+                        new OA\Property(property: "token_type", type: "string", example: "Bearer"),
+                        new OA\Property(property: "client", type: "object")
+                    ]
+                )
+            )
+        ]
+    )]
+    public function testToken(Request $request)
+    {
+        $email = $request->input('email', 'testclient@example.com');
+        $phone = $request->input('phone', '+10000000000');
+
+        $client = Client::firstOrCreate(
+            ['email' => $email],
+            [
+                'name' => 'Test Client',
+                'phone' => $phone,
+                'password' => Hash::make('password'),
+                'is_active' => true,
+            ]
+        );
+
+        $token = $client->createToken('test_token')->plainTextToken;
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'client' => $client,
+        ]);
+    }
+
+    #[OA\Get(
+        path: "/api/auth/profile",
+        summary: "Get authenticated client profile",
+        tags: ["Authentication"],
+        security: [["bearerAuth" => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Client profile data",
+                content: new OA\JsonContent(type: "object")
+            ),
+            new OA\Response(response: 401, description: "Unauthenticated")
+        ]
+    )]
     public function profile(Request $request)
     {
         return response()->json($request->user());
     }
 
-    /**
-     * Logout authenticated client.
-     */
+    #[OA\Post(
+        path: "/api/auth/logout",
+        summary: "Logout authenticated client",
+        tags: ["Authentication"],
+        security: [["bearerAuth" => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Logged out successfully",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "Logged out successfully.")
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: "Unauthenticated")
+        ]
+    )]
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

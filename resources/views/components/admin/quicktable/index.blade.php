@@ -81,7 +81,7 @@
                             
                             <td v-for="col in available.columns" class="p-3 text-xs">
 
-                                @{{ record[col.index] }}
+                                @{{ record[col.index] ?? '-' }}
                             </td>
 
                             <!-- Actions -->

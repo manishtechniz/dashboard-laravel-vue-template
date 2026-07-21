@@ -112,7 +112,7 @@
                                 <template v-for="column in available.columns">
                                     <p
                                         class="break-words"
-                                        v-html="record[column.index]"
+                                        v-html="record[column.index] ?? '-'"
                                         v-if="column.visibility"
                                     >
                                     </p>

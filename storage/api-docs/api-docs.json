@@ -1,0 +1,1234 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Imperial Client API",
+        "description": "API documentation for Imperial Client Mobile & Web Applications",
+        "contact": {
+            "email": "support@imperial.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new client using Email/Phone and Password",
+                "operationId": "c7bb21a0d87049e161b8e4c9b0d909f2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "phone",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Client registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "client": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors"
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login client using Email/Phone and Password",
+                "operationId": "dd51a484b7fa0f97c7680fdbde14cf5f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "client": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/auth/send-otp": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Send OTP to client's phone number",
+                "operationId": "bffceebe22269794653d542fb5e548dd",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "OTP sent successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors"
+                    }
+                }
+            }
+        },
+        "/api/auth/login-otp": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify OTP and log in / auto-register client",
+                "operationId": "e73c15749b2ec57afb5124677b2d88ae",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone",
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "otp": {
+                                        "type": "string",
+                                        "example": "123456"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP verified & logged in successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "client": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid or expired OTP"
+                    }
+                }
+            }
+        },
+        "/api/auth/google": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Sign up or Login via Google OAuth payload",
+                "operationId": "5ee5fd4b5ed0cbe4a7f72e2e9ef4216b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "google_id",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "google_id": {
+                                        "type": "string",
+                                        "example": "109238409128309"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@gmail.com"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "avatar": {
+                                        "type": "string",
+                                        "example": "https://lh3.googleusercontent.com/a/..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Google authentication successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "client": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors"
+                    }
+                }
+            }
+        },
+        "/api/auth/test-token": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Generate a Sanctum Bearer token for testing authenticated APIs",
+                "operationId": "d43aed4643f7fa54178c7a34bb6af9c6",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "test@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bearer token generated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "client": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/profile": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get authenticated client profile",
+                "operationId": "b1eb3bba5d25e3becff8e61e26215556",
+                "responses": {
+                    "200": {
+                        "description": "Client profile data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout authenticated client",
+                "operationId": "df9bdc6c7a6d9f20b983526b2ec0f698",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bookings": {
+            "get": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "List authenticated client bookings",
+                "operationId": "bfcd02212e1e0f38f278be30ad3927aa",
+                "responses": {
+                    "200": {
+                        "description": "List of bookings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Create a new booking request",
+                "operationId": "f565d3c9cc8ac61e18bdf09d07a34123",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "booking_date",
+                                    "start_time",
+                                    "end_time",
+                                    "guest_count"
+                                ],
+                                "properties": {
+                                    "table_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "event_id": {
+                                        "type": "integer",
+                                        "example": 2,
+                                        "nullable": true
+                                    },
+                                    "booking_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-08-01"
+                                    },
+                                    "start_time": {
+                                        "type": "string",
+                                        "example": "19:00"
+                                    },
+                                    "end_time": {
+                                        "type": "string",
+                                        "example": "22:00"
+                                    },
+                                    "guest_count": {
+                                        "type": "integer",
+                                        "example": 4
+                                    },
+                                    "special_requests": {
+                                        "type": "string",
+                                        "example": "Window side table"
+                                    },
+                                    "guests": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Jane Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "jane@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Booking request created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "booking": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or table occupied"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bookings/{id}": {
+            "get": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Get booking details",
+                "operationId": "3daad65b4c4d8c9b5f6f4459cece3b58",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bookings/{id}/cancel": {
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Cancel a booking",
+                "operationId": "c48b00af953cae001a48d12447a732d5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking cancelled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking cancelled successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Checked in bookings cannot be cancelled"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/events": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "List upcoming club events",
+                "operationId": "f9ad1681f34f7faaedcbec88c58caeac",
+                "responses": {
+                    "200": {
+                        "description": "List of upcoming events",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{id}": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get details of a specific event",
+                "operationId": "b7582921d94a935f5582da7d4fa8e368",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Event ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Event not found"
+                    }
+                }
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List authenticated client notifications",
+                "operationId": "27cb107c9019da77795e55fb6cc00eb3",
+                "responses": {
+                    "200": {
+                        "description": "List of notifications",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/{id}/read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark notification as read",
+                "operationId": "29258de742bafdf5ed93b7db5a135e7f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Notification ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notification marked as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Notification marked as read."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/tokens": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Register device push notification token",
+                "operationId": "d3addcc22c929511c90e21af1b06dea2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "device_type"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "example": "fcm_device_token_xyz"
+                                    },
+                                    "device_type": {
+                                        "type": "string",
+                                        "example": "android",
+                                        "enum": [
+                                            "ios",
+                                            "android",
+                                            "web"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Device token registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Device token registered successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/payments/pay": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Process payment for a booking",
+                "operationId": "88e8d39cbe369df88855795ce6bb354f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "booking_id",
+                                    "amount",
+                                    "payment_method",
+                                    "token"
+                                ],
+                                "properties": {
+                                    "booking_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100.5
+                                    },
+                                    "payment_method": {
+                                        "type": "string",
+                                        "example": "card"
+                                    },
+                                    "token": {
+                                        "type": "string",
+                                        "example": "tok_visa"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payment processed and booking confirmed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payment processed and booking confirmed."
+                                        },
+                                        "payment": {
+                                            "type": "object"
+                                        },
+                                        "transaction": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tables/floors": {
+            "get": {
+                "tags": [
+                    "Tables"
+                ],
+                "summary": "List active floors with available tables",
+                "operationId": "13e668adfb4a9c6afd30ff65319fa4bf",
+                "responses": {
+                    "200": {
+                        "description": "List of active floors and available tables",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tables/available": {
+            "get": {
+                "tags": [
+                    "Tables"
+                ],
+                "summary": "Check table availability by date, time slot, and capacity",
+                "operationId": "aed3b1657e966bd5a446564b2f626392",
+                "parameters": [
+                    {
+                        "name": "booking_date",
+                        "in": "query",
+                        "description": "Booking Date (YYYY-MM-DD)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-08-01"
+                        }
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "description": "Start Time (HH:MM)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "19:00"
+                        }
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "description": "End Time (HH:MM)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "22:00"
+                        }
+                    },
+                    {
+                        "name": "capacity",
+                        "in": "query",
+                        "description": "Minimum table guest capacity",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 4
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of available tables",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors"
+                    }
+                }
+            }
+        },
+        "/api/qrcode/{code}": {
+            "get": {
+                "tags": [
+                    "QR Code"
+                ],
+                "summary": "View booking details by QR code",
+                "operationId": "31db4fbcfa2d8c46c34427a469673e8f",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "description": "Unique QR Code string",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "IMP-66A1B2C3"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking details associated with QR code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "qr_code": {
+                                            "type": "string"
+                                        },
+                                        "client_name": {
+                                            "type": "string"
+                                        },
+                                        "table": {
+                                            "type": "string"
+                                        },
+                                        "event": {
+                                            "type": "string"
+                                        },
+                                        "booking_date": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not found for QR code"
+                    }
+                }
+            }
+        },
+        "/api/qrcode/validate": {
+            "post": {
+                "tags": [
+                    "QR Code"
+                ],
+                "summary": "Validate QR code and check in booking",
+                "operationId": "74c38d0580f747297601cdc7eace0df4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "qr_code"
+                                ],
+                                "properties": {
+                                    "qr_code": {
+                                        "type": "string",
+                                        "example": "IMP-66A1B2C3"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Booking checked in successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking checked in successfully."
+                                        },
+                                        "booking": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invalid QR code"
+                    },
+                    "422": {
+                        "description": "Booking already checked in or cancelled"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter your Sanctum Bearer token",
+                "bearerFormat": "Bearer",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "API Endpoints for Client Authentication"
+        },
+        {
+            "name": "Bookings",
+            "description": "API Endpoints for Client Bookings"
+        },
+        {
+            "name": "Events",
+            "description": "API Endpoints for Club Events"
+        },
+        {
+            "name": "Notifications",
+            "description": "API Endpoints for Client Notifications & Push Tokens"
+        },
+        {
+            "name": "Payments",
+            "description": "API Endpoints for Client Payments"
+        },
+        {
+            "name": "Tables",
+            "description": "API Endpoints for Table & Floor Availability"
+        },
+        {
+            "name": "QR Code",
+            "description": "API Endpoints for QR Code Display & Validation/Check-in"
+        }
+    ]
+}
