@@ -10,8 +10,8 @@
     <v-clients ref="clinet"></v-clients>
 
     @pushOnce('scripts')
-        <script type="text/x-template" id="v-clients-template">
-            <div>
+    <script type="text/x-template" id="v-clients-template">
+        <div>
                 <!-- Datagrid -->
                 <x-admin::datagrid 
                     ref="clientsGrid"
@@ -80,83 +80,95 @@
             </div>
         </script>
 
-        <script type="module">
-            adminVueApp.component('v-clients', {
-                template: '#v-clients-template',
-                data() {
-                    return {
-                        visible: false,
-                        editMode: false,
-                        loading: false,
-                        client: {
+    <script type="module">
+        adminVueApp.component('v-clients', {
+            template: '#v-clients-template',
+            data() {
+                return {
+                    visible: false,
+                    editMode: false,
+                    loading: false,
+                    client: {
+                        id: null,
+                        name: '',
+                        email: '',
+                        phone: '',
+                        password: '',
+                        is_active: true
+                    }
+                };
+            },
+            watch: {
+                visible(val) {
+                    if (val && !this.editMode) {
+                        this.client = {
                             id: null,
                             name: '',
                             email: '',
                             phone: '',
                             password: '',
                             is_active: true
-                        }
-                    };
-                },
-                watch: {
-                    visible(val) {
-                        if (val && !this.editMode) {
-                            this.client = { id: null, name: '', email: '', phone: '', password: '', is_active: true };
-                        } else if (!val) {
-                            this.editMode = false;
-                        }
-                    }
-                },
-                provide() {
-                    return {
-                        customActions: {
-                            edit: this.onEdit
-                        }
-                    };
-                },
-                mounted() {
-                },
-                methods: {
-                    onEdit(row) {
-                        this.editMode = true;
-                        this.client = {
-                            id: row.id,
-                            name: row.name,
-                            email: row.email,
-                            phone: row.phone,
-                            password: '',
-                            is_active: !!row.is_active
                         };
-                        this.visible = true;
-                    },
-
-                    saveClient(params) {
-                        this.loading = true;
-                        const url = this.editMode 
-                            ? `{{ route('admin.clients.index') }}/${this.client.id}`
-                            : `{{ route('admin.clients.store') }}`;
-                        
-                        const payload = {
-                            ...params,
-                            is_active: this.client.is_active ? 1 : 0
-                        };
-
-                        this.$axios.post(url, payload)
-                            .then(response => {
-                                this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                this.visible = false;
-                                this.loading = false;
-                                this.$refs.clientsGrid.get();
-                            })
-                            .catch(error => {
-                                this.loading = false;
-                                if (error.response && error.response.status === 422) {
-                                    this.$emitter.emit('add-flash', { type: 'error', message: 'Validation failed.' });
-                                }
-                            });
+                    } else if (!val) {
+                        this.editMode = false;
                     }
                 }
-            });
-        </script>
+            },
+            provide() {
+                return {
+                    customActions: {
+                        edit: this.onEdit
+                    }
+                };
+            },
+            mounted() {},
+            methods: {
+                onEdit(row) {
+                    this.editMode = true;
+                    this.client = {
+                        id: row.id,
+                        name: row.name,
+                        email: row.email,
+                        phone: row.phone,
+                        password: '',
+                        is_active: !!row.is_active
+                    };
+                    this.visible = true;
+                },
+
+                saveClient(params) {
+                    this.loading = true;
+                    const url = this.editMode ?
+                        `{{ route('admin.clients.index') }}/${this.client.id}` :
+                        `{{ route('admin.clients.store') }}`;
+
+                    const payload = {
+                        ...params,
+                        is_active: this.client.is_active ? 1 : 0
+                    };
+
+                    this.$axios.post(url, payload)
+                        .then(response => {
+                            this.$emitter.emit('add-flash', {
+                                type: 'success',
+                                message: response.data.message
+                            });
+                            this.visible = false;
+                            this.loading = false;
+                            this.$refs.clientsGrid.get();
+                        })
+                        .catch(error => {
+                            this.loading = false;
+                            if (error.response && error.response.status === 422) {
+                                this.$emitter.emit('add-flash', {
+                                    type: 'error',
+                                    message: 'Validation failed.'
+                                });
+                            }
+                        });
+                }
+            }
+        });
+    </script>
     @endPushOnce
 </x-admin::layouts>

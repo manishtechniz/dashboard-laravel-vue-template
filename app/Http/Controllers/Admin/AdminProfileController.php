@@ -45,12 +45,12 @@ public function update(Request $request)
         // 3. Handle Avatar Upload
         if ($request->hasFile('avatar')) {
             // Delete old avatar from storage if it exists
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
+            if ($user->avatar && Storage::exists($user->avatar)) {
+                Storage::delete($user->avatar);
             }
             
             // Store new avatar and update the data array with the path
-            $validatedData['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $validatedData['avatar'] = $request->file('avatar')->store('avatars');
         }
 
         // 4. Handle Password Hashing

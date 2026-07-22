@@ -34,4 +34,9 @@ class Club extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    public function tables(): HasMany
+    {
+        return $this->hasMany(ClubTable::class);
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminTestController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\UploadFileController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -14,11 +15,11 @@ use Illuminate\Support\Facades\Route;
 Route::withoutMiddleware(['auth:admin'])->group(function () {
     Route::get('auth/login', [AdminAuthController::class, 'index'])->name('login');
     Route::post('auth/login', [AdminAuthController::class, 'login'])->name('verify_login');
-}); 
+});
 
 /**
  * User Management Routes
- */ 
+ */
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('/', [AdminUserController::class, 'store'])->name('users.store');
@@ -33,7 +34,7 @@ Route::group(['prefix' => 'users'], function () {
 Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
 Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
 
-Route::get('/', function() {
+Route::get('/', function () {
     return view('admin::test');
 });
 
@@ -46,7 +47,7 @@ Route::group(['prefix' => 'roles'], function () {
     Route::post('/', [AdminRoleController::class, 'store'])->name('roles.store');
     Route::post('/{id}', [AdminRoleController::class, 'update'])->name('roles.update');
     Route::delete('/{id}', [AdminRoleController::class, 'destroy'])->name('roles.delete');
-}); 
+});
 
 /**
  * Client Management Routes
@@ -92,7 +93,7 @@ Route::group(['prefix' => 'floors'], function () {
 Route::group(['prefix' => 'tables'], function () {
     Route::get('/', [App\Http\Controllers\Admin\AdminTableController::class, 'index'])->name('tables.index');
     Route::post('/', [App\Http\Controllers\Admin\AdminTableController::class, 'store'])->name('tables.store');
-    Route::post('/{id}', [App\Http\Controllers\Admin\AdminTableController::class, 'update'])->name('tables.update');
+    Route::put('/{id}', [App\Http\Controllers\Admin\AdminTableController::class, 'update'])->name('tables.update');
     Route::get('/edit/{id}', [App\Http\Controllers\Admin\AdminTableController::class, 'index'])->name('tables.edit');
     Route::delete('/{id}', [App\Http\Controllers\Admin\AdminTableController::class, 'destroy'])->name('tables.delete');
 });
@@ -171,3 +172,7 @@ Route::group(['prefix' => 'audit-logs'], function () {
     Route::get('/', [App\Http\Controllers\Admin\AdminAuditLogController::class, 'index'])->name('audit_logs.index');
 });
 
+/**
+ * Upload file.
+ */
+Route::post('/upload-url', [UploadFileController::class, 'getUploadUrl']);

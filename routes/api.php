@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 | Public Routes
 |--------------------------------------------------------------------------
 */
+
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/send-otp', [AuthController::class, 'sendOtp']);
@@ -43,7 +44,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/bookings/{id}/cancel', [ClientBookingController::class, 'cancel']);
 
     // Tables
-    Route::get('/tables/floors', [ClientTableController::class, 'index']);
+    Route::get('/tables', [ClientTableController::class, 'index']);
 
     // Payments
     Route::post('/payments/pay', [ClientPaymentController::class, 'pay']);

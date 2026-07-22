@@ -14,12 +14,13 @@ return new class extends Migration
             $table->string('email')->nullable()->unique();
             $table->string('phone')->nullable()->unique();
             $table->string('avatar')->nullable();
+            $table->string('age')->nullable();
+            $table->string('gender')->nullable();
             $table->string('password')->nullable();
-            $table->string('google_id')->nullable();
+            $table->string('google_id')->nullable()->unique();
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

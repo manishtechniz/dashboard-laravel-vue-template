@@ -10,8 +10,8 @@
     <v-clients ref="clinet" :initial-roles="{{ json_encode($roles ?? []) }}"></v-clients>
 
     @pushOnce('scripts')
-        <script type="text/x-template" id="v-clients-template">
-            <div>
+    <script type="text/x-template" id="v-clients-template">
+        <div>
                 <!-- Datagrid -->
                 <x-admin::datagrid 
                     ref="clientsGrid"
@@ -95,22 +95,36 @@
             </div>
         </script>
 
-        <script type="module">
-            adminVueApp.component('v-clients', {
-                template: '#v-clients-template',
-                props: {
-                    initialRoles: {
-                        type: Array,
-                        default: () => []
+    <script type="module">
+        adminVueApp.component('v-clients', {
+            template: '#v-clients-template',
+            props: {
+                initialRoles: {
+                    type: Array,
+                    default: () => []
+                }
+            },
+            data() {
+                return {
+                    visible: false,
+                    editMode: false,
+                    loading: false,
+                    roles: this.initialRoles,
+                    user: {
+                        id: null,
+                        name: '',
+                        email: '',
+                        phone: '',
+                        role_id: null,
+                        password: '',
+                        is_active: true
                     }
-                },
-                data() {
-                    return {
-                        visible: false,
-                        editMode: false,
-                        loading: false,
-                        roles: this.initialRoles,
-                        user: {
+                };
+            },
+            watch: {
+                visible(val) {
+                    if (val && !this.editMode) {
+                        this.user = {
                             id: null,
                             name: '',
                             email: '',
@@ -118,72 +132,72 @@
                             role_id: null,
                             password: '',
                             is_active: true
-                        }
-                    };
-                },
-                watch: {
-                    visible(val) {
-                        if (val && !this.editMode) {
-                            this.user = { id: null, name: '', email: '', phone: '', role_id: null, password: '', is_active: true };
-                        } else if (!val) {
-                            this.editMode = false;
-                        }
-                    }
-                },
-                provide() {
-                    return {
-                        customActions: {
-                            edit: this.onEdit
-                        }
-                    };
-                },
-                mounted() {
-                },
-                methods: {
-                    onEdit(row) {
-                       
-                        this.editMode = true;
-                        this.user = {
-                            id: row.id,
-                            name: row.name,
-                            email: row.email,
-                            phone: row.phone,
-                            role_id: parseInt(row.role_id) || null,
-                            password: '',
-                            is_active: !!row.is_active
                         };
-                        this.visible = true;
-                    },
-
-                    saveClient(params) {
-                        this.loading = true;
-                        const url = this.editMode 
-                            ? `{{ route('admin.users.index') }}/${this.user.id}`
-                            : `{{ route('admin.users.store') }}`;
-                        
-                        const payload = {
-                            ...params,
-                            role_id: this.user.role_id,
-                            is_active: this.user.is_active ? 1 : 0
-                        };
-
-                        this.$axios.post(url, payload)
-                            .then(response => {
-                                this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                this.visible = false;
-                                this.loading = false;
-                                this.$refs.clientsGrid.get();
-                            })
-                            .catch(error => {
-                                this.loading = false;
-                                if (error.response && error.response.status === 422) {
-                                    this.$emitter.emit('add-flash', { type: 'error', message: 'Validation failed.' });
-                                }
-                            });
+                    } else if (!val) {
+                        this.editMode = false;
                     }
                 }
-            });
-        </script>
+            },
+            provide() {
+                return {
+                    customActions: {
+                        edit: this.onEdit
+                    }
+                };
+            },
+            mounted() {},
+            methods: {
+                onEdit(row) {
+
+                    this.editMode = true;
+                    this.user = {
+                        id: row.id,
+                        name: row.name,
+                        email: row.email,
+                        phone: row.phone,
+                        role_id: parseInt(row.role_id) || null,
+                        password: '',
+                        is_active: !!row.is_active
+                    };
+                    this.visible = true;
+                },
+
+                saveClient(params, {
+                    resetForm,
+                    setErrors
+                }) {
+                    this.loading = true;
+                    const url = this.editMode ?
+                        `{{ route('admin.users.index') }}/${this.user.id}` :
+                        `{{ route('admin.users.store') }}`;
+
+                    const payload = {
+                        ...params,
+                        role_id: this.user.role_id,
+                        is_active: this.user.is_active ? 1 : 0
+                    };
+
+                    this.$axios.post(url, payload)
+                        .then(response => {
+                            this.$emitter.emit('add-flash', {
+                                type: 'success',
+                                message: response.data.message
+                            });
+                            this.visible = false;
+                            this.loading = false;
+                            resetForm();
+                            this.$refs.clientsGrid.get();
+                        })
+                        .catch(error => {
+                            this.loading = false;
+
+                            if (error.response.status === 422) {
+                                setErrors(error.response.data.errors);
+                            }
+                        });
+                }
+            }
+        });
+    </script>
     @endPushOnce
 </x-admin::layouts>
-

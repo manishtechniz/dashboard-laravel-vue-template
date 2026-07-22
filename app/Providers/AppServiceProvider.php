@@ -22,24 +22,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        URL::forceScheme('https');
+        // URL::forceScheme('https');
 
-        $this->loadTranslationsFrom(__DIR__.'/../Resources/lang/admin', 'admin');
+        $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang/admin', 'admin');
 
         Blade::anonymousComponentPath(
-            __DIR__.'/../../resources/views/components/admin',
+            __DIR__ . '/../../resources/views/components/admin',
             'admin'
         );
 
         $this->loadViewsFrom(
-            __DIR__.'/../../resources/views/admin',
+            __DIR__ . '/../../resources/views/admin',
             'admin'
         );
     }
 
     public function registerHelpers(): void
     {
-        foreach (glob(__DIR__.'/../Http/Helpers/*.php') as $file) {
+        foreach (glob(__DIR__ . '/../Http/Helpers/*.php') as $file) {
             require_once $file;
         }
     }

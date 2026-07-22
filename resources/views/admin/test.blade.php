@@ -2,11 +2,10 @@
     <v-test></v-test>
 
     @pushOnce('scripts')
-        <script
-            type="text/x-template"
-            id="v-test-template"
-        > 
-            <x-admin::form
+    <script
+        type="text/x-template"
+        id="v-test-template">
+        <x-admin::form
                 v-slot="{ meta, errors, handleSubmit }"
                 as="div"
             >
@@ -75,6 +74,18 @@
                             optionValue="code"
                             name="select"
                             label="select" 
+                        />
+                    </x-admin::form.control-group>
+
+                    <!-- File -->
+                    <x-admin::form.control-group>
+                        <x-admin::form.control-group.label label="file" />
+                            
+                        <x-admin::form.control-group.control
+                            type="file"
+                            rules="required"
+                            name="file"
+                            label="file" 
                         />
                     </x-admin::form.control-group>
 
@@ -161,81 +172,132 @@
                         <x-admin::form.control-group.error name="radio" />
                     </x-admin::form.control-group>
 
+                     <Button type="submit" label="Save" :loading="false"   />
+
                 </form>
 
-                <Button type="submit" label="Save" :loading="false"   />
+               
                 <Button type="button" label="Toast Me" :loading="false"  @click="show" />
 
             </x-admin::form>
         </script>
 
-        <script type="module">
-            adminVueApp.component('v-test', {
-                template: '#v-test-template',
+    <script type="module">
+        adminVueApp.component('v-test', {
+            template: '#v-test-template',
 
-                data() {
-                    return { 
-                        emailName:'email',
+            data() {
+                return {
+                    emailName: 'email',
 
-                        cities: [
-                            { name: 'None', code: '' },
-                            { name: 'New York', code: 'NY' },
-                            { name: 'Rome', code: 'RM' },
-                            { name: 'London', code: 'LDN' },
-                            { name: 'Istanbul', code: 'IST' },
-                            { name: 'Paris', code: 'PRS' }
-                        ],
+                    cities: [{
+                            name: 'None',
+                            code: ''
+                        },
+                        {
+                            name: 'New York',
+                            code: 'NY'
+                        },
+                        {
+                            name: 'Rome',
+                            code: 'RM'
+                        },
+                        {
+                            name: 'London',
+                            code: 'LDN'
+                        },
+                        {
+                            name: 'Istanbul',
+                            code: 'IST'
+                        },
+                        {
+                            name: 'Paris',
+                            code: 'PRS'
+                        }
+                    ],
 
-                        countries: [
-                            { name: 'None', code: '' },
-                            { name: 'Australia', code: 'AU' },
-                            { name: 'Brazil', code: 'BR' },
-                            { name: 'China', code: 'CN' },
-                            { name: 'Egypt', code: 'EG' },
-                            { name: 'France', code: 'FR' },
-                            { name: 'Germany', code: 'DE' },
-                            { name: 'India', code: 'IN' },
-                            { name: 'Japan', code: 'JP' },
-                            { name: 'Spain', code: 'ES' },
-                            { name: 'United States', code: 'US' }
-                        ]
-                    };
+                    countries: [{
+                            name: 'None',
+                            code: ''
+                        },
+                        {
+                            name: 'Australia',
+                            code: 'AU'
+                        },
+                        {
+                            name: 'Brazil',
+                            code: 'BR'
+                        },
+                        {
+                            name: 'China',
+                            code: 'CN'
+                        },
+                        {
+                            name: 'Egypt',
+                            code: 'EG'
+                        },
+                        {
+                            name: 'France',
+                            code: 'FR'
+                        },
+                        {
+                            name: 'Germany',
+                            code: 'DE'
+                        },
+                        {
+                            name: 'India',
+                            code: 'IN'
+                        },
+                        {
+                            name: 'Japan',
+                            code: 'JP'
+                        },
+                        {
+                            name: 'Spain',
+                            code: 'ES'
+                        },
+                        {
+                            name: 'United States',
+                            code: 'US'
+                        }
+                    ]
+                };
+            },
+            mounted() {},
+
+            methods: {
+                show() {
+                    // this.$toast.add({ severity: 'info', detail: 'Message Content' });
                 },
-                mounted() {
+                addFilter($event, col) {
+                    this.dynamicsFields[col] = '';
                 },
 
-                methods: {
-                    show() {
-                        // this.$toast.add({ severity: 'info', detail: 'Message Content' });
-                    },
-                    addFilter($event, col) { 
-                        this.dynamicsFields[col] = ''; 
-                    },
+                testChange($event) {},
 
-                    testChange($event) { 
-                    },
+                checkValue() {},
 
-                    checkValue() { 
-                    },
+                create(params, {
+                    resetForm,
+                    setErrors
+                }) {
+                    this.isLoading = true;
 
-                    create(params, { resetForm, setErrors }) {
-                        this.isLoading = true;
+                    this.$axios.post("", params)
+                        .then((response) => {
 
-                        this.$axios.post("{{ route('route_name') }}", params)
-                            .then((response) => {  
+                            resetForm();
+                        })
+                        .catch(error => {
+                            this.isLoading = false;
 
-                                resetForm(); 
-                            })
-                            .catch(error => {                            
-                                this.isLoading = false;
-
-                                if (error.response.status == 422) {
-                                    setErrors(error.response.data.errors);
-                                }
-                            });
-                    }
+                            if (error.response.status == 422) {
+                                setErrors(error.response.data.errors);
+                            }
+                        });
                 }
-            });
-        </script>
+            }
+        });
+    </script>
     @endPushOnce
 </x-admin::layouts>

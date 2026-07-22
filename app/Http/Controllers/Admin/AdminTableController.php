@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\DataGrids\TableDataGrid;
+use App\Model\Club;
 use App\Model\ClubTable;
-use App\Model\Floor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminTableController extends Controller
 {
@@ -15,20 +16,27 @@ class AdminTableController extends Controller
             return datagrid(TableDataGrid::class)->process();
         }
 
-        $floors = Floor::all();
-        return view('admin::tables.index', compact('floors'));
+        $clubs = Club::all();
+        return view('admin::tables.index', compact('clubs'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'floor_id' => 'required|exists:floors,id',
+            'club_id' => 'required|exists:clubs,id',
             'name' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
-            'status' => 'required|string|in:available,reserved,occupied,maintenance',
-            'x_position' => 'nullable|integer',
-            'y_position' => 'nullable|integer',
+            'total_tables' => 'required|integer|min:0',
+            'status' => 'required|string|in:active,inactive',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp',
         ]);
+
+
+        // $fileData = $request->file('image')->store('tables');
+
+        // dd($fileData);
+
+        $validated['image'] = $request->file('image')->store('tables');
 
         ClubTable::create($validated);
 
@@ -37,16 +45,29 @@ class AdminTableController extends Controller
 
     public function update(Request $request, $id)
     {
-        $table = ClubTable::findOrFail($id);
-
+        // dd(1);
         $validated = $request->validate([
-            'floor_id' => 'required|exists:floors,id',
+            'club_id' => 'required|exists:clubs,id',
             'name' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
-            'status' => 'required|string|in:available,reserved,occupied,maintenance',
-            'x_position' => 'nullable|integer',
-            'y_position' => 'nullable|integer',
+            'total_tables' => 'required|integer|min:0',
+            'status' => 'required|string|in:active,inactive',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
+
+        $table = ClubTable::findOrFail($id);
+
+        unset($validated['image']);
+
+        // 3. Handle Avatar Upload
+        if ($request->hasFile('image')) {
+            if ($table->avatar && Storage::exists($table->avatar)) {
+                Storage::delete($table->avatar);
+            }
+
+            // Store new avatar and update the data array with the path
+            $validated['image'] = $request->file('image')->store('tables');
+        }
 
         $table->update($validated);
 

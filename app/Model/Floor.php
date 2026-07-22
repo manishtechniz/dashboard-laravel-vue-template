@@ -23,9 +23,4 @@ class Floor extends Model
     {
         return $this->belongsTo(Branch::class);
     }
-
-    public function tables(): HasMany
-    {
-        return $this->hasMany(ClubTable::class, 'floor_id');
-    }
 }

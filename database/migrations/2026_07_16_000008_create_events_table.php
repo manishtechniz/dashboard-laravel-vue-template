@@ -13,8 +13,9 @@ return new class extends Migration
             $table->foreignId('club_id')->constrained('clubs')->onDelete('cascade');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->dateTime('start_time');
-            $table->dateTime('end_time');
+            $table->dateTime('start_time')->nullable();
+            $table->dateTime('end_time')->nullable();
+            $table->date('event_date');
             $table->decimal('cover_charge', 10, 2)->default(0.00);
             $table->string('image')->nullable();
             $table->integer('capacity')->nullable();

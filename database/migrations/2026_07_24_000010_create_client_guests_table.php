@@ -8,18 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
+        Schema::create('client_guests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
-            $table->foreignId('club_id')->nullable()->constrained('clubs')->onDelete('set null');
-            $table->integer('rating'); // 1-5
-            $table->text('comment')->nullable();
+            $table->string('name');
+
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('age')->nullable();
+            $table->string('gender')->nullable();
+
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('reviews');
+        Schema::dropIfExists('client_guests');
     }
 };

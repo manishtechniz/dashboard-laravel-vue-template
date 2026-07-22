@@ -2,23 +2,22 @@
 
 namespace App\Http\Controllers\Admin\DataGrids;
 
+use App\Traits\ResolvesImageUrls;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Imperial\DataGrid\DataGrid;
 
 class TableDataGrid extends DataGrid
 {
+    use ResolvesImageUrls;
+
     public function prepareQueryBuilder()
     {
         $queryBuilder = DB::table('tables')
-            ->join('floors', 'tables.floor_id', '=', 'floors.id')
-            ->select('tables.id', 'tables.name as table_name', 'floors.name as floor_name', 'tables.capacity', 'tables.status');
+            ->join('clubs', 'tables.club_id', '=', 'clubs.id')
+            ->select('tables.*', 'clubs.name as club_name', 'tables.status as status_html', 'tables.name as table_name');
 
-        $this->addFilter('id', 'tables.id');
         $this->addFilter('table_name', 'tables.name');
-        $this->addFilter('floor_name', 'floors.name');
-        $this->addFilter('capacity', 'tables.capacity');
-        $this->addFilter('status', 'tables.status');
 
         return $queryBuilder;
     }
@@ -34,6 +33,20 @@ class TableDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
+            'index' => 'image',
+            'label' => 'Image',
+            'type' => 'string',
+            'filterable' => false,
+            'sortable' => false,
+            'closure' => function ($row) {
+                // dd($row);
+                // return '';
+                return '<img onerror="this.src=\'' . previewImageURL() . '\';" src="' . $this->getImageUrl($row->image) . '" class="w-10 h-10 object-cover rounded-md" alt="Table Image" />';
+                // return '<span class="text-xs text-gray-400">No Image</span>';
+            },
+        ]);
+
+        $this->addColumn([
             'index' => 'table_name',
             'label' => 'Table Name',
             'type' => 'string',
@@ -43,8 +56,8 @@ class TableDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'floor_name',
-            'label' => 'Floor',
+            'index' => 'club_name',
+            'label' => 'Club',
             'type' => 'string',
             'searchable' => true,
             'filterable' => true,
@@ -60,30 +73,28 @@ class TableDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'status',
+            'index' => 'total_tables',
+            'label' => 'Total Tables',
+            'type' => 'integer',
+            'filterable' => true,
+            'sortable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'status_html',
             'label' => 'Status',
             'type' => 'string',
             'filterable' => true,
             'filterable_type' => 'dropdown',
             'filterable_options' => [
-                ['label' => 'Available', 'value' => 'available'],
-                ['label' => 'Reserved', 'value' => 'reserved'],
-                ['label' => 'Occupied', 'value' => 'occupied'],
-                ['label' => 'Maintenance', 'value' => 'maintenance'],
+                ['label' => 'Active', 'value' => 'active'],
+                ['label' => 'Inactive', 'value' => 'inactive'],
             ],
             'closure' => function ($row) {
-                switch ($row->status) {
-                    case 'available':
-                        return '<span class="label-active">Available</span>';
-                    case 'reserved':
-                        return '<span class="label-pending">Reserved</span>';
-                    case 'occupied':
-                        return '<span class="label-processing">Occupied</span>';
-                    case 'maintenance':
-                        return '<span class="label-inactive">Maintenance</span>';
-                    default:
-                        return $row->status;
+                if ($row->status === 'active') {
+                    return '<span class="label-active">Active</span>';
                 }
+                return '<span class="label-inactive">Inactive</span>';
             },
         ]);
     }

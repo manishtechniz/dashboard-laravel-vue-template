@@ -20,6 +20,9 @@ class Booking extends Model
         'status',
         'special_requests',
         'qr_code',
+        'client_name',
+        'client_phone',
+        'client_email',
     ];
 
     protected $casts = [

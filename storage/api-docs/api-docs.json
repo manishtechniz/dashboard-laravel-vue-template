@@ -969,16 +969,37 @@
                 ]
             }
         },
-        "/api/tables/floors": {
+        "/api/tables": {
             "get": {
                 "tags": [
                     "Tables"
                 ],
-                "summary": "List active floors with available tables",
-                "operationId": "13e668adfb4a9c6afd30ff65319fa4bf",
+                "summary": "List active tables",
+                "operationId": "851bda608e8f5a507627461e9fc087ff",
+                "parameters": [
+                    {
+                        "name": "booking_date",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2022-01-01"
+                        }
+                    },
+                    {
+                        "name": "club_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "List of active floors and available tables",
+                        "description": "List of active tables",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -999,76 +1020,6 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/api/tables/available": {
-            "get": {
-                "tags": [
-                    "Tables"
-                ],
-                "summary": "Check table availability by date, time slot, and capacity",
-                "operationId": "aed3b1657e966bd5a446564b2f626392",
-                "parameters": [
-                    {
-                        "name": "booking_date",
-                        "in": "query",
-                        "description": "Booking Date (YYYY-MM-DD)",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "date",
-                            "example": "2026-08-01"
-                        }
-                    },
-                    {
-                        "name": "start_time",
-                        "in": "query",
-                        "description": "Start Time (HH:MM)",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "19:00"
-                        }
-                    },
-                    {
-                        "name": "end_time",
-                        "in": "query",
-                        "description": "End Time (HH:MM)",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "22:00"
-                        }
-                    },
-                    {
-                        "name": "capacity",
-                        "in": "query",
-                        "description": "Minimum table guest capacity",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 4
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of available tables",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation errors"
-                    }
-                }
             }
         },
         "/api/qrcode/{code}": {
@@ -1224,7 +1175,7 @@
         },
         {
             "name": "Tables",
-            "description": "API Endpoints for Table & Floor Availability"
+            "description": "API Endpoints for Table"
         },
         {
             "name": "QR Code",

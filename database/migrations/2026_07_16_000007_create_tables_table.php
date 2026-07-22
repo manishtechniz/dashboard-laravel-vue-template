@@ -10,12 +10,12 @@ return new class extends Migration
     {
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('floor_id')->constrained('floors')->onDelete('cascade');
+            $table->foreignId('club_id')->constrained('clubs')->onDelete('cascade');
+            $table->integer('total_tables')->default(0);
             $table->string('name');
             $table->integer('capacity');
-            $table->string('status')->default('available'); // available, reserved, occupied, maintenance
-            $table->integer('x_position')->nullable();
-            $table->integer('y_position')->nullable();
+            $table->string('status')->default('active'); // active, inactive
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
