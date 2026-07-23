@@ -3,18 +3,58 @@
 namespace App\Http\Controllers\Api;
 
 use App\Model\Booking;
+use App\Model\BookingGuest;
+use App\Model\ClientGuest;
 use App\Model\ClubTable;
+use App\Services\CouponService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: "Bookings", description: "API Endpoints for Client Bookings")]
 class ClientBookingController extends Controller
 {
+    public function __construct(
+        private CouponService $couponService,
+    ) {}
+
     #[OA\Get(
         path: "/api/bookings",
         summary: "List authenticated client bookings",
         tags: ["Bookings"],
         security: [["bearerAuth" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "club_id",
+                in: "query",
+                required: false,
+                description: "Filter bookings by a specific club",
+                schema: new OA\Schema(type: "integer")
+            ),
+            new OA\Parameter(
+                name: "event_id",
+                in: "query",
+                required: false,
+                description: "Filter bookings by a specific event",
+                schema: new OA\Schema(type: "integer")
+            ),
+            new OA\Parameter(
+                name: "table_id",
+                in: "query",
+                required: false,
+                description: "Filter bookings by a specific table",
+                schema: new OA\Schema(type: "integer")
+            ),
+            new OA\Parameter(
+                name: "booking_date",
+                in: "query",
+                required: false,
+                description: "Filter bookings by a specific date",
+                schema: new OA\Schema(type: "date")
+            )
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -26,12 +66,43 @@ class ClientBookingController extends Controller
     )]
     public function index(Request $request)
     {
-        $bookings = $request->user()->bookings()
-            ->with(['table', 'event'])
-            ->latest()
-            ->get();
+        $validated = $request->validate([
+            'club_id' => 'nullable|exists:clubs,id',
+            'event_id' => 'nullable|exists:events,id',
+        ]);
 
-        return response()->json($bookings);
+        $clubId = $validated['club_id'] ?? null;
+        $eventId = $validated['event_id'] ?? null;
+        $tableId = $validated['table_id'] ?? null;
+        $bookingDate = $validated['booking_date'] ?? null;
+
+        try {
+            $bookings = $request->user()->bookings()
+                ->when($clubId, function ($query) use ($clubId) {
+                    $query->where('club_id', $clubId);
+                })
+                ->when($eventId, function ($query) use ($eventId) {
+                    $query->where('event_id', $eventId);
+                })
+                ->when($tableId, function ($query) use ($tableId) {
+                    $query->where('table_id', $tableId);
+                })
+                ->when($bookingDate, function ($query) use ($bookingDate) {
+                    $query->whereDate('booking_date', $bookingDate);
+                })
+                ->with(['table:id,name', 'club:id,name', 'guests'])
+                ->latest()
+                ->paginate();
+
+            return response()->json([
+                'data' => $bookings
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Encounter error during booking request.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     #[OA\Get(
@@ -54,11 +125,27 @@ class ClientBookingController extends Controller
     )]
     public function show(Request $request, $id)
     {
-        $booking = $request->user()->bookings()
-            ->with(['table', 'event', 'guests'])
-            ->findOrFail($id);
+        try {
+            $booking = $request->user()->bookings()
+                ->where('id', $id)
+                ->with(['table:id,name', 'club:id,name', 'guests'])
+                ->first();
 
-        return response()->json($booking);
+            if (!$booking) {
+                return response()->json([
+                    'message' => 'Record not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'booking' => $booking
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Encounter error during booking request.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     #[OA\Post(
@@ -69,25 +156,22 @@ class ClientBookingController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["booking_date", "start_time", "end_time", "guest_count"],
+                required: ["booking_date", "table_id", "club_id", "guest_ids"],
                 properties: [
-                    new OA\Property(property: "table_id", type: "integer", nullable: true, example: 1),
-                    new OA\Property(property: "event_id", type: "integer", nullable: true, example: 2),
-                    new OA\Property(property: "booking_date", type: "string", format: "date", example: "2026-08-01"),
-                    new OA\Property(property: "start_time", type: "string", example: "19:00"),
+                    new OA\Property(property: "table_id", type: "integer", example: 1),
+                    new OA\Property(property: "event_id", type: "integer", example: 1),
+                    new OA\Property(property: "club_id", type: "integer", example: 1),
+                    new OA\Property(property: "booking_date", type: "string", format: "date", example: "2026-07-23"),
+                    new OA\Property(property: "start_time", type: "string", example: "2:00"),
                     new OA\Property(property: "end_time", type: "string", example: "22:00"),
-                    new OA\Property(property: "guest_count", type: "integer", example: 4),
-                    new OA\Property(property: "special_requests", type: "string", example: "Window side table"),
+                    new OA\Property(property: "discount_source", type: "string", example: ""),
+                    new OA\Property(property: "discount_code", type: "string", example: "ABCF123"),
+                    new OA\Property(property: "discount_note", type: "string", example: ""),
+                    new OA\Property(property: "special_requests", type: "string", example: "Say something related to booking or instruction something"),
                     new OA\Property(
-                        property: "guests",
+                        property: "guest_ids",
                         type: "array",
-                        items: new OA\Items(
-                            properties: [
-                                new OA\Property(property: "name", type: "string", example: "Jane Doe"),
-                                new OA\Property(property: "email", type: "string", format: "email", example: "jane@example.com"),
-                                new OA\Property(property: "phone", type: "string", example: "+1234567890")
-                            ]
-                        )
+                        items: new OA\Items(type: "integer", example: 5) // <-- Added this line
                     )
                 ]
             )
@@ -109,54 +193,162 @@ class ClientBookingController extends Controller
     )]
     public function store(Request $request)
     {
+        $clubId = $request['club_id'] ?? null;
+        $client = $request->user();
+        $clientId = $client->id;
+
         $validated = $request->validate([
-            'table_id' => 'nullable|exists:tables,id',
+            'club_id' => 'required|exists:clubs,id',
+            'table_id' => [
+                'required',
+                Rule::exists('tables', 'id')->where('club_id', $clubId),
+            ],
             'event_id' => 'nullable|exists:events,id',
             'booking_date' => 'required|date|after_or_equal:today',
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'guest_count' => 'required|integer|min:1',
-            'special_requests' => 'nullable|string',
-            'guests' => 'nullable|array',
-            'guests.*.name' => 'required|string',
-            'guests.*.email' => 'nullable|email',
-            'guests.*.phone' => 'nullable|string',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after:start_time',
+            'discount_code' => 'nullable|max:100',
+            'discount_source' => 'nullable|max:200',
+            'discount_note' => 'nullable|max:500',
+            'special_requests' => 'nullable|max:2000',
+            'guest_ids' => 'nullable|array',
+            'guest_ids.*' => [
+                'nullable',
+                'integer',
+                Rule::exists('client_guests', 'id')->where(function ($query) use ($clientId) {
+                    $query->where('client_id', $clientId);
+                }),
+            ],
         ]);
 
-        // Check if table is available
-        if (!empty($validated['table_id'])) {
-            $isOccupied = Booking::where('table_id', $validated['table_id'])
-                ->where('booking_date', $validated['booking_date'])
-                ->where('status', '!=', 'cancelled')
-                ->where(function ($query) use ($validated) {
-                    $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
-                          ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']]);
-                })
-                ->exists();
+        DB::beginTransaction();
 
-            if ($isOccupied) {
-                return response()->json(['message' => 'Selected table is occupied for the requested slot.'], 422);
+        try {
+            $bookingDate = $validated['booking_date'];
+            $guestIds = $validated['guest_ids'] ?? [];
+
+            unset($validated['guest_ids']);
+
+            /**
+             * Check if table is available or not
+             */
+            $clubTable = ClubTable::where([
+                'status' => 'active',
+                'club_id' => $clubId,
+            ])
+                ->with(['bookings' => function ($query) use ($bookingDate) {
+                    $query->whereDate('booking_date', $bookingDate)
+                        ->where('status', '!=', 'cancelled');
+                }, 'club:id,name'])
+                ->first();
+
+            $totalBookings = $clubTable->bookings->count();
+            $remainVipTable = max(0, $clubTable->total_tables - $totalBookings);
+            $isAvailable = $remainVipTable > 0;
+
+            if (!$isAvailable) {
+                return response()->json(create422ErrorFormat('table_id', 'Selected table is not available'), 422);
             }
-        }
 
-        // Generate dynamic QR code payload
-        $bookingCode = 'IMP-' . strtoupper(uniqid());
+            // return [$clubTable];
 
-        $booking = $request->user()->bookings()->create(array_merge($validated, [
-            'status' => 'pending',
-            'qr_code' => $bookingCode
-        ]));
+            $basePrice = $clubTable->price ?? 0;
+            $discount = 0;
+            $discountType =  null;
+            $maxDiscountAmount = 0;
+            $couponCode = $validated['discount_code'] ?? null;
 
-        if (!empty($validated['guests'])) {
-            foreach ($validated['guests'] as $guest) {
-                $booking->guests()->create($guest);
+            // Coupon functionality
+            if (! empty($couponCode)) {
+                $couponService = $this->couponService->apply($couponCode, $basePrice);
+
+                if (! $couponService['status']) {
+                    return response()->json($couponService, 422);
+                }
+
+                $discount = $couponService['discount'];
+                $discountType = $couponService['discount_type'];
+                $maxDiscountAmount = $couponService['max_discount_amount'];
+
+                $couponService['instance']->increment('used_count');
+                $couponService['instance']->save();
             }
-        }
 
-        return response()->json([
-            'message' => 'Booking request submitted successfully.',
-            'booking' => $booking->load('guests')
-        ], 201);
+            // Generate dynamic QR code payload
+            $bookingCode = 'CLUB-' . strtoupper(uniqid()) . $client->id;
+
+            // Calculations
+            $taxRate = 0;
+            $totalAmountExclTax = $basePrice - $discount;
+            $taxAmount = ($totalAmountExclTax * $taxRate) / 100;
+            $totalAmountInclTax = $totalAmountExclTax + $taxAmount;
+
+
+            $booking = $request->user()->bookings()->create(array_merge($validated, [
+                'status' => 'pending',
+                'payment_method' => 'cash',
+                'payment_gateway' => 'cash',
+                'payment_status' => 'pending',
+
+                'qr_code' => $bookingCode,
+                'guest_count' => count($guestIds),
+
+                // Screenshot
+                'club_name' => $clubTable->club->name,
+                'client_name' => $client->name ?? null,
+                'client_phone' => $client->phone ?? null,
+                'client_email' => $client->email ?? null,
+
+                'spend_amount' => $basePrice,
+                'base_price' => $basePrice,
+
+                // Discount
+                'discount_type' => $discountType,
+                'discount_amount' => $discount,
+                'max_discount_amount' => $maxDiscountAmount,
+                // discount_code, discount_source, discount_note filled by request
+
+                // Tax
+                'tax_rate' => $taxRate,
+                'tax_amount' => $taxAmount,
+                'total_amount_excl_tax' => $totalAmountExclTax,
+                'total_amount_incl_tax' => $totalAmountInclTax,
+            ]));
+
+            $clientGuests = ClientGuest::whereIn('id', $guestIds)->get();
+
+            $prepareBookingGuest = [];
+
+            foreach ($clientGuests as $clientGuest) {
+                $prepareBookingGuest[] = [
+                    'booking_id' => $booking->id,
+                    'guest_id' => $clientGuest->id,
+                    'email' => $client->email ?? null,
+                    'phone' => $client->phone ?? null,
+                    'name' => $client->name ?? null,
+                    'age' => $client->age ?? null,
+                    'gender' => $client->gender ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            BookingGuest::insert($prepareBookingGuest);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Booking request submitted successfully.',
+                'booking' => $booking,
+            ], 201);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Encounter error during booking request.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     #[OA\Post(
@@ -183,7 +375,13 @@ class ClientBookingController extends Controller
     )]
     public function cancel(Request $request, $id)
     {
-        $booking = $request->user()->bookings()->findOrFail($id);
+        $booking = $request->user()->bookings()->where('id', $id)->first();
+
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Record not found.'
+            ], 404);
+        }
 
         if ($booking->status === 'checked_in') {
             return response()->json(['message' => 'Checked in bookings cannot be cancelled.'], 422);

@@ -56,7 +56,7 @@ class ClientTableController extends Controller
             ])
                 ->with(['bookings' => function ($query) use ($bookingDate) {
                     $query->whereDate('booking_date', $bookingDate)
-                        ->where('status', 'confirmed');
+                        ->where('status', '!=', 'cancelled');
                 }])
                 ->get();
 
@@ -74,7 +74,9 @@ class ClientTableController extends Controller
                 return $tableArray;
             });
 
-            return response()->json($tablesData);
+            return response()->json([
+                'data' => $tablesData
+            ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Encountered error during fetch tables.'

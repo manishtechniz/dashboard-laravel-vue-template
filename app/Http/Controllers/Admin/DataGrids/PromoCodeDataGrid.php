@@ -11,7 +11,7 @@ class PromoCodeDataGrid extends DataGrid
     public function prepareQueryBuilder()
     {
         return DB::table('promo_codes')
-            ->select('id', 'code', 'type', 'value', 'start_date', 'end_date', 'usage_limit', 'used_count', 'is_active');
+            ->select('*', 'value as value_html');
     }
 
     public function prepareColumns()
@@ -41,10 +41,21 @@ class PromoCodeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'value',
-            'label' => 'Discount Value',
+            'index' => 'value_html',
+            'label' => 'Value',
             'type' => 'decimal',
             'sortable' => true,
+            'closure' => function ($row) {
+                if ($row->type == 'fixed') {
+                    return '₹' . ' ' . $row->value;
+                }
+
+                if ($row->type == 'percentage') {
+                    return $row->value . ' %';
+                }
+
+                return $row->value ?? '-';
+            },
         ]);
 
         $this->addColumn([

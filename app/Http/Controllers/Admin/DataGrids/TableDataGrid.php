@@ -15,7 +15,7 @@ class TableDataGrid extends DataGrid
     {
         $queryBuilder = DB::table('tables')
             ->join('clubs', 'tables.club_id', '=', 'clubs.id')
-            ->select('tables.*', 'clubs.name as club_name', 'tables.status as status_html', 'tables.name as table_name');
+            ->select('tables.*', 'clubs.name as club_name', 'tables.status as status_html', 'tables.name as table_name', 'tables.price as price_html', 'tables.cover_charge as html_cover_charge');
 
         $this->addFilter('table_name', 'tables.name');
 
@@ -53,6 +53,37 @@ class TableDataGrid extends DataGrid
             'searchable' => true,
             'filterable' => true,
             'sortable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'label',
+            'label' => 'Price Label',
+            'type' => 'string',
+            'searchable' => true,
+            'filterable' => true,
+            'sortable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'price_html',
+            'label' => 'Min. Price',
+            'type' => 'decimal',
+            'filterable' => true,
+            'sortable' => true,
+            'closure' => function ($row) {
+                return '₹' . ' ' . number_format($row->price, 2);
+            }
+        ]);
+
+        $this->addColumn([
+            'index' => 'html_cover_charge',
+            'label' => 'Cover Charge',
+            'type' => 'decimal',
+            'filterable' => true,
+            'sortable' => true,
+            'closure' => function ($row) {
+                return '₹' . ' ' . number_format($row->cover_charge, 2);
+            }
         ]);
 
         $this->addColumn([

@@ -49,16 +49,53 @@
                                 />
                             </x-admin::form.control-group>
 
-                            <x-admin::form.control-group>
-                                <x-admin::form.control-group.label label="Capacity" />
-                                <x-admin::form.control-group.control
-                                    type="text"
-                                    name="capacity"
-                                    v-model="table.capacity"
-                                    rules="required"
-                                    placeholder="e.g. 4, 6, 8"
-                                />
-                            </x-admin::form.control-group>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb">
+                                <x-admin::form.control-group class="mb-0!">
+                                    <x-admin::form.control-group.label label="Price Label" />
+                                    <x-admin::form.control-group.control
+                                        type="text"
+                                        name="label"
+                                        v-model="table.label"
+                                        rules="required"
+                                        placeholder="e.g. VIP Table, Premium Lounge"
+                                    />
+                                </x-admin::form.control-group>
+
+                                <x-admin::form.control-group class="mb-0!">
+                                    <x-admin::form.control-group.label label="Min. Price" />
+                                    <x-admin::form.control-group.control
+                                        type="text"
+                                        name="price"
+                                        v-model="table.price"
+                                        rules="required"
+                                        placeholder="e.g. 1500.00"
+                                    />
+                                </x-admin::form.control-group>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb">
+                                <x-admin::form.control-group class="mb-0!">
+                                    <x-admin::form.control-group.label label="Cover Charge" />
+                                    <x-admin::form.control-group.control
+                                        type="text"
+                                        name="cover_charge"
+                                        v-model="table.cover_charge"
+                                        rules="required"
+                                        placeholder="e.g. 500.00"
+                                    />
+                                </x-admin::form.control-group>
+
+                                <x-admin::form.control-group class="mb-0!">
+                                    <x-admin::form.control-group.label label="Capacity" />
+                                    <x-admin::form.control-group.control
+                                        type="text"
+                                        name="capacity"
+                                        v-model="table.capacity"
+                                        rules="required"
+                                        placeholder="e.g. 4, 6, 8"
+                                    />
+                                </x-admin::form.control-group>
+                            </div>
 
                             <x-admin::form.control-group>
                                 <x-admin::form.control-group.label label="Total Tables" />
@@ -120,6 +157,9 @@
                         id: null,
                         club_id: null,
                         name: '',
+                        label: '',
+                        price: 0.00,
+                        cover_charge: 0.00,
                         capacity: 4,
                         total_tables: 0,
                         status: 'active',
@@ -147,6 +187,9 @@
                             id: null,
                             club_id: null,
                             name: null,
+                            label: null,
+                            price: null,
+                            cover_charge: null,
                             capacity: null,
                             total_tables: null,
                             status: null,
@@ -177,6 +220,9 @@
                         id: row.id,
                         club_id: row.club_id,
                         name: row.table_name,
+                        label: row.label,
+                        price: row.price,
+                        cover_charge: row.cover_charge,
                         capacity: row.capacity,
                         total_tables: row.total_tables,
                         status: row.status
@@ -204,6 +250,9 @@
                     formData.append('club_id', params.club_id);
                     formData.append('status', params.status);
                     formData.append('name', params.name);
+                    formData.append('label', params.label);
+                    formData.append('price', params.price);
+                    formData.append('cover_charge', params.cover_charge);
                     formData.append('capacity', params.capacity);
                     formData.append('total_tables', params.total_tables);
 

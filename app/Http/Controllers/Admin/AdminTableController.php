@@ -25,6 +25,9 @@ class AdminTableController extends Controller
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
             'name' => 'required|string|max:255',
+            'label' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'cover_charge' => 'required|numeric|min:0',
             'capacity' => 'required|integer|min:1',
             'total_tables' => 'required|integer|min:0',
             'status' => 'required|string|in:active,inactive',
@@ -49,6 +52,9 @@ class AdminTableController extends Controller
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
             'name' => 'required|string|max:255',
+            'label' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'cover_charge' => 'required|numeric|min:0',
             'capacity' => 'required|integer|min:1',
             'total_tables' => 'required|integer|min:0',
             'status' => 'required|string|in:active,inactive',

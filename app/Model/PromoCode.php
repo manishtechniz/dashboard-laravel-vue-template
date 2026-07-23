@@ -6,17 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class PromoCode extends Model
 {
-    protected $fillable = [
-        'code',
-        'type',
-        'value',
-        'start_date',
-        'end_date',
-        'min_spend',
-        'max_discount',
-        'usage_limit',
-        'used_count',
-        'is_active',
+    protected $guarded = [
+        'id',
+        'created_at',
     ];
 
     protected $casts = [

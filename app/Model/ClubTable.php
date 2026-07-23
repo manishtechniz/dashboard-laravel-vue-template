@@ -19,10 +19,18 @@ class ClubTable extends Model
     protected $fillable = [
         'club_id',
         'name',
+        'label',
+        'price',
+        'cover_charge',
         'capacity',
         'total_tables',
         'status',
         'image',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'cover_charge' => 'decimal:2',
     ];
 
     public function club(): BelongsTo

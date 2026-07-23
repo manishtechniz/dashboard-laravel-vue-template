@@ -25,9 +25,12 @@ class ClientNotificationController extends Controller
     )]
     public function index(Request $request)
     {
-        $notifications = $request->user()->notifications()->latest()->get();
+        $notifications = $request->user()->notifications()->latest()
+            ->paginate();
 
-        return response()->json($notifications);
+        return response()->json([
+            'data' => $notifications
+        ]);
     }
 
     #[OA\Post(

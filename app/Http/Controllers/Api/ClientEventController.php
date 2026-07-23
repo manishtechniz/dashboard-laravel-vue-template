@@ -26,9 +26,11 @@ class ClientEventController extends Controller
         $events = Event::with('club')
             ->where('end_time', '>=', now())
             ->orderBy('start_time')
-            ->get();
+            ->paginate();
 
-        return response()->json($events);
+        return response()->json([
+            'data' => $events
+        ]);
     }
 
     #[OA\Get(

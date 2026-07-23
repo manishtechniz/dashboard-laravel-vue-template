@@ -16,9 +16,7 @@ return new class extends Migration
             $table->dateTime('start_time')->nullable();
             $table->dateTime('end_time')->nullable();
             $table->date('event_date');
-            $table->decimal('cover_charge', 10, 2)->default(0.00);
             $table->string('image')->nullable();
-            $table->integer('capacity')->nullable();
             $table->timestamps();
         });
     }

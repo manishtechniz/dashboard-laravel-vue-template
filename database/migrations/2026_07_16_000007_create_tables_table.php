@@ -13,6 +13,9 @@ return new class extends Migration
             $table->foreignId('club_id')->constrained('clubs')->onDelete('cascade');
             $table->integer('total_tables')->default(0);
             $table->string('name');
+            $table->string('label');
+            $table->decimal('price', 10, 2)->default(0.00);
+            $table->decimal('cover_charge', 10, 2)->default(0.00);
             $table->integer('capacity');
             $table->string('status')->default('active'); // active, inactive
             $table->string('image')->nullable();

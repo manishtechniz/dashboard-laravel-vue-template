@@ -9,20 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Booking extends Model
 {
-    protected $fillable = [
-        'client_id',
-        'table_id',
-        'event_id',
-        'booking_date',
-        'start_time',
-        'end_time',
-        'guest_count',
-        'status',
-        'special_requests',
-        'qr_code',
-        'client_name',
-        'client_phone',
-        'client_email',
+    protected $guarded = [
+        'id',
+        'created_at',
     ];
 
     protected $casts = [
@@ -42,6 +31,11 @@ class Booking extends Model
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function club(): BelongsTo
+    {
+        return $this->belongsTo(Club::class);
     }
 
     public function guests(): HasMany

@@ -53,4 +53,19 @@ class Client extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class);
+    }
+
+    public function guests(): HasMany
+    {
+        return $this->hasMany(ClientGuest::class);
+    }
+
+    public function featureRequests(): HasMany
+    {
+        return $this->hasMany(FeatureRequest::class);
+    }
 }

@@ -7,6 +7,11 @@ use App\Http\Controllers\Api\ClientNotificationController;
 use App\Http\Controllers\Api\ClientPaymentController;
 use App\Http\Controllers\Api\ClientTableController;
 use App\Http\Controllers\Api\QrCodeController;
+use App\Http\Controllers\Api\ClientReviewController;
+use App\Http\Controllers\Api\ClientComplaintController;
+use App\Http\Controllers\Api\ClientGuestController;
+use App\Http\Controllers\Api\ClientFeatureRequestController;
+use App\Http\Controllers\Api\PromoCodeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +51,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Tables
     Route::get('/tables', [ClientTableController::class, 'index']);
 
+    // Promo Code
+    Route::get('/promo-codes', [PromoCodeController::class, 'index']);
+
     // Payments
     Route::post('/payments/pay', [ClientPaymentController::class, 'pay']);
 
@@ -56,4 +64,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // QR checkin
     Route::post('/qrcode/validate', [QrCodeController::class, 'validateCode']);
+
+    // Reviews
+    Route::get('/reviews', [ClientReviewController::class, 'index']);
+    Route::post('/reviews', [ClientReviewController::class, 'store']);
+
+    // Complaints
+    Route::get('/complaints', [ClientComplaintController::class, 'index']);
+    Route::post('/complaints', [ClientComplaintController::class, 'store']);
+
+    // Client Guests
+    Route::get('/guests', [ClientGuestController::class, 'index']);
+    Route::post('/guests', [ClientGuestController::class, 'store']);
+    Route::put('/guests', [ClientGuestController::class, 'update']);
+    Route::delete('/guests/{id}', [ClientGuestController::class, 'destroy']);
+
+    // Feature Requests
+    Route::get('/feature-requests', [ClientFeatureRequestController::class, 'index']);
+    Route::post('/feature-requests', [ClientFeatureRequestController::class, 'store']);
 });

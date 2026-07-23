@@ -458,6 +458,45 @@
                 ],
                 "summary": "List authenticated client bookings",
                 "operationId": "bfcd02212e1e0f38f278be30ad3927aa",
+                "parameters": [
+                    {
+                        "name": "club_id",
+                        "in": "query",
+                        "description": "Filter bookings by a specific club",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "query",
+                        "description": "Filter bookings by a specific event",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "table_id",
+                        "in": "query",
+                        "description": "Filter bookings by a specific table",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "booking_date",
+                        "in": "query",
+                        "description": "Filter bookings by a specific date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of bookings",
@@ -495,61 +534,57 @@
                             "schema": {
                                 "required": [
                                     "booking_date",
-                                    "start_time",
-                                    "end_time",
-                                    "guest_count"
+                                    "table_id",
+                                    "club_id",
+                                    "guest_ids"
                                 ],
                                 "properties": {
                                     "table_id": {
                                         "type": "integer",
-                                        "example": 1,
-                                        "nullable": true
+                                        "example": 1
                                     },
                                     "event_id": {
                                         "type": "integer",
-                                        "example": 2,
-                                        "nullable": true
+                                        "example": 1
+                                    },
+                                    "club_id": {
+                                        "type": "integer",
+                                        "example": 1
                                     },
                                     "booking_date": {
                                         "type": "string",
                                         "format": "date",
-                                        "example": "2026-08-01"
+                                        "example": "2026-07-23"
                                     },
                                     "start_time": {
                                         "type": "string",
-                                        "example": "19:00"
+                                        "example": "2:00"
                                     },
                                     "end_time": {
                                         "type": "string",
                                         "example": "22:00"
                                     },
-                                    "guest_count": {
-                                        "type": "integer",
-                                        "example": 4
+                                    "discount_source": {
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "discount_code": {
+                                        "type": "string",
+                                        "example": "ABCF123"
+                                    },
+                                    "discount_note": {
+                                        "type": "string",
+                                        "example": ""
                                     },
                                     "special_requests": {
                                         "type": "string",
-                                        "example": "Window side table"
+                                        "example": "Say something related to booking or instruction something"
                                     },
-                                    "guests": {
+                                    "guest_ids": {
                                         "type": "array",
                                         "items": {
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Jane Doe"
-                                                },
-                                                "email": {
-                                                    "type": "string",
-                                                    "format": "email",
-                                                    "example": "jane@example.com"
-                                                },
-                                                "phone": {
-                                                    "type": "string",
-                                                    "example": "+1234567890"
-                                                }
-                                            },
-                                            "type": "object"
+                                            "type": "integer",
+                                            "example": 5
                                         }
                                     }
                                 },
@@ -683,6 +718,92 @@
                 ]
             }
         },
+        "/api/complaints": {
+            "get": {
+                "tags": [
+                    "Complaints"
+                ],
+                "summary": "List complaints submitted by the client",
+                "operationId": "d72484267f44c6674956f7c9053686d8",
+                "responses": {
+                    "200": {
+                        "description": "List of complaints",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Complaints"
+                ],
+                "summary": "Submit a new complaint",
+                "operationId": "4e023686cd44daeeac27f8d41f047e42",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "club_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "The service at the VIP section was extremely slow."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Complaint submitted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/events": {
             "get": {
                 "tags": [
@@ -740,6 +861,332 @@
                         "description": "Event not found"
                     }
                 }
+            }
+        },
+        "/api/feature-requests": {
+            "get": {
+                "tags": [
+                    "Feature Requests"
+                ],
+                "summary": "List feature requests submitted by the client",
+                "operationId": "ff0ed5597369f166a161e9c2f8e5caae",
+                "responses": {
+                    "200": {
+                        "description": "List of feature requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Feature Requests"
+                ],
+                "summary": "Submit a new feature request",
+                "operationId": "c504e65777ea1cf621fe8e4168050ca8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Integrate Apple Pay"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "It would be great to be able to pay for bookings using Apple Pay directly in the app."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Feature request submitted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/guests": {
+            "get": {
+                "tags": [
+                    "Client Guests"
+                ],
+                "summary": "List all guests of the client",
+                "operationId": "ecc98b9be63be0359f86ed1dfb533927",
+                "responses": {
+                    "200": {
+                        "description": "List of guests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Client Guests"
+                ],
+                "summary": "Sync / Bulk update client guest list",
+                "operationId": "adceca23c0a049b9c9e70110d9c3cbe1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "guests"
+                                ],
+                                "properties": {
+                                    "guests": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "name",
+                                                "age",
+                                                "gender"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe Updated"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "john_updated@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890"
+                                                },
+                                                "age": {
+                                                    "type": "string",
+                                                    "example": "26"
+                                                },
+                                                "gender": {
+                                                    "type": "string",
+                                                    "example": "male"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Guest list updated and synchronized successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Client Guests"
+                ],
+                "summary": "Add one or multiple guests to the client guest list",
+                "operationId": "4868f4be16354458a5ee48379e0038e0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "guests": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "name",
+                                                "age",
+                                                "gender"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Jane Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "jane@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890"
+                                                },
+                                                "age": {
+                                                    "type": "string",
+                                                    "example": "24"
+                                                },
+                                                "gender": {
+                                                    "type": "string",
+                                                    "example": "female"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Guests added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/guests/{id}": {
+            "delete": {
+                "tags": [
+                    "Client Guests"
+                ],
+                "summary": "Remove guest from list",
+                "operationId": "2174f2bed7bd2055e4529b5d6c959d80",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Guest ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Guest removed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Guest removed successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Guest not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/notifications": {
@@ -969,6 +1416,109 @@
                 ]
             }
         },
+        "/api/reviews": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "List all reviews",
+                "operationId": "7d8a0635268917440915cc68c478b000",
+                "parameters": [
+                    {
+                        "name": "club_id",
+                        "in": "query",
+                        "description": "Filter by Club ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of reviews",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Create a review for a club",
+                "operationId": "63dea222a42904c6783e3fb43e7e8b55",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "rating"
+                                ],
+                                "properties": {
+                                    "club_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "rating": {
+                                        "type": "integer",
+                                        "example": 5,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "comment": {
+                                        "type": "string",
+                                        "example": "Amazing place, great music!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Review created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/tables": {
             "get": {
                 "tags": [
@@ -1000,6 +1550,38 @@
                 "responses": {
                     "200": {
                         "description": "List of active tables",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/promo-codes": {
+            "get": {
+                "tags": [
+                    "Promo Code"
+                ],
+                "summary": "List active promo code",
+                "operationId": "b6cf657ee38c94c693b05f8f15fb2f8e",
+                "responses": {
+                    "200": {
+                        "description": "List of active code",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1162,8 +1744,20 @@
             "description": "API Endpoints for Client Bookings"
         },
         {
+            "name": "Complaints",
+            "description": "API Endpoints for Client Complaints"
+        },
+        {
             "name": "Events",
             "description": "API Endpoints for Club Events"
+        },
+        {
+            "name": "Feature Requests",
+            "description": "API Endpoints for Client Feature Requests"
+        },
+        {
+            "name": "Client Guests",
+            "description": "API Endpoints for Client Guest List Management"
         },
         {
             "name": "Notifications",
@@ -1174,8 +1768,16 @@
             "description": "API Endpoints for Client Payments"
         },
         {
+            "name": "Reviews",
+            "description": "API Endpoints for Club Reviews"
+        },
+        {
             "name": "Tables",
             "description": "API Endpoints for Table"
+        },
+        {
+            "name": "Promo Code",
+            "description": "API Endpoints for Promo Code"
         },
         {
             "name": "QR Code",
