@@ -12,7 +12,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->foreignId('club_id')->nullable()->constrained('clubs')->onDelete('set null');
-            $table->text('message');
+            $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('set null');
+            $table->boolean('is_active')->default(true);
+            $table->string('message', 2000);
+            $table->string('remark', 1000)->nullable();
             $table->timestamps();
         });
     }

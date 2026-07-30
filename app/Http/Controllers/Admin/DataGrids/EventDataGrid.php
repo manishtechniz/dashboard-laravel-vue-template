@@ -12,15 +12,13 @@ class EventDataGrid extends DataGrid
     {
         $queryBuilder = DB::table('events')
             ->join('clubs', 'events.club_id', '=', 'clubs.id')
-            ->select('events.id', 'events.name as event_name', 'clubs.name as club_name', 'events.start_time', 'events.end_time', 'events.cover_charge', 'events.capacity');
+            ->leftJoin('promo_codes', 'events.id', '=', 'promo_codes.event_id')
+            ->select('events.*', 'events.name as event_name', 'clubs.name as club_name', 'promo_codes.code as coupon_code', 'promo_codes.label as coupon_name');
 
         $this->addFilter('id', 'events.id');
         $this->addFilter('event_name', 'events.name');
         $this->addFilter('club_name', 'clubs.name');
-        $this->addFilter('start_time', 'events.start_time');
-        $this->addFilter('end_time', 'events.end_time');
-        $this->addFilter('cover_charge', 'events.cover_charge');
-        $this->addFilter('capacity', 'events.capacity');
+        $this->addFilter('event_date', 'events.event_date');
 
         return $queryBuilder;
     }
@@ -36,15 +34,6 @@ class EventDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'event_name',
-            'label' => 'Event Name',
-            'type' => 'string',
-            'searchable' => true,
-            'filterable' => true,
-            'sortable' => true,
-        ]);
-
-        $this->addColumn([
             'index' => 'club_name',
             'label' => 'Club Name',
             'type' => 'string',
@@ -54,43 +43,44 @@ class EventDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'start_time',
-            'label' => 'Starts At',
-            'type' => 'datetime',
+            'index' => 'event_name',
+            'label' => 'Event Name',
+            'type' => 'string',
+            'searchable' => true,
             'filterable' => true,
-            // 'filterable_type' => 'datetime_range',
             'sortable' => true,
         ]);
 
         $this->addColumn([
-            'index' => 'start_time',
-            'label' => 'Starts At2',
+            'index' => 'coupon_code',
+            'label' => 'Coupon',
+            'type' => 'string',
+            'searchable' => false,
+            'filterable' => false,
+            'sortable' => false,
+            'closure' => function ($row) {
+                if (empty($row->coupon_code)) {
+                    return '-';
+                }
+
+                return '
+                    <div class="flex flex-col items-start gap-1.5 px-3 rounded-lg w-max">
+                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            ' . ($row->coupon_name ?? '-') . '
+                        </span>
+                        <span class="bg-emerald-50 text-emerald-600 border border-dashed border-emerald-400 px-2.5 py-1 rounded-md font-mono font-bold text-sm tracking-wide">
+                            ' . ($row->coupon_code ?? '-') . '
+                        </span>
+                    </div>';
+            }
+        ]);
+
+        $this->addColumn([
+            'index' => 'event_date',
+            'label' => 'Event Date',
             'type' => 'date',
             'filterable' => true,
-            // 'filterable_type' => 'date_range',
             'sortable' => true,
-        ]);
-
-        $this->addColumn([
-            'index' => 'end_time',
-            'label' => 'Ends At',
-            'type' => 'datetime',
-            'sortable' => true,
-        ]);
-
-        $this->addColumn([
-            'index' => 'cover_charge',
-            'label' => 'Cover Charge',
-            'type' => 'decimal',
-            'filterable' => true,
-            'sortable' => true,
-        ]);
-
-        $this->addColumn([
-            'index' => 'capacity',
-            'label' => 'Capacity',
-            'type' => 'integer',
-            'filterable' => true,
         ]);
     }
 

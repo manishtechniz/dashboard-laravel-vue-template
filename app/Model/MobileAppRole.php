@@ -6,16 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Floor extends Model
+class MobileAppRole extends Model
 {
     protected $guarded = ['id'];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    protected $hidden = ['created_at', "updated_at"];
 
-    public function branch(): BelongsTo
-    {
-        return $this->belongsTo(Branch::class);
-    }
+    /**
+     * The attributes that are castable.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'permissions' => 'array',
+    ];
 }

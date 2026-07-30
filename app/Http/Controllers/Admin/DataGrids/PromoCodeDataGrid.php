@@ -34,10 +34,47 @@ class PromoCodeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
+            'index' => 'label',
+            'label' => 'Label',
+            'type' => 'string',
+            'searchable' => true,
+        ]);
+
+        $this->addColumn([
             'index' => 'type',
             'label' => 'Type',
             'type' => 'string',
             'filterable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'visibility',
+            'label' => 'Mode',
+            'type' => 'string',
+            'filterable' => true,
+            'closure' => function ($row) {
+                return ucfirst($row->visibility);
+            },
+            'filterable_type' => 'dropdown',
+            'filterable_options' => [
+                [
+                    'label' => 'Public',
+                    'value' => 'public',
+                ],
+                [
+                    'label' => 'Private',
+                    'value' => 'private',
+                ],
+            ],
+        ]);
+
+        $this->addColumn([
+            'index' => 'event_id',
+            'label' => 'Event ID',
+            'type' => 'integer',
+            'closure' => function ($row) {
+                return $row->event_id ?? '-';
+            }
         ]);
 
         $this->addColumn([

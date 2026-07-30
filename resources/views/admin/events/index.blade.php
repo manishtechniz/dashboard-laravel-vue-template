@@ -10,8 +10,8 @@
     <v-events ref="event" :clubs='@json($clubs)'></v-events>
 
     @pushOnce('scripts')
-        <script type="text/x-template" id="v-events-template">
-            <div>
+    <script type="text/x-template" id="v-events-template">
+        <div>
                 <!-- Datagrid -->
                 <x-admin::datagrid
                     :is-multi-row="true"
@@ -22,16 +22,19 @@
                 <!-- Create/Edit Event Modal -->
                 <Dialog v-model:visible="visible" :header="editMode ? 'Edit Event' : 'Create Event'" :style="{ width: '580px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
-                        <form @submit="handleSubmit($event, saveEvent)" class="space-y-4 pt-3">
+                        <form @submit="handleSubmit($event, saveEvent)" class="space-y-4 pt-3" ref="eventForm">
                             <x-admin::form.control-group>
                                 <x-admin::form.control-group.label label="Club" />
-                                <Select
+                                <x-admin::form.control-group.control
+                                    type="select"
+                                    rules="required"
                                     v-model="event.club_id"
-                                    :options="clubs"
+                                    ::value="event.club_id"
+                                    ::options="clubs"
                                     optionLabel="name"
                                     optionValue="id"
-                                    placeholder="Select Club"
-                                    class="w-full"
+                                    ::name="'club_id'"
+                                    placeholder="Select Club" 
                                 />
                             </x-admin::form.control-group>
 
@@ -52,50 +55,41 @@
                                     type="textarea"
                                     name="description"
                                     v-model="event.description"
+                                    rules="required"
                                     placeholder="Enter event description"
                                 />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
-                                <x-admin::form.control-group.label label="Start Time" />
+                                <x-admin::form.control-group.label label="Event Date" />
                                 <x-admin::form.control-group.control
                                     type="date"
-                                    name="start_time"
-                                    v-model="event.start_time"
+                                    name="event_date"
+                                    v-model="event.event_date"
                                     rules="required"
-                                    placeholder="Select start date & time"
+                                    placeholder="Select event date"
                                 />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
-                                <x-admin::form.control-group.label label="End Time" />
+                                <x-admin::form.control-group.label label="Image URL" />
                                 <x-admin::form.control-group.control
-                                    type="date"
-                                    name="end_time"
-                                    v-model="event.end_time"
-                                    rules="required"
-                                    placeholder="Select end date & time"
+                                    type="file"
+                                    name="image"
+                                    ::rules="{required: !editMode}"
+                                    v-model="event.image"
+                                    placeholder="Enter image URL"
                                 />
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
-                                <x-admin::form.control-group.label label="Cover Charge ($)" />
+                                <x-admin::form.control-group.label label="Featured Image URL" />
                                 <x-admin::form.control-group.control
-                                    type="text"
-                                    name="cover_charge"
-                                    v-model="event.cover_charge"
-                                    rules="required"
-                                    placeholder="e.g. 20.00"
-                                />
-                            </x-admin::form.control-group>
-
-                            <x-admin::form.control-group>
-                                <x-admin::form.control-group.label label="Capacity" />
-                                <x-admin::form.control-group.control
-                                    type="text"
-                                    name="capacity"
-                                    v-model="event.capacity"
-                                    placeholder="Maximum guests count"
+                                    type="file"
+                                    ::rules="{required: !editMode}"
+                                    name="featured_image"
+                                    v-model="event.featured_image"
+                                    placeholder="Enter featured image URL"
                                 />
                             </x-admin::form.control-group>
 
@@ -110,87 +104,117 @@
             </div>
         </script>
 
-        <script type="module">
-            adminVueApp.component('v-events', {
-                template: '#v-events-template',
-                props: ['clubs'],
-                data() {
-                    return {
-                        visible: false,
-                        editMode: false,
-                        loading: false,
-                        event: {
+    <script type="module">
+        adminVueApp.component('v-events', {
+            template: '#v-events-template',
+            props: ['clubs'],
+            data() {
+                return {
+                    visible: false,
+                    editMode: false,
+                    loading: false,
+                    event: {
+                        id: null,
+                        club_id: null,
+                        name: '',
+                        description: '',
+                        event_date: '',
+                        image: '',
+                        featured_image: ''
+                    },
+                    emitter: null
+                };
+            },
+            watch: {
+                visible(val) {
+                    if (val && !this.editMode) {
+                        this.event = {
                             id: null,
                             club_id: null,
                             name: '',
                             description: '',
-                            start_time: '',
-                            end_time: '',
-                            cover_charge: 0.00,
-                            capacity: null
-                        },
-                        emitter: null
-                    };
-                },
-                watch: {
-                    visible(val) {
-                        if (val && !this.editMode) {
-                            this.event = { id: null, club_id: null, name: '', description: '', start_time: '', end_time: '', cover_charge: 0.00, capacity: null };
-                        } else if (!val) {
-                            this.editMode = false;
-                        }
-                    }
-                },
-                provide() {
-                    return {
-                        customActions: {
-                            edit: this.onEdit
-                        }
-                    };
-                },
-                mounted() {
-                },
-                methods: {
-                    onEdit(row) {
-                        this.editMode = true;
-                        const parentClub = this.clubs.find(c => c.name === row.club_name);
-                        this.event = {
-                            id: row.id,
-                            club_id: parentClub ? parentClub.id : null,
-                            name: row.event_name,
-                            description: row.description || '',
-                            start_time: row.start_time,
-                            end_time: row.end_time,
-                            cover_charge: row.cover_charge,
-                            capacity: row.capacity
+                            event_date: '',
+                            image: '',
+                            featured_image: ''
                         };
-                        this.visible = true;
-                    },
-
-                    saveEvent(params) {
-                        this.loading = true;
-                        const url = this.editMode 
-                            ? `{{ route('admin.events.index') }}/${this.event.id}`
-                            : `{{ route('admin.events.store') }}`;
-
-                        const payload = {
-                            ...params,
-                            club_id: this.event.club_id
-                        };
-
-                        this.$axios.post(url, payload)
-                            .then(response => {
-                                this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                this.visible = false;
-                                this.loading = false;
-                                this.$refs.eventsGrid.get();
-                            })
-                            .catch(error => {
-                                this.loading = false;
-                            });
+                    } else if (!val) {
+                        this.editMode = false;
                     }
                 }
-            });
-        </script>
+            },
+            provide() {
+                return {
+                    customActions: {
+                        edit: this.onEdit
+                    }
+                };
+            },
+            mounted() {},
+            methods: {
+                onEdit(row) {
+                    this.editMode = true;
+                    const parentClub = this.clubs.find(c => c.name === row.club_name);
+                    this.event = {
+                        id: row.id,
+                        club_id: parentClub ? parentClub.id : null,
+                        name: row.event_name,
+                        description: row.description || '',
+                        event_date: row.event_date,
+                        image: row.image || '',
+                        featured_image: row.featured_image || ''
+                    };
+                    this.visible = true;
+                },
+
+                saveEvent(params, {
+                    resetForm,
+                    setErrors
+                }) {
+                    console.log(params);
+                    this.loading = true;
+                    const url = this.editMode ?
+                        `{{ route('admin.events.index') }}/${this.event.id}` :
+                        `{{ route('admin.events.store') }}`;
+
+
+
+                    const form = this.$refs.eventForm;
+                    const formData = new FormData(form);
+                    formData.append('_method', this.editMode ? 'PUT' : 'POST');
+                    formData.append('club_id', params.club_id);
+
+                    this.$axios.post(url, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            }
+                        })
+                        .then(response => {
+                            this.$emitter.emit('add-flash', {
+                                type: 'success',
+                                message: response.data.message
+                            });
+                            this.visible = false;
+                            this.loading = false;
+                            resetForm();
+                            this.$refs.eventsGrid.get();
+                        })
+                        .catch(error => {
+                            this.loading = false;
+
+                            if (error.response.status === 422) {
+                                if (error.response.data.errors?.general) {
+                                    this.$emitter.emit('add-flash', {
+                                        type: 'error',
+                                        message: error.response.data.errors?.general[0]
+                                    });
+                                }
+
+                                setErrors(error.response.data.errors);
+                            }
+                        });
+                }
+            }
+        });
+    </script>
     @endPushOnce
 </x-admin::layouts>

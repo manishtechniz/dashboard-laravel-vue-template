@@ -10,7 +10,11 @@ return new class extends Migration
     {
         Schema::create('promo_codes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('event_id')->nullable()->constrained('events')->onDelete('cascade');
             $table->string('code')->unique();
+            $table->string('label', 200)->nullable();
+            $table->string('description', 500)->nullable();
+            $table->string('visibility')->default('public'); // public, private
             $table->string('type'); // fixed, percentage
             $table->decimal('value', 10, 2);
             $table->date('start_date')->nullable();

@@ -13,10 +13,10 @@ return new class extends Migration
             $table->foreignId('club_id')->constrained('clubs')->onDelete('cascade');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->dateTime('start_time')->nullable();
-            $table->dateTime('end_time')->nullable();
             $table->date('event_date');
+            $table->boolean('is_active')->default(true);
             $table->string('image')->nullable();
+            $table->string('featured_image')->nullable();
             $table->timestamps();
         });
     }

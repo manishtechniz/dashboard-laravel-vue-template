@@ -16,17 +16,7 @@ class ClubTable extends Model
 
     protected $appends = ['image_url'];
 
-    protected $fillable = [
-        'club_id',
-        'name',
-        'label',
-        'price',
-        'cover_charge',
-        'capacity',
-        'total_tables',
-        'status',
-        'image',
-    ];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'price' => 'decimal:2',

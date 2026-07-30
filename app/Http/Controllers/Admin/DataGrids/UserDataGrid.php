@@ -16,7 +16,7 @@ class UserDataGrid extends DataGrid
 
         $this->addFilter('name', 'users.name');
         $this->addFilter('role_name', 'roles.name');
-        
+
         return $queryBuilder;
     }
 
@@ -84,23 +84,27 @@ class UserDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        $this->addAction([
-            'type' => 'custom',
-            'icon' => 'icon-edit',
-            'title' => 'Edit Client',
-            'method' => 'edit',
-            'url' => function ($row) {
-                return '';
-            }
-        ]);
+        if (hasPermission('admin.users.update')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-edit',
+                'title' => 'Edit Client',
+                'method' => 'edit',
+                'url' => function ($row) {
+                    return '';
+                }
+            ]);
+        }
 
-        $this->addAction([
-            'icon' => 'icon-delete',
-            'title' => 'Delete Client',
-            'method' => 'DELETE',
-            'url' => function ($row) {
-                return route('admin.users.delete', $row->id);
-            }
-        ]);
+        if (hasPermission('admin.users.delete')) {
+            $this->addAction([
+                'icon' => 'icon-delete',
+                'title' => 'Delete Client',
+                'method' => 'DELETE',
+                'url' => function ($row) {
+                    return route('admin.users.delete', $row->id);
+                }
+            ]);
+        }
     }
 }

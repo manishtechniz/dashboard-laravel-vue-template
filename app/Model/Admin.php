@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Model; 
+namespace App\Model;
 
 use Illuminate\Database\Eloquent\Builder;
 
 class Admin extends User
 {
-    protected $table = 'users'; 
+    protected $table = 'users';
 
     protected static function booted()
     {
@@ -19,5 +19,19 @@ class Admin extends User
         });
     }
 
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
 
+    public function hasPermission($permission)
+    {
+        $tablePermission = $this->role?->permissions ?? [];
+
+        if (in_array('*', $tablePermission)) {
+            return true;
+        }
+
+        return in_array($permission, $tablePermission);
+    }
 }

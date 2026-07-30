@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 function resolveApi($relativePath): string
@@ -20,7 +21,6 @@ function create422ErrorFormat(string $column, string $message, $preArray = [], $
         $postArray
     );
 }
-
 
 function getResolveTmpDisk()
 {
@@ -61,4 +61,15 @@ function getFileLoadUrl($tmpPath, $basePath)
 function previewImageURL()
 {
     return asset('storage/preview-image.webp');
+}
+
+function hasPermission($permission)
+{
+    $user = Auth::guard('admin')->user();
+
+    if (empty($user)) {
+        return false;
+    }
+
+    return $user->hasPermission($permission);
 }

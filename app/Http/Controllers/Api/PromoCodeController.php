@@ -31,7 +31,9 @@ class PromoCodeController extends Controller
         $validated = $request->validate([]);
 
         try {
-            $codes = PromoCode::where('is_active', 1)->paginate();
+            $codes = PromoCode::where('is_active', 1)
+                ->where('visibility', 'public')
+                ->paginate();
 
             return response()->json([
                 "data" => $codes

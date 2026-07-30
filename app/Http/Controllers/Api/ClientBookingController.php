@@ -6,6 +6,7 @@ use App\Model\Booking;
 use App\Model\BookingGuest;
 use App\Model\ClientGuest;
 use App\Model\ClubTable;
+use App\Model\Event;
 use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -90,7 +91,7 @@ class ClientBookingController extends Controller
                 ->when($bookingDate, function ($query) use ($bookingDate) {
                     $query->whereDate('booking_date', $bookingDate);
                 })
-                ->with(['table:id,name', 'club:id,name', 'guests'])
+                ->with(['table:id,name', 'club:id,name', 'guests', 'event:id,name'])
                 ->latest()
                 ->paginate();
 
@@ -193,6 +194,7 @@ class ClientBookingController extends Controller
     )]
     public function store(Request $request)
     {
+
         $clubId = $request['club_id'] ?? null;
         $client = $request->user();
         $clientId = $client->id;
@@ -225,14 +227,34 @@ class ClientBookingController extends Controller
 
         try {
             $bookingDate = $validated['booking_date'];
+            $tableId = $validated['table_id'];
+            $eventId = $validated['event_id'] ?? null;
             $guestIds = $validated['guest_ids'] ?? [];
 
             unset($validated['guest_ids']);
 
             /**
+             * Verify event.
+             */
+            $event = null;
+
+            if (! empty($eventId)) {
+                $event = Event::where('id', $eventId)
+                    ->where('is_active', 1)
+                    ->with('coupon:event_id,code')
+                    ->first();
+
+                // check if booking date associated with event date or not
+                if (! $event && $event->event_date != $bookingDate) {
+                    return response()->json(create422ErrorFormat('event_id', 'Oops! No events found on this date. Try picking another one!'), 422);
+                }
+            }
+
+            /**
              * Check if table is available or not
              */
             $clubTable = ClubTable::where([
+                'id' => $tableId,
                 'status' => 'active',
                 'club_id' => $clubId,
             ])
@@ -260,7 +282,11 @@ class ClientBookingController extends Controller
 
             // Coupon functionality
             if (! empty($couponCode)) {
-                $couponService = $this->couponService->apply($couponCode, $basePrice);
+                $couponService = $this->couponService->apply($couponCode, $basePrice, [
+                    'event_id' => $eventId ?? null,
+                    'booking_date' => $bookingDate ?? null,
+                    'club_id' => $clubId ?? null,
+                ]);
 
                 if (! $couponService['status']) {
                     return response()->json($couponService, 422);
@@ -275,7 +301,7 @@ class ClientBookingController extends Controller
             }
 
             // Generate dynamic QR code payload
-            $bookingCode = 'CLUB-' . strtoupper(uniqid()) . $client->id;
+            $bookingCode = 'CLUB-' . strtoupper(uniqid()) . '-' . $client->id * 10;
 
             // Calculations
             $taxRate = 0;

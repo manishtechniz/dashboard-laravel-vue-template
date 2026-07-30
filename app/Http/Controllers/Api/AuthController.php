@@ -6,6 +6,7 @@ use App\Model\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
@@ -130,7 +131,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'client' => $client,
+            'client' => $client->load('role'),
         ]);
     }
 
@@ -251,7 +252,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'client' => $client,
+            'client' => $client->load('role'),
         ]);
     }
 
@@ -331,7 +332,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'client' => $client,
+            'client' => $client->load('role'),
         ]);
     }
 
@@ -382,7 +383,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'client' => $client,
+            'client' => $client->load('role'),
         ]);
     }
 
@@ -402,7 +403,83 @@ class AuthController extends Controller
     )]
     public function profile(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json($request->user()->load('role'));
+    }
+
+    #[OA\Put(
+        path: "/api/auth/profile",
+        summary: "Update authenticated client profile",
+        tags: ["Authentication"],
+        security: [["bearerAuth" => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: "name", type: "string", example: "John Doe", nullable: true),
+                    new OA\Property(property: "email", type: "string", format: "email", example: "john@example.com", nullable: true),
+                    new OA\Property(property: "phone", type: "string", example: "+1234567890", nullable: true),
+                    new OA\Property(property: "age", type: "integer", example: 30, nullable: true),
+                    new OA\Property(property: "gender", type: "string", example: "male", nullable: true),
+                    new OA\Property(property: "avatar", type: "string", example: "avatar.jpg", nullable: true),
+                    new OA\Property(property: "fcm_token", type: "string", example: "XXXXXX", nullable: true),
+                    new OA\Property(property: "password", type: "string", format: "password", example: "newsecret123", nullable: true)
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Profile updated successfully",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "Profile updated successfully."),
+                        new OA\Property(property: "client", type: "object")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Validation errors"),
+            new OA\Response(response: 401, description: "Unauthenticated")
+        ]
+    )]
+    public function updateProfile(Request $request)
+    {
+        $client = $request->user();
+
+        // return [$client];
+
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255|unique:clients,email,' . $client->id,
+            'phone' => 'nullable|string|max:255|unique:clients,phone,' . $client->id,
+            'age' => 'nullable|integer|min:0',
+            'gender' => 'nullable|string|max:255',
+            'avatar' => 'nullable|string|max:1000',
+            'fcm_token' => 'nullable|string|max:1000',
+            'password' => 'nullable|string|min:6|max:100',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar from storage if it exists
+            if ($client->avatar && Storage::exists($client->avatar)) {
+                Storage::delete($client->avatar);
+            }
+
+            // Store new avatar and update the data array with the path
+            $validated['avatar'] = $request->file('avatar')->store('avatars');
+        }
+
+        foreach ($validated as $key => $value) {
+            if (! empty($value)) {
+                $client->$key = $value;
+            }
+        }
+
+        $client->save();
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'client' => $client->fresh()->load('role'),
+        ]);
     }
 
     #[OA\Post(

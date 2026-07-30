@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Model\DeviceToken;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -34,13 +35,25 @@ class ClientNotificationController extends Controller
     }
 
     #[OA\Post(
-        path: "/api/notifications/{id}/read",
-        summary: "Mark notification as read",
+        path: "/api/notifications/read",
+        summary: "Mark multiple notifications as read",
         tags: ["Notifications"],
         security: [["bearerAuth" => []]],
-        parameters: [
-            new OA\Parameter(name: "id", in: "path", required: true, description: "Notification ID", schema: new OA\Schema(type: "integer"))
-        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: "Payload containing an array of notification IDs",
+            content: new OA\JsonContent(
+                required: ["ids"],
+                properties: [
+                    new OA\Property(
+                        property: "ids",
+                        type: "array",
+                        description: "Array of notification IDs (UUIDs by default in Laravel)",
+                        items: new OA\Items(type: "string", example: "9a3b5c7d-1234-5678-90ab-cdef12345678")
+                    )
+                ]
+            )
+        ),
         responses: [
             new OA\Response(
                 response: 200,
@@ -55,55 +68,110 @@ class ClientNotificationController extends Controller
             new OA\Response(response: 404, description: "Notification not found")
         ]
     )]
-    public function markAsRead(Request $request, $id)
+    public function markAsRead(Request $request)
     {
-        $notification = $request->user()->notifications()->findOrFail($id);
-        $notification->update(['read_at' => now()]);
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+        ]);
+
+        $request->user()->notifications()
+            ->whereIn('id', $validated['ids'])
+            ->update(['read_at' => now()]);
 
         return response()->json(['message' => 'Notification marked as read.']);
     }
 
     #[OA\Post(
-        path: "/api/notifications/tokens",
-        summary: "Register device push notification token",
+        path: "/api/notifications/test-send-user",
+        summary: "Test sending notification to a single user",
         tags: ["Notifications"],
         security: [["bearerAuth" => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["token", "device_type"],
+                required: ["fcm_token"],
                 properties: [
-                    new OA\Property(property: "token", type: "string", example: "fcm_device_token_xyz"),
-                    new OA\Property(property: "device_type", type: "string", enum: ["ios", "android", "web"], example: "android")
+                    new OA\Property(property: "fcm_token", type: "string", example: "fcm_device_token_xyz")
                 ]
             )
         ),
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Device token registered successfully",
+                description: "Notification queued successfully!",
                 content: new OA\JsonContent(
                     properties: [
-                        new OA\Property(property: "message", type: "string", example: "Device token registered successfully.")
+                        new OA\Property(property: "message", type: "string", example: "Notification queued successfully!")
                     ]
                 )
             ),
-            new OA\Response(response: 422, description: "Validation errors"),
-            new OA\Response(response: 401, description: "Unauthenticated")
+            new OA\Response(response: 422, description: "Validation errors")
         ]
     )]
-    public function storeToken(Request $request)
+    public function testSendToUser(Request $request)
     {
-        $validated = $request->validate([
-            'token' => 'required|string',
-            'device_type' => 'required|string|in:ios,android,web',
+        $request->validate([
+            'fcm_token' => 'required|string',
         ]);
 
-        DeviceToken::updateOrCreate(
-            ['client_id' => $request->user()->id, 'token' => $validated['token']],
-            ['device_type' => $validated['device_type']]
+        // Dispatch to a single token
+        SendFirebaseNotificationJob::dispatch(
+            'token',
+            $request->fcm_token,
+            'Order Shipped!',
+            'Your order is on the way.',
+            ['order_id' => '12345']
         );
 
-        return response()->json(['message' => 'Device token registered successfully.']);
+        return response()->json(['message' => 'Notification queued successfully!']);
+    }
+
+    #[OA\Post(
+        path: "/api/notifications/test-send-multiple",
+        summary: "Test sending notification to multiple users",
+        tags: ["Notifications"],
+        security: [["bearerAuth" => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["fcm_tokens"],
+                properties: [
+                    new OA\Property(
+                        property: "fcm_tokens",
+                        type: "array",
+                        items: new OA\Items(type: "string", example: "fcm_device_token_xyz")
+                    )
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Mass notifications queued!",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "Mass notifications queued!")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Validation errors")
+        ]
+    )]
+    public function testSendToMultiple(Request $request)
+    {
+        $validated = $request->validate([
+            'fcm_tokens' => 'required|array',
+        ]);
+
+        // Dispatch to an array of tokens
+        SendFirebaseNotificationJob::dispatch(
+            'tokens',
+            $validated['fcm_tokens'],
+            'Flash Sale!',
+            '50% off everything today only.',
+            ['sale_id' => 'FLASH50']
+        );
+
+        return response()->json(['message' => 'Mass notifications queued!']);
     }
 }

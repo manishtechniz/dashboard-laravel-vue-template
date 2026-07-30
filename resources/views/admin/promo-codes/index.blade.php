@@ -40,6 +40,28 @@
                             </x-admin::form.control-group>
 
                             <x-admin::form.control-group>
+                                <x-admin::form.control-group.label label="Label" />
+                                <x-admin::form.control-group.control
+                                    type="text"
+                                    name="label"
+                                    rules="required"
+                                    v-model="promo.label"
+                                    placeholder="e.g. Summer Sale"
+                                />
+                            </x-admin::form.control-group>
+
+                            <x-admin::form.control-group>
+                                <x-admin::form.control-group.label label="Description" />
+                                <x-admin::form.control-group.control
+                                    type="textarea"
+                                    name="description"
+                                    rules="required"
+                                    v-model="promo.description"
+                                    placeholder="Enter a brief description"
+                                />
+                            </x-admin::form.control-group>
+
+                            <x-admin::form.control-group>
                                 <x-admin::form.control-group.label label="Discount Type" />
 
                                 <x-admin::form.control-group.control
@@ -117,6 +139,38 @@
                                 />
                             </x-admin::form.control-group>
 
+                            <div class="grid grid-cols-2 gap-4">
+                                <x-admin::form.control-group>
+                                    <x-admin::form.control-group.label label="Visibility" />
+                                    <x-admin::form.control-group.control
+                                        v-model="promo.visibility"
+                                        ::value="promo.visibility"
+                                        ::options="modeOptions"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        placeholder="Select Mode"
+                                        rules="required"
+                                        name="visibility"
+                                        type="select"
+                                    />
+                                </x-admin::form.control-group>
+
+                                <x-admin::form.control-group v-if="promo.visibility == 'private'">
+                                    <x-admin::form.control-group.label label="Event" />
+                                    <x-admin::form.control-group.control
+                                        v-model="promo.event_id"
+                                        ::value="promo.event_id"
+                                        ::options="events"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        placeholder="Select Event"
+                                        ::rules="{required: promo.visibility == 'private'}"
+                                        name="event_id"
+                                        type="select"
+                                    />
+                                </x-admin::form.control-group>
+                            </div>
+
                             <div class="flex items-center gap-2 pt-2">
                                 <ToggleSwitch v-model="promo.is_active" inputId="is_active_toggle" />
                                 <x-admin::form.control-group.label label="Active Status" for="is_active_toggle" />
@@ -150,8 +204,22 @@
                         end_date: '',
                         usage_limit: null,
                         is_active: true,
-                        max_discount: 0
+                        max_discount: 0,
+                        visibility: 'public',
+                        event_id: null,
+                        label: '',
+                        description: ''
                     },
+                    modeOptions: [{
+                            label: 'Public',
+                            value: 'public'
+                        },
+                        {
+                            label: 'Private',
+                            value: 'private'
+                        }
+                    ],
+                    events: @json($events),
                     typeOptions: [{
                             label: 'Fixed (₹)',
                             value: 'fixed'
@@ -176,7 +244,11 @@
                             end_date: '',
                             usage_limit: null,
                             is_active: true,
-                            max_discount: 0
+                            max_discount: 0,
+                            visibility: 'public',
+                            event_id: null,
+                            label: '',
+                            description: ''
                         };
                     } else if (!val) {
                         this.editMode = false;
@@ -212,7 +284,11 @@
                         end_date: row.end_date,
                         usage_limit: row.usage_limit || null,
                         is_active: !!row.is_active,
-                        max_discount: row.max_discount
+                        max_discount: row.max_discount,
+                        visibility: row.visibility || 'public',
+                        event_id: row.event_id || null,
+                        label: row.label || '',
+                        description: row.description || ''
                     };
                     this.visible = true;
                 },
@@ -232,7 +308,11 @@
                         start_date: this.promo.start_date,
                         end_date: this.promo.end_date,
                         usage_limit: this.promo.usage_limit,
-                        is_active: this.promo.is_active ? 1 : 0
+                        is_active: this.promo.is_active ? 1 : 0,
+                        visibility: this.promo.visibility,
+                        event_id: this.promo.event_id,
+                        label: this.promo.label,
+                        description: this.promo.description
                     };
 
                     this.$axios.post(url, payload)

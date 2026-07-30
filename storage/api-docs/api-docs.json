@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Imperial Client API",
+        "title": "Client API",
         "description": "API documentation for Imperial Client Mobile & Web Applications",
         "contact": {
             "email": "support@imperial.com"
@@ -414,6 +414,99 @@
                         "bearerAuth": []
                     }
                 ]
+            },
+            "put": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Update authenticated client profile",
+                "operationId": "c32ae167f9972ce3b08a338ab033f74c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe",
+                                        "nullable": true
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com",
+                                        "nullable": true
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890",
+                                        "nullable": true
+                                    },
+                                    "age": {
+                                        "type": "integer",
+                                        "example": 30,
+                                        "nullable": true
+                                    },
+                                    "gender": {
+                                        "type": "string",
+                                        "example": "male",
+                                        "nullable": true
+                                    },
+                                    "avatar": {
+                                        "type": "string",
+                                        "example": "avatar.jpg",
+                                        "nullable": true
+                                    },
+                                    "fcm_token": {
+                                        "type": "string",
+                                        "example": "XXXXXX",
+                                        "nullable": true
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newsecret123",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile updated successfully."
+                                        },
+                                        "client": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/auth/logout": {
@@ -761,9 +854,20 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "message"
+                                    "message",
+                                    "club_id"
                                 ],
                                 "properties": {
+                                    "booking_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "remark": {
+                                        "type": "string",
+                                        "example": "you can put some text which from added",
+                                        "nullable": true
+                                    },
                                     "club_id": {
                                         "type": "integer",
                                         "example": 1,
@@ -824,41 +928,6 @@
                                 }
                             }
                         }
-                    }
-                }
-            }
-        },
-        "/api/events/{id}": {
-            "get": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Get details of a specific event",
-                "operationId": "b7582921d94a935f5582da7d4fa8e368",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Event ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Event details",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Event not found"
                     }
                 }
             }
@@ -1221,24 +1290,37 @@
                 ]
             }
         },
-        "/api/notifications/{id}/read": {
+        "/api/notifications/read": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
-                "summary": "Mark notification as read",
-                "operationId": "29258de742bafdf5ed93b7db5a135e7f",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Notification ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
+                "summary": "Mark multiple notifications as read",
+                "operationId": "e2f121bd29af4397e389ac81cf555530",
+                "requestBody": {
+                    "description": "Payload containing an array of notification IDs",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ids"
+                                ],
+                                "properties": {
+                                    "ids": {
+                                        "description": "Array of notification IDs (UUIDs by default in Laravel)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "example": "9a3b5c7d-1234-5678-90ab-cdef12345678"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "Notification marked as read",
@@ -1270,35 +1352,25 @@
                 ]
             }
         },
-        "/api/notifications/tokens": {
+        "/api/notifications/test-send-user": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
-                "summary": "Register device push notification token",
-                "operationId": "d3addcc22c929511c90e21af1b06dea2",
+                "summary": "Test sending notification to a single user",
+                "operationId": "2b5f1731e9a2f8e64dcc1ebf50db79bd",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "token",
-                                    "device_type"
+                                    "fcm_token"
                                 ],
                                 "properties": {
-                                    "token": {
+                                    "fcm_token": {
                                         "type": "string",
                                         "example": "fcm_device_token_xyz"
-                                    },
-                                    "device_type": {
-                                        "type": "string",
-                                        "example": "android",
-                                        "enum": [
-                                            "ios",
-                                            "android",
-                                            "web"
-                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -1308,14 +1380,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Device token registered successfully",
+                        "description": "Notification queued successfully!",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Device token registered successfully."
+                                            "example": "Notification queued successfully!"
                                         }
                                     },
                                     "type": "object"
@@ -1325,9 +1397,63 @@
                     },
                     "422": {
                         "description": "Validation errors"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/test-send-multiple": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Test sending notification to multiple users",
+                "operationId": "cca12f8266948b374f6bcd678c621b50",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "fcm_tokens"
+                                ],
+                                "properties": {
+                                    "fcm_tokens": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "example": "fcm_device_token_xyz"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mass notifications queued!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Mass notifications queued!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthenticated"
+                    "422": {
+                        "description": "Validation errors"
                     }
                 },
                 "security": [
@@ -1470,12 +1596,28 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "rating"
+                                    "rating",
+                                    "club_id"
                                 ],
                                 "properties": {
                                     "club_id": {
                                         "type": "integer",
                                         "example": 1,
+                                        "nullable": true
+                                    },
+                                    "booking_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "is_anonymous": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "remark": {
+                                        "type": "string",
+                                        "example": "you can put some text which from added",
                                         "nullable": true
                                     },
                                     "rating": {
@@ -1534,7 +1676,7 @@
                         "schema": {
                             "type": "string",
                             "format": "date",
-                            "example": "2022-01-01"
+                            "example": "2026-07-26"
                         }
                     },
                     {
@@ -1604,22 +1746,21 @@
                 ]
             }
         },
-        "/api/qrcode/{code}": {
+        "/api/qrcode/scan": {
             "get": {
                 "tags": [
                     "QR Code"
                 ],
                 "summary": "View booking details by QR code",
-                "operationId": "31db4fbcfa2d8c46c34427a469673e8f",
+                "operationId": "9a3a471cccfc9ca3bd44763cc3810350",
                 "parameters": [
                     {
-                        "name": "code",
-                        "in": "path",
-                        "description": "Unique QR Code string",
-                        "required": true,
+                        "name": "qr_code_id",
+                        "in": "query",
+                        "description": "",
+                        "required": false,
                         "schema": {
-                            "type": "string",
-                            "example": "IMP-66A1B2C3"
+                            "type": "string"
                         }
                     }
                 ],
@@ -1629,26 +1770,6 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "qr_code": {
-                                            "type": "string"
-                                        },
-                                        "client_name": {
-                                            "type": "string"
-                                        },
-                                        "table": {
-                                            "type": "string"
-                                        },
-                                        "event": {
-                                            "type": "string"
-                                        },
-                                        "booking_date": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    },
                                     "type": "object"
                                 }
                             }
@@ -1657,28 +1778,33 @@
                     "404": {
                         "description": "Booking not found for QR code"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/qrcode/validate": {
+        "/api/qrcode/booking-checkin": {
             "post": {
                 "tags": [
                     "QR Code"
                 ],
                 "summary": "Validate QR code and check in booking",
-                "operationId": "74c38d0580f747297601cdc7eace0df4",
+                "operationId": "aef25bbd1db2cba70553010ae559d5b4",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "qr_code"
+                                    "qr_code_id"
                                 ],
                                 "properties": {
-                                    "qr_code": {
+                                    "qr_code_id": {
                                         "type": "string",
-                                        "example": "IMP-66A1B2C3"
+                                        "example": "XXXXXXXX"
                                     }
                                 },
                                 "type": "object"
@@ -1706,13 +1832,10 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Invalid QR code"
-                    },
                     "422": {
-                        "description": "Booking already checked in or cancelled"
+                        "description": "Invalid QR code or Booking already checked in or cancelled"
                     },
-                    "401": {
+                    "403": {
                         "description": "Unauthenticated"
                     }
                 },

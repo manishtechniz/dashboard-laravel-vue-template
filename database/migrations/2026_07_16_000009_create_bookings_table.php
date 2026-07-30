@@ -51,7 +51,7 @@ return new class extends Migration
 
             $table->string('status')->default('pending'); // pending, confirmed, cancelled, checked_in
             $table->text('special_requests')->nullable();
-            $table->string('qr_code')->nullable();
+            $table->string('qr_code', 256)->unique();
 
             $table->timestamps();
         });

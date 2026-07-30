@@ -4,7 +4,9 @@
             <h1 class="page-title">User Management</h1>
             <div class="page-breadcrumb">Home / Users</div>
         </div>
+        @if (hasPermission('admin.users.store'))
         <Button label="Create User" icon="pi pi-plus" size="small" @click="$refs.clinet.visible = true" />
+        @endif
     </div>
 
     <v-clients ref="clinet" :initial-roles="{{ json_encode($roles ?? []) }}"></v-clients>

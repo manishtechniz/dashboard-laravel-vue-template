@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ClientComplaintController;
 use App\Http\Controllers\Api\ClientGuestController;
 use App\Http\Controllers\Api\ClientFeatureRequestController;
 use App\Http\Controllers\Api\PromoCodeController;
+use App\Http\Middleware\EncryptToDecryptId;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,19 +28,15 @@ Route::post('/auth/login-otp', [AuthController::class, 'loginOtp']);
 Route::post('/auth/google', [AuthController::class, 'googleAuth']);
 Route::post('/auth/test-token', [AuthController::class, 'testToken']);
 
-Route::get('/events', [ClientEventController::class, 'index']);
-Route::get('/events/{id}', [ClientEventController::class, 'show']);
-
-Route::get('/tables/available', [ClientTableController::class, 'checkAvailability']);
-Route::get('/qrcode/{code}', [QrCodeController::class, 'show']);
-
 /*
 |--------------------------------------------------------------------------
 | Authenticated Client Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', EncryptToDecryptId::class])->group(function () {
+    // Auth or Profile
     Route::get('/auth/profile', [AuthController::class, 'profile']);
+    Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     // Bookings
@@ -59,11 +56,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Notifications
     Route::get('/notifications', [ClientNotificationController::class, 'index']);
-    Route::post('/notifications/{id}/read', [ClientNotificationController::class, 'markAsRead']);
-    Route::post('/notifications/tokens', [ClientNotificationController::class, 'storeToken']);
-
-    // QR checkin
-    Route::post('/qrcode/validate', [QrCodeController::class, 'validateCode']);
+    Route::post('/notifications/test-send-user', [ClientNotificationController::class, 'testSendToUser']);
+    Route::post('/notifications/test-send-multiple', [ClientNotificationController::class, 'testSendToMultiple']);
+    Route::post('/notifications/read', [ClientNotificationController::class, 'markAsRead']);
 
     // Reviews
     Route::get('/reviews', [ClientReviewController::class, 'index']);
@@ -82,4 +77,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Feature Requests
     Route::get('/feature-requests', [ClientFeatureRequestController::class, 'index']);
     Route::post('/feature-requests', [ClientFeatureRequestController::class, 'store']);
+
+    // Events
+    Route::get('/events', [ClientEventController::class, 'index']);
+    Route::get('/events/{id}', [ClientEventController::class, 'show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Role base routes and functionality in mobile app.
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:sanctum', EncryptToDecryptId::class])->group(function () {
+    /**
+     * QR code
+     */
+    Route::get('/qrcode/scan', [QrCodeController::class, 'show']);
+    Route::post('/qrcode/booking-checkin', [QrCodeController::class, 'checkIn']);
 });

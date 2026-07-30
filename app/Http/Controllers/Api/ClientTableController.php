@@ -20,7 +20,7 @@ class ClientTableController extends Controller
                 name: "booking_date",
                 in: "query",
                 required: true,
-                schema: new OA\Schema(type: "string", format: "date", example: "2022-01-01")
+                schema: new OA\Schema(type: "string", format: "date", example: "2026-07-26")
             ),
             new OA\Parameter(
                 name: "club_id",

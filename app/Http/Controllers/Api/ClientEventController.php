@@ -23,36 +23,18 @@ class ClientEventController extends Controller
     )]
     public function index()
     {
-        $events = Event::with('club')
-            ->where('end_time', '>=', now())
-            ->orderBy('start_time')
-            ->paginate();
+        try {
+            $events = Event::with(['club:id,name', 'coupon:event_id,label,code,description'])
+                ->paginate();
 
-        return response()->json([
-            'data' => $events
-        ]);
-    }
-
-    #[OA\Get(
-        path: "/api/events/{id}",
-        summary: "Get details of a specific event",
-        tags: ["Events"],
-        parameters: [
-            new OA\Parameter(name: "id", in: "path", required: true, description: "Event ID", schema: new OA\Schema(type: "integer"))
-        ],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "Event details",
-                content: new OA\JsonContent(type: "object")
-            ),
-            new OA\Response(response: 404, description: "Event not found")
-        ]
-    )]
-    public function show($id)
-    {
-        $event = Event::with('club')->findOrFail($id);
-
-        return response()->json($event);
+            return response()->json([
+                'data' => $events
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json([
+                'message' => 'Error fetching events',
+            ], 500);
+        }
     }
 }

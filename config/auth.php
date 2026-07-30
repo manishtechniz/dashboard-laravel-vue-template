@@ -48,12 +48,12 @@ return [
         'admin' => [
             'driver' => 'session',
             'provider' => 'admins',
-        ], 
+        ],
 
         'api' => [
             'driver' => 'sanctum',
             'provider' => 'clients',
-        ], 
+        ],
     ],
 
     /*
@@ -82,12 +82,12 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => Admin::class
-        ], 
+        ],
 
         'clients' => [
             'driver' => 'eloquent',
             'model' => Client::class
-        ], 
+        ],
     ],
 
     /*

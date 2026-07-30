@@ -7,11 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DeviceToken extends Model
 {
-    protected $fillable = [
-        'client_id',
-        'token',
-        'device_type',
-    ];
+    protected $guarded = ['id'];
 
     public function client(): BelongsTo
     {

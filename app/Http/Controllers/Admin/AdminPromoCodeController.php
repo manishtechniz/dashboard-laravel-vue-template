@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\DataGrids\PromoCodeDataGrid;
 use App\Model\PromoCode;
+use App\Model\Event;
 use Illuminate\Http\Request;
 
 class AdminPromoCodeController extends Controller
@@ -14,7 +15,9 @@ class AdminPromoCodeController extends Controller
             return datagrid(PromoCodeDataGrid::class)->process();
         }
 
-        return view('admin::promo-codes.index');
+        $events = Event::select('id', 'name')->orderBy('name')->get();
+
+        return view('admin::promo-codes.index', compact('events'));
     }
 
     public function store(Request $request)
@@ -29,6 +32,10 @@ class AdminPromoCodeController extends Controller
             'max_discount' => 'nullable|numeric|min:0',
             'usage_limit' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
+            'visibility' => 'required|string|in:public,private',
+            'event_id' => 'nullable|integer|exists:events,id|unique:promo_codes,event_id',
+            'label' => 'nullable|string|max:200',
+            'description' => 'nullable|string|max:500',
         ]);
 
         PromoCode::create($validated);
@@ -44,12 +51,16 @@ class AdminPromoCodeController extends Controller
             'code' => 'required|string|unique:promo_codes,code,' . $promoCode->id . '|max:255',
             'type' => 'required|string|in:fixed,percentage',
             'value' => 'required|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'min_spend' => 'nullable|numeric|min:0',
             'max_discount' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
+            'usage_limit' => 'required|integer|min:1',
             'is_active' => 'boolean',
+            'visibility' => 'required|string|in:public,private',
+            'event_id' => 'nullable|integer|exists:events,id|unique:promo_codes,event_id,' . $promoCode->id,
+            'label' => 'required|string|max:200',
+            'description' => 'required|string|max:500',
         ]);
 
         $promoCode->update($validated);

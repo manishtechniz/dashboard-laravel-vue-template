@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Crypt;
 
 class Booking extends Model
 {
@@ -17,6 +18,15 @@ class Booking extends Model
     protected $casts = [
         'booking_date' => 'date',
     ];
+
+    // Append this to the JSON response automatically
+    protected $appends = ['encrypted_id'];
+
+    // Create the dynamic attribute
+    public function getEncryptedIdAttribute()
+    {
+        return Crypt::encryptString((string) $this->id);
+    }
 
     public function client(): BelongsTo
     {

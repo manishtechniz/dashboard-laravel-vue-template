@@ -7,10 +7,36 @@ use Carbon\Carbon;
 
 class CouponService
 {
-    public function apply($code, $amount)
+    public function apply($code, $amount, $data = [])
     {
+        $eventId = $data['event_id'] ?? null;
+        $clubId = $data['club_id'] ?? null;
+        $bookingDate = $data['booking_date'] ?? null;
+
         $coupon = PromoCode::where('code', $code)
-            ->firstWhere('is_active', 1);
+            ->where('is_active', 1)
+            ->first();
+
+        // case: When someone try invalid coupon
+        if (empty($coupon)) {
+            return array_merge(create422ErrorFormat('coupon_code', 'Invalid coupon code'), [
+                'status' => false,
+            ]);
+        }
+
+        // case: When someone try event coupon in general booking
+        if (empty($eventId) && ! empty($coupon->event_id)) {
+            return array_merge(create422ErrorFormat('coupon_code', 'This coupon is only valid for events, not general bookings.'), [
+                'status' => false,
+            ]);
+        }
+
+        // case: When someone try event coupon in wrong event
+        if (! empty($eventId) && $coupon->event_id != $eventId) {
+            return array_merge(create422ErrorFormat('coupon_code', 'This coupon is only valid for the specified event.'), [
+                'status' => false,
+            ]);
+        }
 
         $valid = $this->valid($coupon, $amount);
 

@@ -104,7 +104,7 @@ Route::group(['prefix' => 'tables'], function () {
 Route::group(['prefix' => 'events'], function () {
     Route::get('/', [App\Http\Controllers\Admin\AdminEventController::class, 'index'])->name('events.index');
     Route::post('/', [App\Http\Controllers\Admin\AdminEventController::class, 'store'])->name('events.store');
-    Route::post('/{id}', [App\Http\Controllers\Admin\AdminEventController::class, 'update'])->name('events.update');
+    Route::put('/{id}', [App\Http\Controllers\Admin\AdminEventController::class, 'update'])->name('events.update');
     Route::get('/edit/{id}', [App\Http\Controllers\Admin\AdminEventController::class, 'index'])->name('events.edit');
     Route::delete('/{id}', [App\Http\Controllers\Admin\AdminEventController::class, 'destroy'])->name('events.delete');
 });

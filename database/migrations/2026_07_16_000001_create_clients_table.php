@@ -17,7 +17,9 @@ return new class extends Migration
             $table->string('age')->nullable();
             $table->string('gender')->nullable();
             $table->string('password')->nullable();
+            $table->foreignId('role_id')->nullable()->constrained('mobile_app_roles')->onDelete('set null');
             $table->string('google_id')->nullable()->unique();
+            $table->string('fcm_token')->nullable();
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();

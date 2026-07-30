@@ -9,14 +9,7 @@ class ClientGuest extends Model
 {
     protected $table = 'client_guests';
 
-    protected $fillable = [
-        'client_id',
-        'name',
-        'email',
-        'phone',
-        'age',
-        'gender',
-    ];
+    protected $guarded = ['id'];
 
     public function client(): BelongsTo
     {

@@ -13,7 +13,7 @@ class RoleSeeder extends Seeder
         Role::create([
             'name' => 'Administrator',
             'type' => 'system',
-            'permissions' => '["*"]',
+            'permissions' => json_encode(['*']),
         ]);
 
         $this->command->info('✅ Default roles seeded successfully.');

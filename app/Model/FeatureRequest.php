@@ -9,13 +9,7 @@ class FeatureRequest extends Model
 {
     protected $table = 'feature_requests';
 
-    protected $fillable = [
-        'client_id',
-        'title',
-        'description',
-        'status',
-        'priority',
-    ];
+    protected $guarded = ['id'];
 
     public function client(): BelongsTo
     {

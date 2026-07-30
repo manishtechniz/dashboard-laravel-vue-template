@@ -7,12 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BookingGuest extends Model
 {
-    protected $fillable = [
-        'booking_id',
-        'name',
-        'email',
-        'phone',
-    ];
+    protected $guarded = ['id'];
 
     public function booking(): BelongsTo
     {

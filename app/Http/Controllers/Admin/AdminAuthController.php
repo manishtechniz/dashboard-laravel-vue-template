@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminAuthController extends Controller
 {
-  public function index()
-  {
-    return view('admin::auth.login');
-  }
+    public function index()
+    {
+        return view('admin::auth.login');
+    }
 
-  public function login(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|string|email',
@@ -35,13 +35,13 @@ class AdminAuthController extends Controller
                     'status' => false,
                     'message' => 'Invalid credentials'
                 ], 404);
-            }  
+            }
 
             if (Auth::guard('admin')->attempt([
                 'email' => $email,
                 'password' => $password,
             ], ! empty($rememberMe))) {
-                // request()->session()->regenerate(); 
+                $request->session()->regenerate();
 
                 return response()->json([
                     'message' => 'Login successful',

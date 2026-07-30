@@ -43,8 +43,10 @@ class ClientComplaintController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["message"],
+                required: ["message", "club_id"],
                 properties: [
+                    new OA\Property(property: "booking_id", type: "integer", nullable: true, example: 1),
+                    new OA\Property(property: "remark", type: "string", nullable: true, example: "you can put some text which from added"),
                     new OA\Property(property: "club_id", type: "integer", nullable: true, example: 1),
                     new OA\Property(property: "message", type: "string", example: "The service at the VIP section was extremely slow.")
                 ]
@@ -63,7 +65,7 @@ class ClientComplaintController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'club_id' => 'nullable|exists:clubs,id',
+            'club_id' => 'required|exists:clubs,id',
             'message' => 'required|string',
         ]);
 

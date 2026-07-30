@@ -7,11 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Complaint extends Model
 {
-    protected $fillable = [
-        'client_id',
-        'club_id',
-        'message',
-    ];
+    protected $guarded = ['id'];
 
     public function client(): BelongsTo
     {

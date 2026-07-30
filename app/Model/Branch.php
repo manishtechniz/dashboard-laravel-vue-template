@@ -8,14 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Branch extends Model
 {
-    protected $fillable = [
-        'club_id',
-        'name',
-        'description',
-        'address',
-        'phone',
-        'is_active',
-    ];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'is_active' => 'boolean',

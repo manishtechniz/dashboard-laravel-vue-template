@@ -2,28 +2,43 @@
 
 namespace App\Model;
 
+use App\Traits\ResolvesImageUrls;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Event extends Model
 {
-    protected $fillable = [
-        'club_id',
-        'name',
-        'description',
-        'start_time',
-        'end_time',
-        'cover_charge',
-        'image',
-        'capacity',
-    ];
+    use ResolvesImageUrls;
+
+    protected $guarded = ['id'];
+
+    protected $appends = ['image_url', 'featured_image_url'];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
+        'event_date' => 'date',
         'cover_charge' => 'decimal:2',
     ];
+
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->getImageUrl(
+                $this->image
+            )
+        );
+    }
+
+    protected function featuredImageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->getImageUrl(
+                $this->featured_image
+            )
+        );
+    }
 
     public function club(): BelongsTo
     {
@@ -33,5 +48,10 @@ class Event extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function coupon(): HasOne
+    {
+        return $this->hasOne(PromoCode::class);
     }
 }

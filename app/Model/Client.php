@@ -2,28 +2,21 @@
 
 namespace App\Model;
 
+use App\Traits\ResolvesImageUrls;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Client extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, ResolvesImageUrls;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'phone',
-        'age',
-        'gender',
-        'avatar',
-        'password',
-        'google_id',
-        'is_active',
-    ];
+    protected $guarded = ['id'];
 
     protected $hidden = [
         'password',
@@ -33,6 +26,26 @@ class Client extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->getImageUrl(
+                $this->avatar
+            )
+        );
+    }
+
+    public function hasAppPermission($permission)
+    {
+        $tablePermission = $this->role?->permissions ?? [];
+
+        if (in_array('*', $tablePermission)) {
+            return true;
+        }
+
+        return in_array($permission, $tablePermission);
+    }
 
     public function bookings(): HasMany
     {
@@ -67,5 +80,10 @@ class Client extends Model
     public function featureRequests(): HasMany
     {
         return $this->hasMany(FeatureRequest::class);
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(MobileAppRole::class, 'role_id');
     }
 }

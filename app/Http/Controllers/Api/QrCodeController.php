@@ -10,57 +10,64 @@ use OpenApi\Attributes as OA;
 class QrCodeController extends Controller
 {
     #[OA\Get(
-        path: "/api/qrcode/{code}",
+        path: "/api/qrcode/scan",
         summary: "View booking details by QR code",
+        security: [["bearerAuth" => []]],
         tags: ["QR Code"],
         parameters: [
-            new OA\Parameter(name: "code", in: "path", required: true, description: "Unique QR Code string", schema: new OA\Schema(type: "string", example: "IMP-66A1B2C3"))
+            new OA\Parameter(
+                name: "qr_code_id",
+                in: "query",
+                required: false,
+                description: "",
+                schema: new OA\Schema(type: "string")
+            )
         ],
         responses: [
             new OA\Response(
                 response: 200,
                 description: "Booking details associated with QR code",
                 content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "qr_code", type: "string"),
-                        new OA\Property(property: "client_name", type: "string"),
-                        new OA\Property(property: "table", type: "string"),
-                        new OA\Property(property: "event", type: "string"),
-                        new OA\Property(property: "booking_date", type: "string"),
-                        new OA\Property(property: "status", type: "string")
-                    ]
+                    type: "object"
                 )
             ),
             new OA\Response(response: 404, description: "Booking not found for QR code")
         ]
     )]
-    public function show($bookingCode)
+    public function show(Request $request)
     {
-        $booking = Booking::where('qr_code', $bookingCode)
-            ->with(['client', 'table', 'event'])
-            ->firstOrFail();
+        $validated = $request->validate([
+            'qr_code_id' => 'required',
+        ]);
+
+        if (! $request->user()->hasAppPermission('can_qr_scan')) {
+            return response()->json(['message' => 'You do not have permission to perform this action.'], 403);
+        }
+
+        $booking = Booking::where('qr_code', $validated['qr_code_id'])
+            ->with(['table:id,name', 'club:id,name', 'guests', 'event:id,name'])
+            ->first();
+
+        if (!$booking) {
+            return response()->json(['message' => 'Invalid QR Code.'], 404);
+        }
 
         return response()->json([
-            'qr_code' => $booking->qr_code,
-            'client_name' => $booking->client ? $booking->client->name : 'N/A',
-            'table' => $booking->table ? $booking->table->name : 'N/A',
-            'event' => $booking->event ? $booking->event->name : 'N/A',
-            'booking_date' => $booking->booking_date,
-            'status' => $booking->status
+            'booking' => $booking
         ]);
     }
 
     #[OA\Post(
-        path: "/api/qrcode/validate",
+        path: "/api/qrcode/booking-checkin",
         summary: "Validate QR code and check in booking",
         tags: ["QR Code"],
         security: [["bearerAuth" => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["qr_code"],
+                required: ["qr_code_id"],
                 properties: [
-                    new OA\Property(property: "qr_code", type: "string", example: "IMP-66A1B2C3")
+                    new OA\Property(property: "qr_code_id", type: "string", example: "XXXXXXXX")
                 ]
             )
         ),
@@ -75,21 +82,24 @@ class QrCodeController extends Controller
                     ]
                 )
             ),
-            new OA\Response(response: 404, description: "Invalid QR code"),
-            new OA\Response(response: 422, description: "Booking already checked in or cancelled"),
-            new OA\Response(response: 401, description: "Unauthenticated")
+            new OA\Response(response: 422, description: "Invalid QR code or Booking already checked in or cancelled"),
+            new OA\Response(response: 403, description: "Unauthenticated")
         ]
     )]
-    public function validateCode(Request $request)
+    public function checkIn(Request $request)
     {
         $validated = $request->validate([
-            'qr_code' => 'required|string',
+            'qr_code_id' => 'required|string',
         ]);
 
-        $booking = Booking::where('qr_code', $validated['qr_code'])->first();
+        if (! $request->user()->hasAppPermission('can_booking_check_in')) {
+            return response()->json(['message' => 'You do not have permission to perform this action.'], 403);
+        }
 
-        if (!$booking) {
-            return response()->json(['message' => 'Invalid QR Code.'], 404);
+        $booking = Booking::where('qr_code', $request['qr_code_id'])->first();
+
+        if (! $booking) {
+            return response()->json(['message' => 'Invalid QR Code.'], 422);
         }
 
         if ($booking->status === 'cancelled') {
@@ -104,7 +114,6 @@ class QrCodeController extends Controller
 
         return response()->json([
             'message' => 'Booking checked in successfully.',
-            'booking' => $booking
         ]);
     }
 }

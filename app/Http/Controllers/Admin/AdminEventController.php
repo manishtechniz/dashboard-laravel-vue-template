@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DataGrids\EventDataGrid;
 use App\Model\Club;
 use App\Model\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminEventController extends Controller
 {
@@ -15,7 +16,9 @@ class AdminEventController extends Controller
             return datagrid(EventDataGrid::class)->process();
         }
 
-        $clubs = Club::all();
+        $clubs = Club::get(['id', 'name']);
+
+        // dd($clubs);
         return view('admin::events.index', compact('clubs'));
     }
 
@@ -24,13 +27,21 @@ class AdminEventController extends Controller
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
-            'cover_charge' => 'required|numeric|min:0',
-            'capacity' => 'nullable|integer|min:1',
-            'image' => 'nullable|string',
+            'description' => 'required|string',
+            'event_date' => 'required|date',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        // dd($validated);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('events');
+        }
+
+        if ($request->hasFile('featured_image')) {
+            $validated['featured_image'] = $request->file('featured_image')->store('events');
+        }
 
         Event::create($validated);
 
@@ -45,12 +56,26 @@ class AdminEventController extends Controller
             'club_id' => 'required|exists:clubs,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
-            'cover_charge' => 'required|numeric|min:0',
-            'capacity' => 'nullable|integer|min:1',
+            'event_date' => 'required|date',
             'image' => 'nullable|string',
+            'featured_image' => 'nullable|string',
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($event->image && Storage::exists($event->image)) {
+                Storage::delete($event->image);
+            }
+
+            $validated['image'] = $request->file('image')->store('events');
+        }
+
+        if ($request->hasFile('featured_image')) {
+            if ($event->featured_image && Storage::exists($event->featured_image)) {
+                Storage::delete($event->featured_image);
+            }
+
+            $validated['featured_image'] = $request->file('featured_image')->store('events');
+        }
 
         $event->update($validated);
 
@@ -60,6 +85,15 @@ class AdminEventController extends Controller
     public function destroy($id)
     {
         $event = Event::findOrFail($id);
+
+        if ($event->image && Storage::exists($event->image)) {
+            Storage::delete($event->image);
+        }
+
+        if ($event->featured_image && Storage::exists($event->featured_image)) {
+            Storage::delete($event->featured_image);
+        }
+
         $event->delete();
 
         return response()->json(['message' => 'Event deleted successfully.']);

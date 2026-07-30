@@ -55,9 +55,12 @@ class ClientReviewController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["rating"],
+                required: ["rating", "club_id"],
                 properties: [
                     new OA\Property(property: "club_id", type: "integer", nullable: true, example: 1),
+                    new OA\Property(property: "booking_id", type: "integer", nullable: true, example: 1),
+                    new OA\Property(property: "is_anonymous", type: "integer", nullable: true, example: 0 / 1),
+                    new OA\Property(property: "remark", type: "string", nullable: true, example: "you can put some text which from added"),
                     new OA\Property(property: "rating", type: "integer", example: 5, minimum: 1, maximum: 5),
                     new OA\Property(property: "comment", type: "string", example: "Amazing place, great music!")
                 ]
@@ -76,9 +79,12 @@ class ClientReviewController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'club_id' => 'nullable|exists:clubs,id',
+            'club_id' => 'required|exists:clubs,id',
+            'booking_id' => 'nullable|exists:bookings,id',
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
+            'comment' => 'nullable|string|max:2000',
+            'remark' => 'nullable|string|max:300',
+            'is_anonymous' => 'nullable|in:0,1',
         ]);
 
         $review = $request->user()->reviews()->create($validated);
