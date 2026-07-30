@@ -4,7 +4,9 @@
             <h1 class="page-title">Booking Management</h1>
             <div class="page-breadcrumb">Home / Bookings</div>
         </div>
+        @if (hasPermission('admin.bookings.store'))
         <Button label="Create Booking" icon="pi pi-plus" size="small" @click="$refs.booking.visible = true" />
+        @endif
     </div>
 
     <v-bookings ref="booking" :clients='@json($clients)' :tables='@json($tables)' :events='@json($events)'></v-bookings>

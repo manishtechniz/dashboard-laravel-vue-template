@@ -5,7 +5,9 @@
             <div class="page-breadcrumb">Home / Clubs</div>
         </div>
         <div class="flex gap-2">
+            @if (hasPermission('admin.clubs.store_club'))
             <Button label="Create Club" icon="pi pi-plus" size="small" outlined @click="$refs.clubsBranches.clubVisible = true" />
+            @endif
             <!-- <Button label="Create Branch" icon="pi pi-plus" size="small" @click="$refs.clubsBranches.branchVisible = true" /> -->
         </div>
     </div>

@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Admin\DataGrids\ReviewDataGrid;
-use App\Model\Review;
+use App\Http\Controllers\Admin\DataGrids\ComplaintDataGrid;
+use App\Model\Complaint;
 use App\Model\Client;
 use App\Model\Club;
+use App\Model\Booking;
 use Illuminate\Http\Request;
 
-class AdminReviewController extends Controller
+class AdminComplaintController extends Controller
 {
     public function index()
     {
         if (request()->ajax()) {
-            return datagrid(ReviewDataGrid::class)->process();
+            return datagrid(ComplaintDataGrid::class)->process();
         }
 
         $clients = Client::select('id', 'name')->orderBy('name')->get();
         $clubs = Club::select('id', 'name')->orderBy('name')->get();
 
-        return view('admin::reviews.index', compact('clients', 'clubs'));
+        return view('admin::complaints.index', compact('clients', 'clubs'));
     }
 
     public function store(Request $request)
@@ -28,43 +29,39 @@ class AdminReviewController extends Controller
             'client_id' => 'required|integer|exists:clients,id',
             'club_id' => 'nullable|integer|exists:clubs,id',
             'booking_id' => 'nullable|integer|exists:bookings,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'is_active' => 'boolean',
-            'is_anonymous' => 'boolean',
-            'comment' => 'nullable|string|max:2000',
+            'message' => 'required|string|max:2000',
             'remark' => 'nullable|string|max:1000',
+            'is_active' => 'boolean',
         ]);
 
-        Review::create($validated);
+        Complaint::create($validated);
 
-        return response()->json(['message' => 'Review created successfully.']);
+        return response()->json(['message' => 'Complaint created successfully.']);
     }
 
     public function update(Request $request, $id)
     {
-        $review = Review::findOrFail($id);
+        $complaint = Complaint::findOrFail($id);
 
         $validated = $request->validate([
             'client_id' => 'required|integer|exists:clients,id',
             'club_id' => 'nullable|integer|exists:clubs,id',
             'booking_id' => 'nullable|integer|exists:bookings,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'is_active' => 'boolean',
-            'is_anonymous' => 'boolean',
-            'comment' => 'nullable|string|max:2000',
+            'message' => 'required|string|max:2000',
             'remark' => 'nullable|string|max:1000',
+            'is_active' => 'boolean',
         ]);
 
-        $review->update($validated);
+        $complaint->update($validated);
 
-        return response()->json(['message' => 'Review updated successfully.']);
+        return response()->json(['message' => 'Complaint updated successfully.']);
     }
 
     public function destroy($id)
     {
-        $review = Review::findOrFail($id);
-        $review->delete();
+        $complaint = Complaint::findOrFail($id);
+        $complaint->delete();
 
-        return response()->json(['message' => 'Review deleted successfully.']);
+        return response()->json(['message' => 'Complaint deleted successfully.']);
     }
 }

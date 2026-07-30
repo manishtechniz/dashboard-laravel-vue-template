@@ -1,51 +1,36 @@
 <x-admin::layouts>
     <div class="page-header flex justify-between items-center">
         <div>
-            <h1 class="page-title">Reviews & Feedback</h1>
-            <div class="page-breadcrumb">Home / Reviews</div>
+            <h1 class="page-title">Complaints</h1>
+            <div class="page-breadcrumb">Home / Complaints</div>
         </div>
-        @if (hasPermission('admin.reviews.store'))
-        <Button label="Create Review" icon="pi pi-plus" size="small" @click="$refs.review.visible = true; $refs.review.editMode = false;" />
+        @if (hasPermission('admin.complaints.store'))
+        <Button label="Create Complaint" icon="pi pi-plus" size="small" @click="$refs.complaint.visible = true; $refs.complaint.editMode = false;" />
         @endif
     </div>
 
-    <v-reviews ref="review" :clients='@json($clients)' :clubs='@json($clubs)'></v-reviews>
+    <v-complaints ref="complaint" :clients='@json($clients)' :clubs='@json($clubs)'></v-complaints>
 
     @pushOnce('scripts')
-    <script type="text/x-template" id="v-reviews-template">
+    <script type="text/x-template" id="v-complaints-template">
         <div>
                 <!-- Datagrid -->
                 <x-admin::datagrid
                     :is-multi-row="true"
-                    ref="reviewsGrid"
-                    src="{{ route('admin.reviews.index') }}"
+                    ref="complaintsGrid"
+                    src="{{ route('admin.complaints.index') }}"
                 />
 
-                <!-- Edit Review Modal -->
-                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Review' : 'Create Review'" :style="{ width: '650px', maxWidth: '95vw' }" modal>
+                <!-- Edit Complaint Modal -->
+                <Dialog v-model:visible="visible" :header="editMode ? 'Edit Complaint' : 'Create Complaint'" :style="{ width: '650px', maxWidth: '95vw' }" modal>
                     <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
-                        <form @submit="handleSubmit($event, saveReview)" class="space-y-4 pt-3">
+                        <form @submit="handleSubmit($event, saveComplaint)" class="space-y-4 pt-3">
                             <div class="grid grid-cols-2 gap-4">
-                                <x-admin::form.control-group>
-                                    <x-admin::form.control-group.label label="Club" />
-                                    <x-admin::form.control-group.control
-                                        v-model="review.club_id"
-                                        ::value="review.club_id"
-                                        ::options="clubs"
-                                        optionLabel="name"
-                                        optionValue="id"
-                                        placeholder="Select Club"
-                                        name="club_id"
-                                        rules="required"
-                                        type="select"
-                                    />
-                                </x-admin::form.control-group>
-
                                 <x-admin::form.control-group>
                                     <x-admin::form.control-group.label label="Client" />
                                     <x-admin::form.control-group.control
-                                        v-model="review.client_id"
-                                        ::value="review.client_id"
+                                        v-model="complaint.client_id"
+                                        ::value="complaint.client_id"
                                         ::options="clients"
                                         optionLabel="name"
                                         optionValue="id"
@@ -56,40 +41,42 @@
                                     />
                                 </x-admin::form.control-group>
                                 
-                                
+                                <x-admin::form.control-group>
+                                    <x-admin::form.control-group.label label="Club" />
+                                    <x-admin::form.control-group.control
+                                        v-model="complaint.club_id"
+                                        ::value="complaint.club_id"
+                                        ::options="clubs"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        placeholder="Select Club"
+                                        name="club_id"
+                                        rules="required"
+                                        type="select"
+                                    />
+                                </x-admin::form.control-group>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 gap-4">
                                 <x-admin::form.control-group>
                                     <x-admin::form.control-group.label label="Booking ID (Optional)" />
                                     <x-admin::form.control-group.control
                                         type="text"
                                         name="booking_id"
-                                        v-model="review.booking_id"
+                                        v-model="complaint.booking_id"
                                         placeholder="e.g. 1024"
-                                    />
-                                </x-admin::form.control-group>
-
-                                <x-admin::form.control-group>
-                                    <x-admin::form.control-group.label label="Rating (1-5)" />
-                                    <x-admin::form.control-group.control
-                                        type="text"
-                                        name="rating"
-                                        v-model="review.rating"
-                                        rules="required|min_value:1|max_value:5"
-                                        placeholder="e.g. 5"
                                     />
                                 </x-admin::form.control-group>
                             </div>
 
                             <x-admin::form.control-group>
-                                <x-admin::form.control-group.label label="User Comment" />
+                                <x-admin::form.control-group.label label="Message" />
                                 <x-admin::form.control-group.control
                                     type="textarea"
-                                    name="comment"
+                                    name="message"
                                     rules="required"
-                                    v-model="review.comment"
-                                    placeholder="Enter user comment..."
+                                    v-model="complaint.message"
+                                    placeholder="Enter complaint message..."
                                 />
                             </x-admin::form.control-group>
 
@@ -98,19 +85,15 @@
                                 <x-admin::form.control-group.control
                                     type="textarea"
                                     name="remark"
-                                    v-model="review.remark"
+                                    v-model="complaint.remark"
                                     placeholder="Enter internal remark or reply..."
                                 />
                             </x-admin::form.control-group>
 
                             <div class="flex items-center gap-6 pt-2">
                                 <div class="flex items-center gap-2">
-                                    <ToggleSwitch v-model="review.is_active" inputId="is_active_toggle" />
+                                    <ToggleSwitch v-model="complaint.is_active" inputId="is_active_toggle" />
                                     <x-admin::form.control-group.label label="Active Status" for="is_active_toggle" />
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <ToggleSwitch v-model="review.is_anonymous" inputId="is_anonymous_toggle" />
-                                    <x-admin::form.control-group.label label="Anonymous" for="is_anonymous_toggle" />
                                 </div>
                             </div>
 
@@ -127,40 +110,36 @@
         </script>
 
     <script type="module">
-        adminVueApp.component('v-reviews', {
-            template: '#v-reviews-template',
+        adminVueApp.component('v-complaints', {
+            template: '#v-complaints-template',
             props: ['clients', 'clubs'],
             data() {
                 return {
                     visible: false,
                     editMode: false,
                     loading: false,
-                    review: {
+                    complaint: {
                         id: null,
                         client_id: null,
                         club_id: null,
                         booking_id: null,
-                        rating: 5,
-                        comment: '',
+                        message: '',
                         remark: '',
-                        is_active: true,
-                        is_anonymous: false
+                        is_active: true
                     }
                 };
             },
             watch: {
                 visible(val) {
                     if (val && !this.editMode) {
-                        this.review = {
+                        this.complaint = {
                             id: null,
                             client_id: null,
                             club_id: null,
                             booking_id: null,
-                            rating: 5,
-                            comment: '',
+                            message: '',
                             remark: '',
-                            is_active: true,
-                            is_anonymous: false
+                            is_active: true
                         };
                     } else if (!val) {
                         this.editMode = false;
@@ -177,38 +156,34 @@
             methods: {
                 onEdit(row) {
                     this.editMode = true;
-                    this.review = {
+                    this.complaint = {
                         id: row.id,
                         client_id: row.client_id || null,
                         club_id: row.club_id || null,
                         booking_id: row.booking_id || null,
-                        rating: row.rating || 5,
-                        comment: row.comment || '',
+                        message: row.message || '',
                         remark: row.remark || '',
-                        is_active: !!row.is_active,
-                        is_anonymous: !!row.is_anonymous
+                        is_active: !!row.is_active
                     };
                     this.visible = true;
                 },
-                saveReview(params, {
+                saveComplaint(params, {
                     resetForm,
                     setErrors
                 }) {
                     this.loading = true;
                     const url = this.editMode ?
-                        `{{ route('admin.reviews.index') }}/${this.review.id}` :
-                        `{{ route('admin.reviews.store') }}`;
+                        `{{ route('admin.complaints.index') }}/${this.complaint.id}` :
+                        `{{ route('admin.complaints.store') }}`;
 
                     const payload = {
                         ...params,
-                        client_id: this.review.client_id,
-                        club_id: this.review.club_id,
-                        booking_id: this.review.booking_id,
-                        rating: this.review.rating,
-                        comment: this.review.comment,
-                        remark: this.review.remark,
-                        is_active: this.review.is_active ? 1 : 0,
-                        is_anonymous: this.review.is_anonymous ? 1 : 0
+                        client_id: this.complaint.client_id,
+                        club_id: this.complaint.club_id,
+                        booking_id: this.complaint.booking_id,
+                        message: this.complaint.message,
+                        remark: this.complaint.remark,
+                        is_active: this.complaint.is_active ? 1 : 0
                     };
 
                     this.$axios.post(url, payload)
@@ -220,7 +195,7 @@
                             this.visible = false;
                             this.loading = false;
                             resetForm();
-                            this.$refs.reviewsGrid.get();
+                            this.$refs.complaintsGrid.get();
                         })
                         .catch(error => {
                             this.loading = false;

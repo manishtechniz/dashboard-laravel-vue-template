@@ -4,7 +4,9 @@
             <h1 class="page-title">Event Management</h1>
             <div class="page-breadcrumb">Home / Events</div>
         </div>
+        @if (hasPermission('admin.events.store'))
         <Button label="Create Event" icon="pi pi-plus" size="small" @click="$refs.event.visible = true" />
+        @endif
     </div>
 
     <v-events ref="event" :clubs='@json($clubs)'></v-events>

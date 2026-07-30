@@ -123,23 +123,27 @@ class PromoCodeDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        $this->addAction([
-            'type' => 'custom',
-            'icon' => 'icon-edit',
-            'title' => 'Edit Promo Code',
-            'method' => 'edit',
-            'url' => function ($row) {
-                return '';
-            }
-        ]);
+        if (hasPermission('admin.promo_codes.update')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-edit',
+                'title' => 'Edit Promo Code',
+                'method' => 'edit',
+                'url' => function ($row) {
+                    return '';
+                }
+            ]);
+        }
 
-        $this->addAction([
-            'icon' => 'icon-delete',
-            'title' => 'Delete Promo Code',
-            'method' => 'DELETE',
-            'url' => function ($row) {
-                return route('admin.promo_codes.delete', $row->id);
-            }
-        ]);
+        if (hasPermission('admin.promo_codes.delete')) {
+            $this->addAction([
+                'icon' => 'icon-delete',
+                'title' => 'Delete Promo Code',
+                'method' => 'DELETE',
+                'url' => function ($row) {
+                    return route('admin.promo_codes.delete', $row->id);
+                }
+            ]);
+        }
     }
 }

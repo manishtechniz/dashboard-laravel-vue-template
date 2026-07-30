@@ -86,23 +86,27 @@ class EventDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        $this->addAction([
-            'type' => 'custom',
-            'icon' => 'icon-edit',
-            'title' => 'Edit Event',
-            'method' => 'edit',
-            'url' => function ($row) {
-                return '';
-            }
-        ]);
+        if (hasPermission('admin.events.update')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-edit',
+                'title' => 'Edit Event',
+                'method' => 'edit',
+                'url' => function ($row) {
+                    return '';
+                }
+            ]);
+        }
 
-        $this->addAction([
-            'icon' => 'icon-delete',
-            'title' => 'Delete Event',
-            'method' => 'DELETE',
-            'url' => function ($row) {
-                return route('admin.events.delete', $row->id);
-            }
-        ]);
+        if (hasPermission('admin.events.delete')) {
+            $this->addAction([
+                'icon' => 'icon-delete',
+                'title' => 'Delete Event',
+                'method' => 'DELETE',
+                'url' => function ($row) {
+                    return route('admin.events.delete', $row->id);
+                }
+            ]);
+        }
     }
 }

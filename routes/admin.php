@@ -154,7 +154,29 @@ Route::group(['prefix' => 'notifications'], function () {
  */
 Route::group(['prefix' => 'reviews'], function () {
     Route::get('/', [App\Http\Controllers\Admin\AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/', [App\Http\Controllers\Admin\AdminReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/{id}', [App\Http\Controllers\Admin\AdminReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/{id}', [App\Http\Controllers\Admin\AdminReviewController::class, 'destroy'])->name('reviews.delete');
+});
+
+/**
+ * Complaint Routes
+ */
+Route::group(['prefix' => 'complaints'], function () {
+    Route::get('/', [App\Http\Controllers\Admin\AdminComplaintController::class, 'index'])->name('complaints.index');
+    Route::post('/', [App\Http\Controllers\Admin\AdminComplaintController::class, 'store'])->name('complaints.store');
+    Route::post('/{id}', [App\Http\Controllers\Admin\AdminComplaintController::class, 'update'])->name('complaints.update');
+    Route::delete('/{id}', [App\Http\Controllers\Admin\AdminComplaintController::class, 'destroy'])->name('complaints.delete');
+});
+
+/**
+ * Feature Request Routes
+ */
+Route::group(['prefix' => 'feature-requests'], function () {
+    Route::get('/', [App\Http\Controllers\Admin\AdminFeatureRequestController::class, 'index'])->name('feature_requests.index');
+    Route::post('/', [App\Http\Controllers\Admin\AdminFeatureRequestController::class, 'store'])->name('feature_requests.store');
+    Route::post('/{id}', [App\Http\Controllers\Admin\AdminFeatureRequestController::class, 'update'])->name('feature_requests.update');
+    Route::delete('/{id}', [App\Http\Controllers\Admin\AdminFeatureRequestController::class, 'destroy'])->name('feature_requests.delete');
 });
 
 /**

@@ -132,23 +132,27 @@ class TableDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        $this->addAction([
-            'type' => 'custom',
-            'icon' => 'icon-edit',
-            'title' => 'Edit Table',
-            'method' => 'edit',
-            'url' => function ($row) {
-                return '';
-            }
-        ]);
+        if (hasPermission('admin.tables.update')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-edit',
+                'title' => 'Edit Table',
+                'method' => 'edit',
+                'url' => function ($row) {
+                    return '';
+                }
+            ]);
+        }
 
-        $this->addAction([
-            'icon' => 'icon-delete',
-            'title' => 'Delete Table',
-            'method' => 'DELETE',
-            'url' => function ($row) {
-                return route('admin.tables.delete', $row->id);
-            }
-        ]);
+        if (hasPermission('admin.tables.delete')) {
+            $this->addAction([
+                'icon' => 'icon-delete',
+                'title' => 'Delete Table',
+                'method' => 'DELETE',
+                'url' => function ($row) {
+                    return route('admin.tables.delete', $row->id);
+                }
+            ]);
+        }
     }
 }

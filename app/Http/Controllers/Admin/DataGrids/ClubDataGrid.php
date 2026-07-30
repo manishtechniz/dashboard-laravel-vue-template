@@ -65,23 +65,27 @@ class ClubDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        $this->addAction([
-            'type' => 'custom',
-            'icon' => 'icon-edit',
-            'title' => 'Edit Club',
-            'method' => 'edit',
-            'url' => function ($row) {
-                return '';
-            }
-        ]);
+        if (hasPermission('admin.clubs.update_club')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-edit',
+                'title' => 'Edit Club',
+                'method' => 'edit',
+                'url' => function ($row) {
+                    return '';
+                }
+            ]);
+        }
 
-        $this->addAction([
-            'icon' => 'icon-delete',
-            'title' => 'Delete Club',
-            'method' => 'DELETE',
-            'url' => function ($row) {
-                return route('admin.clubs.delete_club', $row->id);
-            }
-        ]);
+        if (hasPermission('admin.clubs.delete_club')) {
+            $this->addAction([
+                'icon' => 'icon-delete',
+                'title' => 'Delete Club',
+                'method' => 'DELETE',
+                'url' => function ($row) {
+                    return route('admin.clubs.delete_club', $row->id);
+                }
+            ]);
+        }
     }
 }

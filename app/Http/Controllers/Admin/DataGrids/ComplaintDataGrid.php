@@ -6,36 +6,32 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Imperial\DataGrid\DataGrid;
 
-class ReviewDataGrid extends DataGrid
+class ComplaintDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        $queryBuilder = DB::table('reviews')
-            ->join('clients', 'reviews.client_id', '=', 'clients.id')
-            ->leftJoin('clubs', 'reviews.club_id', '=', 'clubs.id')
+        $queryBuilder = DB::table('complaints')
+            ->join('clients', 'complaints.client_id', '=', 'clients.id')
+            ->leftJoin('clubs', 'complaints.club_id', '=', 'clubs.id')
+            ->leftJoin('bookings', 'complaints.booking_id', '=', 'bookings.id')
             ->select(
-                'reviews.id',
-                'reviews.client_id',
-                'reviews.club_id',
-                'reviews.booking_id',
+                'complaints.id',
+                'complaints.client_id',
+                'complaints.club_id',
+                'complaints.booking_id',
                 'clients.name as client_name',
                 'clubs.name as club_name',
-                'reviews.rating as rating_html',
-                'reviews.rating',
-                'reviews.comment',
-                'reviews.created_at',
-                'reviews.is_active',
-                'reviews.is_anonymous',
-                'reviews.remark'
+                'complaints.message',
+                'complaints.created_at',
+                'complaints.is_active',
+                'complaints.remark'
             );
 
-        $this->addFilter('id', 'reviews.id');
+        $this->addFilter('id', 'complaints.id');
         $this->addFilter('client_name', 'clients.name');
         $this->addFilter('club_name', 'clubs.name');
-        $this->addFilter('rating', 'reviews.rating');
-        $this->addFilter('comment', 'reviews.comment');
-        $this->addFilter('is_active', 'reviews.is_active');
-        $this->addFilter('is_anonymous', 'reviews.is_anonymous');
+        $this->addFilter('message', 'complaints.message');
+        $this->addFilter('is_active', 'complaints.is_active');
 
         return $queryBuilder;
     }
@@ -69,19 +65,8 @@ class ReviewDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'rating_html',
-            'label' => 'Rating',
-            'type' => 'integer',
-            'filterable' => true,
-            'sortable' => true,
-            'closure' => function ($row) {
-                return str_repeat('★', $row->rating) . str_repeat('☆', 5 - $row->rating);
-            },
-        ]);
-
-        $this->addColumn([
-            'index' => 'comment',
-            'label' => 'Comment',
+            'index' => 'message',
+            'label' => 'Message',
             'type' => 'string',
             'searchable' => true,
         ]);
@@ -91,18 +76,6 @@ class ReviewDataGrid extends DataGrid
             'label' => 'Remark',
             'type' => 'string',
             'searchable' => true,
-        ]);
-
-        $this->addColumn([
-            'index' => 'is_anonymous',
-            'label' => 'Anonymous',
-            'type' => 'boolean',
-            'filterable' => true,
-            'closure' => function ($row) {
-                return $row->is_anonymous
-                    ? '<span class="label-active">Yes</span>'
-                    : '<span class="label-inactive">No</span>';
-            },
         ]);
 
         $this->addColumn([
@@ -120,24 +93,24 @@ class ReviewDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        if (hasPermission('admin.reviews.update')) {
+        if (hasPermission('admin.complaints.update')) {
             $this->addAction([
                 'type' => 'custom',
                 'icon' => 'icon-edit',
-                'title' => 'Edit Review',
+                'title' => 'Edit Complaint',
                 'method' => 'edit',
                 'url' => function ($row) {
                     return '';
                 }
             ]);
         }
-        if (hasPermission('admin.reviews.delete')) {
+        if (hasPermission('admin.complaints.delete')) {
             $this->addAction([
                 'icon' => 'icon-delete',
-                'title' => 'Delete Review',
+                'title' => 'Delete Complaint',
                 'method' => 'DELETE',
                 'url' => function ($row) {
-                    return route('admin.reviews.delete', $row->id);
+                    return route('admin.complaints.delete', $row->id);
                 },
             ]);
         }

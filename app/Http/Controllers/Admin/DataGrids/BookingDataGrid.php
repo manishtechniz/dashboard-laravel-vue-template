@@ -119,23 +119,27 @@ class BookingDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        $this->addAction([
-            'type' => 'custom',
-            'icon' => 'icon-edit',
-            'title' => 'Edit Booking',
-            'method' => 'edit',
-            'url' => function ($row) {
-                return '';
-            }
-        ]);
+        if (hasPermission('admin.bookings.update')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-edit',
+                'title' => 'Edit Booking',
+                'method' => 'edit',
+                'url' => function ($row) {
+                    return '';
+                }
+            ]);
+        }
 
-        $this->addAction([
-            'icon' => 'icon-delete',
-            'title' => 'Delete Booking',
-            'method' => 'DELETE',
-            'url' => function ($row) {
-                return route('admin.bookings.delete', $row->id);
-            }
-        ]);
+        if (hasPermission('admin.bookings.delete')) {
+            $this->addAction([
+                'icon' => 'icon-delete',
+                'title' => 'Delete Booking',
+                'method' => 'DELETE',
+                'url' => function ($row) {
+                    return route('admin.bookings.delete', $row->id);
+                }
+            ]);
+        }
     }
 }

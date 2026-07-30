@@ -66,23 +66,27 @@ class ClientDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        $this->addAction([
-            'type' => 'custom',
-            'icon' => 'icon-edit',
-            'title' => 'Edit Client',
-            'method' => 'edit',
-            'url' => function ($row) {
-                return '';
-            }
-        ]);
+        if (hasPermission('admin.clients.update')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-edit',
+                'title' => 'Edit Client',
+                'method' => 'edit',
+                'url' => function ($row) {
+                    return '';
+                }
+            ]);
+        }
 
-        $this->addAction([
-            'icon' => 'icon-delete',
-            'title' => 'Delete Client',
-            'method' => 'DELETE',
-            'url' => function ($row) {
-                return route('admin.clients.delete', $row->id);
-            }
-        ]);
+        if (hasPermission('admin.clients.delete')) {
+            $this->addAction([
+                'icon' => 'icon-delete',
+                'title' => 'Delete Client',
+                'method' => 'DELETE',
+                'url' => function ($row) {
+                    return route('admin.clients.delete', $row->id);
+                }
+            ]);
+        }
     }
 }

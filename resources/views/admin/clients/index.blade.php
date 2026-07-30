@@ -4,7 +4,9 @@
             <h1 class="page-title">Client Management</h1>
             <div class="page-breadcrumb">Home / Clients</div>
         </div>
+        @if (hasPermission('admin.clients.store'))
         <Button label="Create Client" icon="pi pi-plus" size="small" @click="$refs.clinet.visible = true" />
+        @endif
     </div>
 
     <v-clients ref="clinet"></v-clients>

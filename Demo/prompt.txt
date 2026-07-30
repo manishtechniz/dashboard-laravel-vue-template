@@ -119,6 +119,21 @@ resources\views\admin\bookings\index.blade.php
 
 
 
+Prompt 4:
+Create complete CRUD functionality for complaints,feature_requests for admin dashboard
+
+table are: complaints, feature_requests
+
+for menu and permission config
+@file: config\acl.php
+
+page reffernce 
+@file: resources\views\admin\reviews\index.blade.php
+
+
+
+
+
 
 
 

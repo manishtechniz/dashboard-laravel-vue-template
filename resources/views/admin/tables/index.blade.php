@@ -4,7 +4,9 @@
             <h1 class="page-title">Table Management</h1>
             <div class="page-breadcrumb">Home / Tables</div>
         </div>
+        @if (hasPermission('admin.tables.store'))
         <Button label="Create Table" icon="pi pi-plus" size="small" @click="$refs.table.visible = true;$refs.table.fileRules.required = true" />
+        @endif
     </div>
 
     <v-tables ref="table" :clubs='@json($clubs)'></v-tables>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthorizeActionMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,21 +12,21 @@ use Laravel\Sanctum\Sanctum;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        commands: __DIR__.'/../routes/console.php',
-        api: __DIR__.'/../routes/api.php',
+        commands: __DIR__ . '/../routes/console.php',
+        api: __DIR__ . '/../routes/api.php',
         health: '/up',
         then: function () {
-            Route::middleware(['web', 'auth:admin'])
+            Route::middleware(['web', 'auth:admin', AuthorizeActionMiddleware::class])
                 ->prefix('admin')
                 ->name('admin.')->group(base_path('routes/admin.php'));
-                
+
             Route::middleware(['web', 'auth'])
-                ->group(base_path('routes/web.php'));    
+                ->group(base_path('routes/web.php'));
         }
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Redirect guest user to login page for web/admin, return null for API.
-        $middleware->redirectGuestsTo(function (Request $request) { 
+        $middleware->redirectGuestsTo(function (Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return 'api error';
             }

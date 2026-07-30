@@ -4,7 +4,9 @@
             <h1 class="page-title">Promo Codes</h1>
             <div class="page-breadcrumb">Home / Promo Codes</div>
         </div>
+        @if (hasPermission('admin.promo_codes.store'))
         <Button label="Create Promo Code" icon="pi pi-plus" size="small" @click="$refs.promo.visible = true" />
+        @endif
     </div>
 
     <v-promo-codes ref="promo"></v-promo-codes>
