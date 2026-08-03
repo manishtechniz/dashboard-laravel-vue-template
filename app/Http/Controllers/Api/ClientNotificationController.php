@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Jobs\SendFirebaseNotificationJob;
+use App\Model\Client;
 use App\Model\DeviceToken;
+use App\Notifications\TestClientNotification;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -91,7 +93,8 @@ class ClientNotificationController extends Controller
             content: new OA\JsonContent(
                 required: ["fcm_token"],
                 properties: [
-                    new OA\Property(property: "fcm_token", type: "string", example: "fcm_device_token_xyz")
+                    new OA\Property(property: "fcm_token", type: "string", example: "fcm_device_token_xyz"),
+                    new OA\Property(property: "method", type: "integer", example: "1")
                 ]
             )
         ),
@@ -101,7 +104,8 @@ class ClientNotificationController extends Controller
                 description: "Notification queued successfully!",
                 content: new OA\JsonContent(
                     properties: [
-                        new OA\Property(property: "message", type: "string", example: "Notification queued successfully!")
+                        new OA\Property(property: "message", type: "string", example: "Notification queued successfully!"),
+
                     ]
                 )
             ),
@@ -113,6 +117,14 @@ class ClientNotificationController extends Controller
         $request->validate([
             'fcm_token' => 'required|string',
         ]);
+
+        // if (! empty($request['method'])) {
+        //     $client = Client::find(6);
+
+        //     $client->notify(new TestClientNotification());
+
+        //     return response()->json(['message' => 'Notification queued successfully!']);
+        // }
 
         // Dispatch to a single token
         SendFirebaseNotificationJob::dispatch(

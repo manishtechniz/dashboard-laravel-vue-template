@@ -9,7 +9,7 @@ class AdminRoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::all();  
+        $roles = Role::all();
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
@@ -22,6 +22,7 @@ class AdminRoleController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $validated = $request->validate([
             'name'        => 'required|string|max:255|unique:roles,name',
             'description' => 'nullable|string',
@@ -81,4 +82,3 @@ class AdminRoleController extends Controller
         ]);
     }
 }
-

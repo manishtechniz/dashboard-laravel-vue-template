@@ -10,7 +10,10 @@ class Notification extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'read_at' => 'datetime',
+        'read_at' => 'date:Y-m-d h:i A',
+        'created_at' => 'date:Y-m-d h:i A',
+        'updated_at' => 'date:Y-m-d h:i A',
+        'additional' => 'array',
     ];
 
     public function client(): BelongsTo

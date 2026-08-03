@@ -37,6 +37,12 @@ class SendFirebaseNotificationJob implements ShouldQueue
      */
     public function handle(FirebaseNotificationService $firebaseService): void
     {
+        if (empty($this->target)) {
+            return;
+        }
+
+        // dd($this->target, $this->title, $this->body, $this->data);
+
         match ($this->type) {
             'token' => $firebaseService->sendToToken($this->target, $this->title, $this->body, $this->data),
             'tokens' => $firebaseService->sendToTokens($this->target, $this->title, $this->body, $this->data),

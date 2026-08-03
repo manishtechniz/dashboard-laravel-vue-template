@@ -13,6 +13,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!-- Link the PWA Manifest -->
+    <!-- <link rel="manifest" href="{{ asset('web.dev/manifest.json') }}">
+    <meta name="theme-color" content="#4f46e5"> -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -128,23 +132,12 @@
 
                     navItems: @json($adminMenu ?? []),
 
-                    // navItems: [ 
-                    //     {
-                    //         section: 'Account'
-                    //     },
-                    //     {
-                    //         icon: 'pi pi-user',
-                    //         label: 'My Profile',
-                    //         route: '{{ route("admin.profile.index") }}',
-                    //         active: "{{ request()->routeIs('admin.profile.index') }}"
-                    //     },
-                    // ],
-
-                    themes: [{
-                            key: 'light',
-                            label: 'Light',
-                            icon: 'pi pi-sun'
-                        },
+                    themes: [
+                        // {
+                        //     key: 'light',
+                        //     label: 'Light',
+                        //     icon: 'pi pi-sun'
+                        // },
                         {
                             key: 'dark',
                             label: 'Dark',
@@ -155,11 +148,11 @@
                             label: 'Ocean',
                             icon: 'pi pi-cloud'
                         },
-                        {
-                            key: 'rose',
-                            label: 'Rose',
-                            icon: 'pi pi-heart'
-                        },
+                        // {
+                        //     key: 'rose',
+                        //     label: 'Rose',
+                        //     icon: 'pi pi-heart'
+                        // },
                     ],
                 };
             },
@@ -207,20 +200,23 @@
                 </div>
 
                 <nav class="sidebar-nav">
+                    <!-- @{{ navItems }} -->
                     <template v-for="item in navItems" :key="item.label || item.section">
                         <div v-if="item.section" class="sidebar-section-label">@{{ item.section }}</div>
-                        <a v-else :href="item.url" :class="['nav-item', { active: item.route =='{{ request()->route()->getName() }}' }]">
+                        <a v-else-if="item.visibility !== 'hidden'" :href="item.url" :class="['nav-item', { active: item.route =='{{ request()->route()->getName() }}' }]">
                             <i :class="['nav-icon', item.icon]"></i>
                             <span class="nav-label">@{{ item.label }}</span>
                         </a>
                     </template>
 
+                    @if (hasPermission('admin.profile.index'))
                     <div class="sidebar-section-label">Account</div>
 
                     <a href="{{ route("admin.profile.index") }}" class="nav-item {{ request()->routeIs('admin.profile.index') ? 'active' : '' }}">
                         <i class="pi pi-user nav-icon"></i>
                         <span class="nav-label">My Profile</span>
                     </a>
+                    @endif
                 </nav>
 
                 <div class="sidebar-footer">
@@ -287,6 +283,16 @@
 
     <!-- Add dynamic scripts -->
     @stack('scripts')
+
+    <!-- <script>
+        if ('serviceWorker' in navigator) {
+            console.log(1);
+            window.addEventListener('load', () => {
+                console.log(2);
+                navigator.serviceWorker.register("{{ asset('sw.js') }}");
+            });
+        }
+    </script> -->
 </body>
 
 </html>

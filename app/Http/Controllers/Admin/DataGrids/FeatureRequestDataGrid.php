@@ -103,4 +103,30 @@ class FeatureRequestDataGrid extends DataGrid
             ]);
         }
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.feature_requests.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Requests',
+                'method' => 'POST',
+                'url' => route('admin.feature_requests.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.feature_requests.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.feature_requests.mass_update'),
+                'options' => [
+                    ['label' => 'Pending', 'value' => 'pending'],
+                    ['label' => 'Reviewing', 'value' => 'reviewing'],
+                    ['label' => 'Planned', 'value' => 'planned'],
+                    ['label' => 'In Progress', 'value' => 'in_progress'],
+                    ['label' => 'Completed', 'value' => 'completed'],
+                    ['label' => 'Rejected', 'value' => 'rejected'],
+                ],
+            ]);
+        }
+    }
 }

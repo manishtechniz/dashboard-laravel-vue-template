@@ -110,4 +110,28 @@ class PaymentDataGrid extends DataGrid
             }
         ]);
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.payments.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Payments',
+                'method' => 'POST',
+                'url' => route('admin.payments.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.payments.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.payments.mass_update'),
+                'options' => [
+                    ['label' => 'Pending', 'value' => 'pending'],
+                    ['label' => 'Completed', 'value' => 'completed'],
+                    ['label' => 'Failed', 'value' => 'failed'],
+                    ['label' => 'Refunded', 'value' => 'refunded'],
+                ],
+            ]);
+        }
+    }
 }

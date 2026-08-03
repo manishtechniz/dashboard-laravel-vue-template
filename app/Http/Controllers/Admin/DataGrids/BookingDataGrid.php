@@ -14,15 +14,32 @@ class BookingDataGrid extends DataGrid
             ->join('clients', 'bookings.client_id', '=', 'clients.id')
             ->leftJoin('tables', 'bookings.table_id', '=', 'tables.id')
             ->leftJoin('events', 'bookings.event_id', '=', 'events.id')
+            ->leftJoin('clubs', 'bookings.club_id', '=', 'clubs.id')
             ->select(
                 'bookings.id',
                 'clients.name as client_name',
                 'tables.name as table_name',
                 'events.name as event_name',
+                'clubs.name as club_name',
+                'bookings.client_name as guest_name',
+                'bookings.client_phone',
+                'bookings.client_email',
+                'bookings.base_price',
+                'bookings.spend_amount',
+                'bookings.discount_type',
+                'bookings.discount_amount',
+                'bookings.tax_amount',
+                'bookings.total_amount_incl_tax',
+                'bookings.payment_status',
                 'bookings.booking_date',
                 'bookings.start_time',
+                'bookings.end_time',
                 'bookings.guest_count',
-                'bookings.status'
+                'bookings.status',
+                'bookings.status as status_html',
+                'bookings.special_requests',
+                'bookings.qr_code',
+                'bookings.created_at'
             );
 
         $this->addFilter('id', 'bookings.id');
@@ -89,7 +106,7 @@ class BookingDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'status',
+            'index' => 'status_html',
             'label' => 'Status',
             'type' => 'string',
             'filterable' => true,
@@ -101,17 +118,19 @@ class BookingDataGrid extends DataGrid
                 ['label' => 'Checked In', 'value' => 'checked_in'],
             ],
             'closure' => function ($row) {
-                switch ($row->status) {
-                    case 'pending':
-                        return '<span class="label-pending">Pending</span>';
+                $status = strtolower($row->status ?? 'pending');
+
+                switch ($status) {
                     case 'confirmed':
-                        return '<span class="label-active">Confirmed</span>';
-                    case 'cancelled':
-                        return '<span class="label-inactive">Cancelled</span>';
+                        return '<span class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-max" style="background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--success); border: 1px solid color-mix(in srgb, var(--success) 25%, transparent);"><span class="w-1.5 h-1.5 rounded-full" style="background: var(--success);"></span>Confirmed</span>';
                     case 'checked_in':
-                        return '<span class="label-processing">Checked In</span>';
+                        return '<span class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-max" style="background: color-mix(in srgb, var(--info) 12%, transparent); color: var(--info); border: 1px solid color-mix(in srgb, var(--info) 25%, transparent);"><span class="w-1.5 h-1.5 rounded-full" style="background: var(--info);"></span>Checked In</span>';
+                    case 'pending':
+                        return '<span class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-max" style="background: color-mix(in srgb, var(--warning) 12%, transparent); color: var(--warning); border: 1px solid color-mix(in srgb, var(--warning) 25%, transparent);"><span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background: var(--warning);"></span>Pending</span>';
+                    case 'cancelled':
+                        return '<span class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-max" style="background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent);"><span class="w-1.5 h-1.5 rounded-full" style="background: var(--danger);"></span>Cancelled</span>';
                     default:
-                        return $row->status;
+                        return '<span class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-max" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border);">' . htmlspecialchars(ucfirst($status), ENT_QUOTES, 'UTF-8') . '</span>';
                 }
             },
         ]);
@@ -119,6 +138,28 @@ class BookingDataGrid extends DataGrid
 
     public function prepareActions()
     {
+        $this->addAction([
+            'type' => 'custom',
+            'icon' => 'd-pi pi pi-users ',
+            'title' => 'View Guests',
+            'method' => 'guests',
+            'url' => function ($row) {
+                return '';
+            }
+        ]);
+
+        if (hasPermission('admin.bookings.view')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-view',
+                'title' => 'View Booking',
+                'method' => 'view',
+                'url' => function ($row) {
+                    return '';
+                }
+            ]);
+        }
+
         if (hasPermission('admin.bookings.update')) {
             $this->addAction([
                 'type' => 'custom',
@@ -139,6 +180,32 @@ class BookingDataGrid extends DataGrid
                 'url' => function ($row) {
                     return route('admin.bookings.delete', $row->id);
                 }
+            ]);
+        }
+    }
+
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.bookings.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Bookings',
+                'method' => 'POST',
+                'url' => route('admin.bookings.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+
+        if (hasPermission('admin.bookings.mass_status')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'url' => route('admin.bookings.mass_status'),
+                'method' => 'POST',
+                'options' => [
+                    ['label' => 'Pending', 'value' => 'pending'],
+                    ['label' => 'Confirmed', 'value' => 'confirmed'],
+                    ['label' => 'Cancelled', 'value' => 'cancelled'],
+                    ['label' => 'Checked In', 'value' => 'checked_in'],
+                ],
             ]);
         }
     }

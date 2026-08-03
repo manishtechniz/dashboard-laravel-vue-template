@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BookingStatus;
 use App\Model\Booking;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -102,11 +103,11 @@ class QrCodeController extends Controller
             return response()->json(['message' => 'Invalid QR Code.'], 422);
         }
 
-        if ($booking->status === 'cancelled') {
+        if ($booking->status === BookingStatus::CANCELLED) {
             return response()->json(['message' => 'Booking was cancelled.'], 422);
         }
 
-        if ($booking->status === 'checked_in') {
+        if ($booking->status === BookingStatus::CHECKED_IN) {
             return response()->json(['message' => 'Booking already checked in.'], 422);
         }
 

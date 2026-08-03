@@ -98,4 +98,25 @@ class AdminEventController extends Controller
 
         return response()->json(['message' => 'Event deleted successfully.']);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        $events = Event::whereIn('id', $validated['indices'])->get();
+        
+        foreach ($events as $event) {
+            if ($event->image && Storage::exists($event->image)) {
+                Storage::delete($event->image);
+            }
+            if ($event->featured_image && Storage::exists($event->featured_image)) {
+                Storage::delete($event->featured_image);
+            }
+            $event->delete();
+        }
+
+        return response()->json(['message' => 'Events deleted successfully.']);
+    }
 }

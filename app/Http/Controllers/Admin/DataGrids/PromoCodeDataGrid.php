@@ -146,4 +146,26 @@ class PromoCodeDataGrid extends DataGrid
             ]);
         }
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.promo_codes.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Promo Codes',
+                'method' => 'POST',
+                'url' => route('admin.promo_codes.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.promo_codes.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.promo_codes.mass_update'),
+                'options' => [
+                    ['label' => 'Active', 'value' => 1],
+                    ['label' => 'Inactive', 'value' => 0],
+                ],
+            ]);
+        }
+    }
 }

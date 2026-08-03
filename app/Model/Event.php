@@ -20,6 +20,8 @@ class Event extends Model
     protected $casts = [
         'event_date' => 'date',
         'cover_charge' => 'decimal:2',
+        'created_at' => 'date:Y-m-d h:i A',
+        'updated_at' => 'date:Y-m-d h:i A',
     ];
 
     protected function imageUrl(): Attribute

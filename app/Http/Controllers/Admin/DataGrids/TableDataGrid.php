@@ -155,4 +155,26 @@ class TableDataGrid extends DataGrid
             ]);
         }
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.tables.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Tables',
+                'method' => 'POST',
+                'url' => route('admin.tables.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.tables.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.tables.mass_update'),
+                'options' => [
+                    ['label' => 'Active', 'value' => 'active'],
+                    ['label' => 'Inactive', 'value' => 'inactive'],
+                ],
+            ]);
+        }
+    }
 }

@@ -64,4 +64,27 @@ class AdminComplaintController extends Controller
 
         return response()->json(['message' => 'Complaint deleted successfully.']);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        Complaint::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Complaints deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|boolean',
+        ]);
+
+        Complaint::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+
+        return response()->json(['message' => 'Complaints status updated successfully.']);
+    }
 }

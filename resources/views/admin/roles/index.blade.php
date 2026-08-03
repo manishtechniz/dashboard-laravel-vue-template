@@ -39,6 +39,8 @@
         ];
         }
         }
+
+        // dd($permissionGroups)
         @endphp
 
         <v-roles
@@ -56,119 +58,136 @@
         </div>
     @endif
 
-    <div style="display:grid; grid-template-columns: 1fr 2fr; gap:16px;">
-        {{-- Roles List --}}
-        <div class="card" style="padding:0; overflow:hidden;">
-            <div style="padding:16px 20px; border-bottom:1px solid var(--border); font-size:14px; font-weight:600; color:var(--text-base); display:flex; justify-content:space-between; align-items:center;">
-                <span>All Roles</span>
-                <Tag :value="`${roles.length} roles`" severity="secondary" style="font-size:11px;" />
-            </div>
-            <div
-                v-for="role in roles" :key="role.id"
-                @click="selectRole(role)"
-                :style="{
-                    padding:'14px 20px', cursor:'pointer', borderBottom:'1px solid var(--border)',
-                    background: selectedRole?.id === role.id ? 'var(--accent-light)' : 'transparent',
-                    borderLeft: selectedRole?.id === role.id ? '3px solid var(--accent)' : '3px solid transparent',
-                    transition:'all 0.15s'
-                }"
-            >
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                    <div style="flex:1;">
-                        <div style="font-weight:500; font-size:13.5px; color:var(--text-base);">@{{ role.name }}</div>
-                        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-                            @{{ role.description || (role.permissions && role.permissions.includes('*') ? 'All permissions' : (role.permissions ? role.permissions.length : 0) + ' permissions') }}
-                        </div>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <!-- <template v-if="role.type !== 'system'">
-                            <Button icon="pi pi-pencil" severity="secondary" text rounded style="width:26px; height:26px; padding:0;" title="Rename Role" @click.stop="openEditRoleDialog(role)" />
-                            <Button icon="pi pi-trash" severity="danger" text rounded style="width:26px; height:26px; padding:0;" title="Delete Role" @click.stop="confirmDeleteRole(role)" />
-                        </template> -->
-                        <Tag :value="role.type || 'custom'" :severity="role.type === 'system' ? 'warning' : 'info'" style="font-size:10px;" />
-                    </div>
+    <Tabs v-model:value="activeRoleId">
+        <div class="flex flex-col lg:grid lg:grid-cols-[300px_1fr] gap-4">
+            
+            {{-- Roles List (Desktop) --}}
+            <div class="card p-0 hidden lg:flex flex-col overflow-hidden">
+                <div class="px-5 py-4 border-b border-[var(--border)] text-[14px] font-semibold text-[var(--text-base)] flex justify-between items-center">
+                    <span>All Roles</span>
+                    <Tag :value="`${roles.length} roles`" severity="secondary" style="font-size:11px;" />
                 </div>
-            </div>
-        </div>
-
-        {{-- Permissions Matrix --}}
-        <div class="card" style="padding:0; overflow:hidden;">
-            <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-                <div style="font-size:14px; font-weight:600; color:var(--text-base); display:flex; align-items:center; gap:8px;">
-                    <span>Permissions - @{{ selectedRole?.name || 'Select a role' }}</span>
-                    <template v-if="selectedRole && selectedRole.type !== 'system'">
-                        <Button icon="pi pi-pencil" severity="secondary" text rounded style="width:24px; height:24px; padding:0;" title="Rename Role" @click="openEditRoleDialog(selectedRole)" />
-                        <Button icon="pi pi-trash" severity="danger" text rounded style="width:24px; height:24px; padding:0;" title="Delete Role" @click="confirmDeleteRole(selectedRole)" />
-                    </template>
-                </div>
-                @if (hasPermission('admin.roles.update'))
-                    <div v-if="selectedRole" style="display:flex; align-items:center; gap:10px;">
-                        <InputText v-model="permissionSearch" placeholder="Search permissions..." size="small" style="width:180px;" />
-                        <Button 
-                            label="Save Changes" 
-                            size="small" 
-                            :disabled="selectedRole.type === 'system'" 
-                            @click="savePermissions" 
-                        />
-                    </div>
-                @endif
-            </div>
-
-            <div v-if="selectedRole" style="padding:16px;">
-                <div v-if="selectedRole.type === 'system'" style="padding:10px 14px; background:var(--bg-subtle); border-radius:8px; border:1px solid var(--border); margin-bottom:16px; font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
-                    <i class="pi pi-lock" style="font-size:14px; color:var(--accent);"></i>
-                    This is a system role. System role permissions and role details cannot be edited or deleted.
-                </div>
-
-                <div v-for="group in filteredPermissionGroups" :key="group.name" style="margin-bottom:24px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-                        <div style="font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
-                            <span>@{{ group.name }}</span>
-                            <span style="font-size:11px; font-weight:500; color:var(--text-muted);">
-                                (@{{ getGroupSelectedCount(group) }}/@{{ group.permissions.length }})
-                            </span>
-                        </div>
-                        <Button 
-                            v-if="selectedRole.type !== 'system'"
-                            :label="isGroupAllSelected(group) ? 'Deselect All' : 'Select All'" 
-                            size="small" 
-                            text 
-                            style="font-size:11px; padding:2px 8px;"
-                            @click="toggleGroup(group)"
-                        />
-                    </div>
-                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:10px;">
-                        <label 
-                            v-for="perm in group.permissions" :key="perm.key"
-                            style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-subtle); border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:border-color 0.15s ease;"
-                            :style="{ borderColor: selectedPerms[perm.key] ? 'var(--accent)' : 'var(--border)' }"
-                        >
-                            <Checkbox 
-                                :binary="true" 
-                                v-model="selectedPerms[perm.key]"
-                                :disabled="selectedRole.type === 'system'" 
-                            />
+                <div class="flex-1 overflow-y-auto">
+                    <div
+                        v-for="role in roles" :key="role.id"
+                        @click="selectRole(role)"
+                        :class="['px-5 py-3.5 cursor-pointer border-b border-[var(--border)] transition-all',
+                            activeRoleId === role.id ? 'bg-[var(--accent-light)] border-l-[3px] border-l-[var(--accent)]' : 'bg-transparent border-l-[3px] border-l-transparent hover:bg-gray-50'
+                        ]"
+                    >
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
                             <div style="flex:1;">
-                                <div style="font-size:12.5px; font-weight:500; color:var(--text-base);">@{{ perm.name }}</div>
-                                <div style="font-size:11px; color:var(--text-muted); font-family:monospace; margin-top:2px;">
-                                    @{{ perm?.description || perm?.key }}
+                                <div style="font-weight:500; font-size:13.5px; color:var(--text-base);">@{{ role.name }}</div>
+                                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                                    @{{ role.description || (role.permissions && role.permissions.includes('*') ? 'All permissions' : (role.permissions ? role.permissions.length : 0) + ' permissions') }}
                                 </div>
                             </div>
-                        </label>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <Tag :value="role.type || 'custom'" :severity="role.type === 'system' ? 'warning' : 'info'" style="font-size:10px;" />
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div v-if="filteredPermissionGroups.length === 0" style="padding:32px; text-align:center; color:var(--text-muted); font-size:13px;">
-                    No permissions found matching "@{{ permissionSearch }}"
+            {{-- Mobile Tabs List --}}
+            <div class="block lg:hidden">
+                <TabList>
+                    <Tab v-for="role in roles" :key="role.id" :value="role.id" @click="selectRole(role)" class="flex flex-col items-start gap-1!">
+                        <div class="font-medium">@{{ role.name }}</div>
+                        <div class="text-[10px] opacity-70 font-normal">
+                            @{{ role.type || 'custom' }} role
+                        </div>
+                    </Tab>
+                </TabList>
+            </div>
+
+            {{-- Permissions Matrix --}}
+            <TabPanels class="!p-0 !bg-transparent">
+                <TabPanel v-for="role in roles" :key="role.id" :value="role.id" class="p-0">
+                    <div class="card p-0 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-[var(--border)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 flex-wrap">
+                            <div class="text-[14px] font-semibold text-[var(--text-base)] flex items-center gap-2">
+                                <span>Permissions - @{{ role.name }}</span>
+                                <template v-if="role.type !== 'system'">
+                                    <Button icon="pi pi-pencil" severity="secondary" text rounded class="w-6 h-6 p-0" title="Rename Role" @click="openEditRoleDialog(role)" />
+                                    <Button icon="pi pi-trash" severity="danger" text rounded class="w-6 h-6 p-0" title="Delete Role" @click="confirmDeleteRole(role)" />
+                                </template>
+                            </div>
+                            @if (hasPermission('admin.roles.update'))
+                                <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                                    <InputText v-model="permissionSearch" placeholder="Search permissions..." size="small" class="w-full sm:w-44" />
+                                    <Button 
+                                        label="Save Changes" 
+                                        size="small" 
+                                        :disabled="role.type === 'system'" 
+                                        @click="savePermissions" 
+                                        class="shrink-0"
+                                    />
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="p-4 sm:p-5">
+                            <div v-if="role.type === 'system'" class="px-3.5 py-2.5 bg-[var(--bg-subtle)] rounded-lg border border-[var(--border)] mb-5 text-[12px] text-[var(--text-muted)] flex items-center gap-2">
+                                <i class="pi pi-lock text-[14px] text-[var(--accent)]"></i>
+                                This is a system role. System role permissions and role details cannot be edited or deleted.
+                            </div>
+
+                            <div v-for="group in filteredPermissionGroups" :key="group.name" class="mb-6">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="text-[11px] font-bold tracking-wide uppercase text-[var(--text-muted)] flex items-center gap-2">
+                                        <span>@{{ group.name }}</span>
+                                        <span class="font-medium text-[var(--text-muted)]">
+                                            (@{{ getGroupSelectedCount(group) }}/@{{ group.permissions.length }})
+                                        </span>
+                                    </div>
+                                    <Button 
+                                        v-if="role.type !== 'system'"
+                                        :label="isGroupAllSelected(group) ? 'Deselect All' : 'Select All'" 
+                                        size="small" 
+                                        text 
+                                        class="text-[11px] px-2 py-0.5 h-auto"
+                                        @click="toggleGroup(group)"
+                                    />
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                                    <label 
+                                        v-for="perm in group.permissions" :key="perm.key"
+                                        :class="['flex items-start sm:items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-colors',
+                                            selectedPerms[perm.key] ? 'border-[var(--accent)] bg-[var(--accent-light)]' : 'border-[var(--border)] bg-[var(--bg-subtle)] hover:border-gray-300'
+                                        ]"
+                                    >
+                                        <Checkbox 
+                                            :binary="true" 
+                                            v-model="selectedPerms[perm.key]"
+                                            :disabled="role.type === 'system'" 
+                                            class="mt-0.5 sm:mt-0"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-[12.5px] font-medium text-[var(--text-base)] truncate">@{{ perm.name }}</div>
+                                            <div class="text-[11px] text-[var(--text-muted)] font-mono mt-0.5 truncate">
+                                                @{{ perm?.description || perm?.key }}
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div v-if="filteredPermissionGroups.length === 0" class="p-8 text-center text-[var(--text-muted)] text-[13px]">
+                                No permissions found matching "@{{ permissionSearch }}"
+                            </div>
+                        </div>
+                    </div>
+                </TabPanel>
+                
+                <div v-if="roles.length === 0" class="card p-12 text-center text-[var(--text-muted)]">
+                    <i class="pi pi-shield text-[24px] block mb-2"></i>
+                    No roles found
                 </div>
-            </div>
-
-            <div v-else style="padding:48px; text-align:center; color:var(--text-muted);">
-                <i class="pi pi-arrow-left" style="font-size:24px; display:block; margin-bottom:8px;"></i>
-                Select a role to manage permissions
-            </div>
+            </TabPanels>
         </div>
-    </div>
+    </Tabs>
 
     {{-- Create Role Dialog --}}
     <Dialog v-model:visible="showRoleDialog" header="Create New Role" :style="{ width: '580px', maxWidth: '95vw' }" modal>
@@ -234,6 +253,7 @@
                     return {
                         showRoleDialog: false,
                         showEditRoleDialog: false,
+                        activeRoleId: null,
                         selectedRole: null,
                         selectedPerms: {},
                         permissionSearch: '',
@@ -250,6 +270,17 @@
                         },
                         roles: this.initialRoles && this.initialRoles.length > 0 ? this.initialRoles : defaultRoles
                     };
+                },
+
+                watch: {
+                    activeRoleId(newId) {
+                        if (this.selectedRole?.id !== newId) {
+                            const role = this.roles.find(r => r.id === newId);
+                            if (role) {
+                                this.selectRole(role);
+                            }
+                        }
+                    }
                 },
 
                 computed: {
@@ -281,6 +312,7 @@
                 methods: {
                     selectRole(role) {
                         this.selectedRole = role;
+                        this.activeRoleId = role.id;
                         const newSelectedPerms = {};
 
                         const rolePermissions = Array.isArray(role.permissions) ? role.permissions : [];

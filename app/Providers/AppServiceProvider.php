@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // URL::forceScheme('https');
+        URL::forceScheme('https');
 
         $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang/admin', 'admin');
 
@@ -77,16 +77,18 @@ class AppServiceProvider extends ServiceProvider
                 foreach ($aclConfig as $module => $groups) {
                     $primaryAction = collect($groups)->firstWhere('sort', 1);
 
+                    // dump('action', $primaryAction, $permissions);
                     // echo "<pre>";
                     // echo "primaryAction";
                     // echo print_r($primaryAction);
 
-                    if (
-                        ($primaryAction && (($primaryAction['visibility'] ?? null) != 'hidden') && $permissions && in_array($primaryAction['route'], $permissions))
-                        || in_array('*', $permissions)
-                    ) {
-                        $routeName = is_array($primaryAction['route']) ? $primaryAction['route'][0] : $primaryAction['route'];
+                    $routeName = is_array($primaryAction['route']) ? $primaryAction['route'][0] : $primaryAction['route'];
 
+                    if (
+                        (($primaryAction && $permissions && in_array($routeName, $permissions))
+                            || in_array('*', $permissions))
+                        && (($primaryAction['visibility'] ?? null) != 'hidden')
+                    ) {
                         $items[] = [
                             'icon'  => $primaryAction['icon'],
                             'label'  => $primaryAction['name'],
@@ -100,6 +102,8 @@ class AppServiceProvider extends ServiceProvider
             });
 
             // echo "I am bottom cache";
+
+            // dd($menuItems);
 
             $view->with('adminMenu', $menuItems);
         });

@@ -25,7 +25,17 @@ class Client extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'created_at' => 'date:Y-m-d h:i A',
+        'updated_at' => 'date:Y-m-d h:i A',
     ];
+
+    /**
+     * Route notifications for the FCM channel.
+     */
+    public function routeNotificationForFcm($notification)
+    {
+        return $this->fcm_token;
+    }
 
     protected function avatarUrl(): Attribute
     {
@@ -50,11 +60,6 @@ class Client extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
-    }
-
-    public function deviceTokens(): HasMany
-    {
-        return $this->hasMany(DeviceToken::class);
     }
 
     public function notifications(): HasMany
@@ -85,5 +90,10 @@ class Client extends Model
     public function role(): BelongsTo
     {
         return $this->belongsTo(MobileAppRole::class, 'role_id');
+    }
+
+    public function bookingGuest(): HasMany
+    {
+        return $this->hasMany(BookingGuest::class);
     }
 }

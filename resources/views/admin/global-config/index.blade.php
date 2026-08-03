@@ -1,290 +1,368 @@
 <x-admin::layouts>
 
-<div class="page-header">
-    <h1 class="page-title">Settings</h1>
-    <div class="page-breadcrumb">Home / Settings</div>
-</div>
+    <div class="page-header">
+        <h1 class="page-title">Settings</h1>
+        <div class="page-breadcrumb">Home / Settings</div>
+    </div>
 
-<v-config :initial-settings="{{ json_encode($settings ?? (object)[]) }}"></v-config>
+    <v-config :initial-settings="{{ json_encode($settings ?? (object)[]) }}"></v-config>
 
-@pushOnce('scripts')
-<script type="text/x-template" id="v-config-template">
-<div>
-
-    <div style="display:grid; grid-template-columns:240px 1fr; gap:20px;">
-        {{-- Config Groups Sidebar --}}
-        <div class="card" style="padding:10px;">
-            <div v-for="group in configGroups" :key="group.key"
-                @click="activeGroup = group.key"
-                :style="{
-                    padding:'10px 12px', borderRadius:'8px', cursor:'pointer', marginBottom:'2px',
-                    background: activeGroup === group.key ? 'var(--accent-light)' : 'transparent',
-                    color: activeGroup === group.key ? 'var(--accent)' : 'var(--text-base)',
-                    fontWeight: activeGroup === group.key ? '600' : '400',
-                    fontSize:'13px', display:'flex', alignItems:'center', gap:'8px',
-                }"
-            >
-                <i :class="group.icon" style="font-size:14px;"></i>
-                @{{ group.label }}
-            </div>
-        </div>
-
-        {{-- Config Panel --}}
+    @pushOnce('scripts')
+    <script type="text/x-template" id="v-config-template">
         <div>
-            {{-- Feature Flags --}}
-            <div v-if="activeGroup === 'features'" class="card" style="padding:0; overflow:hidden;">
-                <div style="padding:18px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
-                    <div style="font-size:14px; font-weight:600; color:var(--text-base);">Feature Flags</div>
-                    <Button label="Save Feature Flags" size="small" @click="saveConfig()" :loading="isSaving" />
+
+    <Tabs v-model:value="activeGroup">
+        <div class="flex flex-col md:grid md:grid-cols-[240px_1fr] gap-5">
+            {{-- Config Groups Sidebar (Desktop) --}}
+            <div class="card p-3 hidden md:block">
+                <div v-for="group in configGroups" :key="group.key"
+                    @click="activeGroup = group.key"
+                    :class="['px-3 py-2.5 rounded-lg cursor-pointer mb-1 flex items-center gap-2 text-[13px] transition-colors',
+                        activeGroup === group.key 
+                            ? 'bg-[var(--accent-light)] text-[var(--accent)] font-semibold' 
+                            : 'bg-transparent text-[var(--text-base)] font-normal hover:bg-gray-100'
+                    ]"
+                >
+                    <i :class="[group.icon, 'text-[14px]']"></i>
+                    @{{ group.label }}
                 </div>
-                <div style="padding:20px; display:flex; flex-direction:column; gap:2px;">
-                    <div v-for="feat in featureFlags" :key="feat.key"
-                        style="display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border);">
-                        <div>
-                            <div style="font-size:13.5px; font-weight:500; color:var(--text-base);">@{{ feat.label }}</div>
-                            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">@{{ feat.description }}</div>
-                            <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
-                                <Tag v-for="tenant in feat.availableFor" :key="tenant"
-                                    :value="tenant" severity="secondary" style="font-size:10px;" />
+            </div>
+
+            {{-- Mobile Tabs List --}}
+            <div class="block md:hidden">
+                <TabList>
+                    <Tab v-for="group in configGroups" :key="group.key" :value="group.key" class="flex items-center gap-2!">
+                        <i :class="[group.icon, 'text-[14px]']"></i>
+                        @{{ group.label }}
+                    </Tab>
+                </TabList>
+            </div>
+
+            {{-- Config Panel --}}
+            <TabPanels class="!p-0 !bg-transparent">
+                {{-- Feature Flags --}}
+                <TabPanel value="features" class="p-0">
+                    <div class="card p-0 overflow-hidden">
+                <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
+                    <form @submit="handleSubmit($event, submitForm)">
+                        <div class="px-5 py-4 border-b border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
+                            <div class="text-[14px] font-semibold text-[var(--text-base)]">Feature Flags</div>
+                            <Button label="Save Feature Flags" size="small" type="submit" :loading="isSaving" class="w-full sm:w-auto" />
+                        </div>
+                        <div class="p-5 flex flex-col gap-0.5">
+                            <div v-for="feat in featureFlags" :key="feat.key"
+                                class="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-[var(--border)] gap-4 sm:gap-0">
+                                <div>
+                                    <div class="text-[13.5px] font-medium text-[var(--text-base)]">@{{ feat.label }}</div>
+                                    <div class="text-[12px] text-[var(--text-muted)] mt-0.5">@{{ feat.description }}</div>
+                                    <div class="mt-1.5 flex gap-1.5 flex-wrap">
+                                        <Tag v-for="tenant in feat.availableFor" :key="tenant"
+                                            :value="tenant" severity="secondary" class="text-[10px]" />
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-start sm:items-center gap-1 shrink-0">
+                                    <x-admin::form.control-group class="mb-0">
+                                        <x-admin::form.control-group.control
+                                            type="switch"
+                                            ::name="'feat_' + feat.key"
+                                            ::inputId="'feat_' + feat.key"
+                                            ::for="'feat_' + feat.key"
+                                            v-model="feat.enabled"
+                                        />
+                                    </x-admin::form.control-group>
+                                    <span class="text-[10px] text-[var(--text-muted)] -mt-1">@{{ feat.enabled ? 'ON' : 'OFF' }}</span>
+                                </div>
                             </div>
                         </div>
-                        <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0;">
-                            <ToggleSwitch v-model="feat.enabled" />
-                            <span style="font-size:10px; color:var(--text-muted);">@{{ feat.enabled ? 'ON' : 'OFF' }}</span>
-                        </div>
-                    </div>
+                        </form>
+                    </x-admin::form>
                 </div>
-            </div>
+            </TabPanel>
 
             {{-- API Settings --}}
-            <div v-if="activeGroup === 'api'" class="card" style="padding:20px;">
-                <div style="font-size:14px; font-weight:600; color:var(--text-base); margin-bottom:18px;">API & Integration Settings</div>
-                <div style="display:flex; flex-direction:column; gap:16px;">
-                    <div v-for="setting in apiSettings" :key="setting.key">
-                        <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">@{{ setting.label }}</label>
-                        <InputText v-model="setting.value" style="width:100%;" :type="setting.secret ? 'password' : 'text'" />
-                        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">@{{ setting.description }}</div>
-                    </div>
-                    <div style="display:flex; justify-content:flex-end;">
-                        <Button label="Save API Settings" @click="saveConfig()" :loading="isSaving" />
-                    </div>
+            <TabPanel value="api" class="p-0">
+                <div class="card p-5">
+                <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
+                    <form @submit="handleSubmit($event, submitForm)">
+                        <div class="text-[14px] font-semibold text-[var(--text-base)] mb-4">API & Integration Settings</div>
+                        <div class="flex flex-col gap-6 mt-2">
+                            <div v-for="setting in apiSettings" :key="setting.key">
+                                <x-admin::form.control-group class="mb-0">
+                                    <x-admin::form.control-group.control
+                                        ::type="setting.secret ? 'password' : 'text'"
+                                        ::name="'api_' + setting.key"
+                                        v-model="setting.value"
+                                        ::label="setting.label"
+                                    />
+                                </x-admin::form.control-group>
+                                <div class="text-[11px] text-[var(--text-muted)] mt-1">@{{ setting.description }}</div>
+                            </div>
+                            <div class="flex justify-end mt-2">
+                                <Button label="Save API Settings" type="submit" :loading="isSaving" class="w-full sm:w-auto" />
+                            </div>
+                        </div>
+                        </form>
+                    </x-admin::form>
                 </div>
-            </div>
+            </TabPanel>
 
             {{-- Email Settings --}}
-            <div v-if="activeGroup === 'email'" class="card" style="padding:20px;">
-                <div style="font-size:14px; font-weight:600; color:var(--text-base); margin-bottom:18px;">Email Configuration</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                    <div>
-                        <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">SMTP Host</label>
-                        <InputText v-model="email.host" style="width:100%;" placeholder="smtp.gmail.com" />
-                    </div>
-                    <div>
-                        <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">SMTP Port</label>
-                        <InputText v-model="email.port" style="width:100%;" placeholder="587" />
-                    </div>
-                    <div>
-                        <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Username</label>
-                        <InputText v-model="email.username" style="width:100%;" />
-                    </div>
-                    <div>
-                        <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Password</label>
-                        <Password v-model="email.password" style="width:100%;" :feedback="false" toggleMask />
-                    </div>
-                    <div style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center;">
-                        <Button label="Send Test Email" severity="secondary" outlined icon="pi pi-send" />
-                        <Button label="Save Email Settings" @click="saveConfig()" :loading="isSaving" />
-                    </div>
-                </div>
+            <TabPanel value="email" class="p-0">
+                <div class="card p-5">
+                <x-admin::form v-slot="{ meta, errors, handleSubmit }" as="div">
+                    <form @submit="handleSubmit($event, submitForm)">
+                        <div class="text-[14px] font-semibold text-[var(--text-base)] mb-4">Email Configuration</div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 gap-y-6 mt-2">
+                            <x-admin::form.control-group class="mb-0">
+                                <x-admin::form.control-group.control
+                                    type="text"
+                                    name="smtp_host"
+                                    v-model="email.host"
+                                    label="SMTP Host"
+                                    placeholder="smtp.gmail.com"
+                                />
+                            </x-admin::form.control-group>
+                            <x-admin::form.control-group class="mb-0">
+                                <x-admin::form.control-group.control
+                                    type="text"
+                                    name="smtp_port"
+                                    v-model="email.port"
+                                    label="SMTP Port"
+                                    placeholder="587"
+                                />
+                            </x-admin::form.control-group>
+                            <x-admin::form.control-group class="mb-0">
+                                <x-admin::form.control-group.control
+                                    type="text"
+                                    name="smtp_username"
+                                    v-model="email.username"
+                                    label="Username"
+                                />
+                            </x-admin::form.control-group>
+                            <x-admin::form.control-group class="mb-0">
+                                <x-admin::form.control-group.control
+                                    type="password"
+                                    name="smtp_password"
+                                    v-model="email.password"
+                                    label="Password"
+                                />
+                            </x-admin::form.control-group> 
+                        </div>
+
+                        <div class="flex gap-2 justify-end">
+                            <Button label="Test" type="button" severity="secondary" outlined icon="pi pi-send" class="w-full sm:w-auto" />
+                            <Button label="Save" type="submit" :loading="isSaving" class="w-full sm:w-auto" />
+                        </div>
+                    </form>
+                </x-admin::form>
             </div>
-        </div>
-    </div> 
+            </TabPanel>
+        </TabPanels>
+    </div>
+    </Tabs>
 </div>
 </script>
 
-<script type="module">
-adminVueApp.component('v-config', {
-    template: '#v-config-template',
+    <script type="module">
+        adminVueApp.component('v-config', {
+            template: '#v-config-template',
 
-    props: {
-        initialSettings: {
-            type: Object,
-            default: () => ({})
-        }
-    },
-
-    data() {
-        return {
-            activeGroup: 'features',
-            isSaving: false,
-
-            showTenantDialog: false,
-            newTenant: {
-                name: '',
-                domain: '',
-                plan: 'Starter',
+            props: {
+                initialSettings: {
+                    type: Object,
+                    default: () => ({})
+                }
             },
 
-            configGroups: [
-                { key:'features', label:'Feature Flags', icon:'pi pi-flag' }, 
-                { key:'api', label:'API & Integrations', icon:'pi pi-server' },
-                { key:'email', label:'Email Settings', icon:'pi pi-envelope' },
-            ], 
+            data() {
+                return {
+                    activeGroup: 'features',
+                    isSaving: false,
 
-            featureFlags: [
-                {
-                    key: 'advanced_reports',
-                    label: 'Advanced Reports',
-                    description: 'Enable detailed analytics and custom report builder',
-                    enabled: true,
-                    availableFor: ['Pro','Enterprise']
-                }, 
-            ],
+                    showTenantDialog: false,
+                    newTenant: {
+                        name: '',
+                        domain: '',
+                        plan: 'Starter',
+                    },
 
-            apiSettings: [
-                {
-                    key: 'api_key',
-                    label: 'Master API Key',
-                    value: 'sk-admin-xxxxxxxxxxxx',
-                    secret: true,
-                    description: 'Used for server-to-server communication'
-                },
-                {
-                    key: 'webhook_secret',
-                    label: 'Webhook Secret',
-                    value: 'wh_secret_xxxxxxxxx',
-                    secret: true,
-                    description: 'Used to verify incoming webhook payloads'
-                },
-                {
-                    key: 'rate_limit',
-                    label: 'Rate Limit (req/min)',
-                    value: '1000',
-                    secret: false,
-                    description: 'API rate limit per tenant per minute'
-                },
-            ],
+                    configGroups: [{
+                            key: 'features',
+                            label: 'Feature Flags',
+                            icon: 'pi pi-flag'
+                        },
+                        {
+                            key: 'api',
+                            label: 'API & Integrations',
+                            icon: 'pi pi-server'
+                        },
+                        {
+                            key: 'email',
+                            label: 'Email Settings',
+                            icon: 'pi pi-envelope'
+                        },
+                    ],
 
-            email: {
-                host: 'smtp.mailgun.org',
-                port: '587',
-                username: 'admin@example.com',
-                password: '',
+                    featureFlags: [{
+                        key: 'advanced_reports',
+                        label: 'Advanced Reports',
+                        description: 'Enable detailed analytics and custom report builder',
+                        enabled: true,
+                        availableFor: ['Pro', 'Enterprise']
+                    }, ],
+
+                    apiSettings: [{
+                            key: 'api_key',
+                            label: 'Master API Key',
+                            value: 'sk-admin-xxxxxxxxxxxx',
+                            secret: true,
+                            description: 'Used for server-to-server communication'
+                        },
+                        {
+                            key: 'webhook_secret',
+                            label: 'Webhook Secret',
+                            value: 'wh_secret_xxxxxxxxx',
+                            secret: true,
+                            description: 'Used to verify incoming webhook payloads'
+                        },
+                        {
+                            key: 'rate_limit',
+                            label: 'Rate Limit (req/min)',
+                            value: '1000',
+                            secret: false,
+                            description: 'API rate limit per tenant per minute'
+                        },
+                    ],
+
+                    email: {
+                        host: 'smtp.mailgun.org',
+                        port: '587',
+                        username: 'admin@example.com',
+                        password: '',
+                    },
+                };
             },
-        };
-    },
 
-    mounted() {
-        if (this.initialSettings && Object.keys(this.initialSettings).length > 0) {
-            // Hydrate Feature Flags
-            this.featureFlags.forEach(f => {
-                const dbKey = 'feature.' + f.key;
-                if (this.initialSettings[dbKey] !== undefined) {
-                    const val = this.initialSettings[dbKey];
-                    f.enabled = val === '1' || val === 1 || val === true || val === 'true';
-                }
-            });
-
-            // Hydrate API Settings
-            this.apiSettings.forEach(s => {
-                if (this.initialSettings['api.'+s.key] !== undefined) {
-                    s.value = this.initialSettings['api.'+s.key];
-                }
-            });
-
-            // Hydrate Email Settings
-            if (this.initialSettings['email.smtp_host'] !== undefined) this.email.host = this.initialSettings['email.smtp_host'];
-            if (this.initialSettings['email.smtp_port'] !== undefined) this.email.port = this.initialSettings['email.smtp_port'];
-            if (this.initialSettings['email.smtp_username'] !== undefined) this.email.username = this.initialSettings['email.smtp_username'];
-            if (this.initialSettings['email.smtp_password'] !== undefined) this.email.password = this.initialSettings['email.smtp_password'];
-        }
-    },
-
-    methods: {
-        saveConfig(customPayload = null) {
-            let payload = customPayload;
-
-            if (!payload) {
-                payload = {};
-
-                // Feature flags
-                this.featureFlags.forEach(f => {
-                    payload['feature.' + f.key] = f.enabled ? '1' : '0';
-                });
-
-                // API settings
-                this.apiSettings.forEach(s => {
-                    payload['api.' + s.key] = s.value;
-                });
-
-                // Email settings
-                payload['email.' + 'smtp_host'] = this.email.host;
-                payload['email.' + 'smtp_port'] = this.email.port;
-                payload['email.' + 'smtp_username'] = this.email.username;
-                payload['email.' + 'smtp_password'] = this.email.password; 
-            }
-
-            this.isSaving = true;
-
-            const storeUrl = "{{ route('admin.settings.store') }}";
-
-            if (this.$axios) {
-                this.$axios.post(storeUrl, payload)
-                    .then(response => {
-                        this.isSaving = false;
-                        const msg = response?.data?.message || 'Configuration saved successfully!';
-                        if (this.$emitter) {
-                            this.$emitter.emit('add-flash', { type: 'success', message: msg });
-                        } else {
-                            alert(msg);
-                        }
-                    })
-                    .catch(error => {
-                        this.isSaving = false;
-                        console.error(error);
-                        const msg = error?.response?.data?.message || 'Failed to save configuration.';
-                        if (this.$emitter) {
-                            this.$emitter.emit('add-flash', { type: 'error', message: msg });
-                        } else {
-                            alert(msg);
+            mounted() {
+                if (this.initialSettings && Object.keys(this.initialSettings).length > 0) {
+                    // Hydrate Feature Flags
+                    this.featureFlags.forEach(f => {
+                        const dbKey = 'feature.' + f.key;
+                        if (this.initialSettings[dbKey] !== undefined) {
+                            const val = this.initialSettings[dbKey];
+                            f.enabled = val === '1' || val === 1 || val === true || val === 'true';
                         }
                     });
-            } else {
-                this.isSaving = false;
-                alert('Configuration saved!');
-            }
-        },
 
-        createTenant() {
-            if (!this.newTenant.name.trim()) return;
+                    // Hydrate API Settings
+                    this.apiSettings.forEach(s => {
+                        if (this.initialSettings['api.' + s.key] !== undefined) {
+                            s.value = this.initialSettings['api.' + s.key];
+                        }
+                    });
 
-            this.tenants.push({
-                id: Date.now(),
-                name: this.newTenant.name.trim(),
-                domain: this.newTenant.domain || `${this.newTenant.name.toLowerCase().replace(/\s+/g, '')}.example.com`,
-                plan: this.newTenant.plan || 'Starter',
-                users: 1,
-                status: 'Active',
-                features: ['Dashboard'],
-            });
+                    // Hydrate Email Settings
+                    if (this.initialSettings['email.smtp_host'] !== undefined) this.email.host = this.initialSettings['email.smtp_host'];
+                    if (this.initialSettings['email.smtp_port'] !== undefined) this.email.port = this.initialSettings['email.smtp_port'];
+                    if (this.initialSettings['email.smtp_username'] !== undefined) this.email.username = this.initialSettings['email.smtp_username'];
+                    if (this.initialSettings['email.smtp_password'] !== undefined) this.email.password = this.initialSettings['email.smtp_password'];
+                }
+            },
 
-            this.showTenantDialog = false;
-            this.newTenant.name = '';
-            this.newTenant.domain = '';
-            this.newTenant.plan = 'Starter';
+            methods: {
+                submitForm(values, actions) {
+                    this.saveConfig();
+                },
 
-            this.saveConfig();
-        },
+                saveConfig(customPayload = null) {
+                    let payload = customPayload;
 
-        deleteTenant(tenantId) {
-            if (confirm('Are you sure you want to delete this tenant?')) {
-                this.tenants = this.tenants.filter(t => t.id !== tenantId);
-                this.saveConfig();
-            }
-        }
-    },
-});
-</script>
-@endPushOnce
+                    if (!payload) {
+                        payload = {};
+
+                        // Feature flags
+                        this.featureFlags.forEach(f => {
+                            payload['feature.' + f.key] = f.enabled ? '1' : '0';
+                        });
+
+                        // API settings
+                        this.apiSettings.forEach(s => {
+                            payload['api.' + s.key] = s.value;
+                        });
+
+                        // Email settings
+                        payload['email.' + 'smtp_host'] = this.email.host;
+                        payload['email.' + 'smtp_port'] = this.email.port;
+                        payload['email.' + 'smtp_username'] = this.email.username;
+                        payload['email.' + 'smtp_password'] = this.email.password;
+                    }
+
+                    this.isSaving = true;
+
+                    const storeUrl = "{{ route('admin.settings.store') }}";
+
+                    if (this.$axios) {
+                        this.$axios.post(storeUrl, payload)
+                            .then(response => {
+                                this.isSaving = false;
+                                const msg = response?.data?.message || 'Configuration saved successfully!';
+                                if (this.$emitter) {
+                                    this.$emitter.emit('add-flash', {
+                                        type: 'success',
+                                        message: msg
+                                    });
+                                } else {
+                                    alert(msg);
+                                }
+                            })
+                            .catch(error => {
+                                this.isSaving = false;
+                                console.error(error);
+                                const msg = error?.response?.data?.message || 'Failed to save configuration.';
+                                if (this.$emitter) {
+                                    this.$emitter.emit('add-flash', {
+                                        type: 'error',
+                                        message: msg
+                                    });
+                                } else {
+                                    alert(msg);
+                                }
+                            });
+                    } else {
+                        this.isSaving = false;
+                        alert('Configuration saved!');
+                    }
+                },
+
+                createTenant() {
+                    if (!this.newTenant.name.trim()) return;
+
+                    this.tenants.push({
+                        id: Date.now(),
+                        name: this.newTenant.name.trim(),
+                        domain: this.newTenant.domain || `${this.newTenant.name.toLowerCase().replace(/\s+/g, '')}.example.com`,
+                        plan: this.newTenant.plan || 'Starter',
+                        users: 1,
+                        status: 'Active',
+                        features: ['Dashboard'],
+                    });
+
+                    this.showTenantDialog = false;
+                    this.newTenant.name = '';
+                    this.newTenant.domain = '';
+                    this.newTenant.plan = 'Starter';
+
+                    this.saveConfig();
+                },
+
+                deleteTenant(tenantId) {
+                    if (confirm('Are you sure you want to delete this tenant?')) {
+                        this.tenants = this.tenants.filter(t => t.id !== tenantId);
+                        this.saveConfig();
+                    }
+                }
+            },
+        });
+    </script>
+    @endPushOnce
 </x-admin::layouts>
-

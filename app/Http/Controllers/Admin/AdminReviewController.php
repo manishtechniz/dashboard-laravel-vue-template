@@ -67,4 +67,27 @@ class AdminReviewController extends Controller
 
         return response()->json(['message' => 'Review deleted successfully.']);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        Review::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Reviews deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|boolean',
+        ]);
+
+        Review::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+
+        return response()->json(['message' => 'Reviews status updated successfully.']);
+    }
 }

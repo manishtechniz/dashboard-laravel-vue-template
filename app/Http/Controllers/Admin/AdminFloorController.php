@@ -56,4 +56,27 @@ class AdminFloorController extends Controller
 
         return response()->json(['message' => 'Floor deleted successfully.']);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        Floor::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Floors deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|boolean',
+        ]);
+
+        Floor::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+
+        return response()->json(['message' => 'Floors status updated successfully.']);
+    }
 }

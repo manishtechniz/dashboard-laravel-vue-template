@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\DataGrids\BookingDataGrid;
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Model\Booking;
 use App\Model\BookingGuest;
 use App\Model\Client;
 use App\Model\ClubTable;
 use App\Model\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminBookingController extends Controller
 {
@@ -34,7 +36,7 @@ class AdminBookingController extends Controller
             'booking_date' => 'required|date',
             'start_time' => 'required',
             'end_time' => 'required',
-            'guest_count' => 'required|integer|min:1',
+            'guest_count' => 'required|integer|min:0',
             'status' => 'required|string|in:pending,confirmed,cancelled,checked_in',
             'special_requests' => 'nullable|string',
             'guests' => 'nullable|array',
@@ -65,14 +67,57 @@ class AdminBookingController extends Controller
             'booking_date' => 'required|date',
             'start_time' => 'required',
             'end_time' => 'required',
-            'guest_count' => 'required|integer|min:1',
+            'guest_count' => 'required|integer|min:0',
             'status' => 'required|string|in:pending,confirmed,cancelled,checked_in',
             'special_requests' => 'nullable|string',
         ]);
 
-        $booking->update($validated);
+        try {
+            $beforeBookingStatus = $booking->status?->value;
+
+            $booking->update($validated);
+
+            if (! empty($validated['status']) && $beforeBookingStatus != $validated['status']) {
+                $bookingClient = $booking->client;
+
+                // Dispatch to a single token
+                SendFirebaseNotificationJob::dispatch(
+                    'token',
+                    $bookingClient?->fcm_token,
+                    $booking->status?->notificationTitle() . '#' . $booking->id,
+                    $booking->status?->notificationDescription(),
+                    [
+                        'type' => 'booking_status',
+                        'created_by' => Auth::guard('admin')->id(),
+                        'remark' => "from admin",
+                        'additional' => [
+                            'screen' => 'booking',
+                            'booking_id' => $booking->id,
+                            'client_id' => $booking->client_id
+                        ]
+                    ]
+                );
+            }
+        } catch (\Throwable $th) {
+            // dd($th->getMessage());
+            return response()->json([
+                'message' => 'Encounter error during update.',
+            ], 422);
+        }
 
         return response()->json(['message' => 'Booking updated successfully.']);
+    }
+
+    public function massStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|string|in:pending,confirmed,cancelled,checked_in',
+        ]);
+
+        Booking::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
+
+        return response()->json(['message' => 'Bookings status updated successfully.']);
     }
 
     public function destroy($id)
@@ -81,5 +126,25 @@ class AdminBookingController extends Controller
         $booking->delete();
 
         return response()->json(['message' => 'Booking deleted successfully.']);
+    }
+
+    public function guests($id)
+    {
+        $guests = BookingGuest::where('booking_id', $id)->get();
+
+        return response()->json([
+            'guests' => $guests
+        ]);
+    }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        Booking::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Bookings deleted successfully.']);
     }
 }

@@ -8,10 +8,8 @@
     <v-profile></v-profile>
 
     @pushOnce('scripts')
-        <script type="text/x-template" id="v-profile-template">
-            <div style="display:grid; grid-template-columns: 300px 1fr; gap:20px; align-items:start;"
-                 class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-5 items-start">
-
+    <script type="text/x-template" id="v-profile-template">
+        <div class="grid grid-cols-1 gap-5 items-start lg:grid-cols-[300px_1fr]">
                 {{-- Left: Avatar & Quick Info --}}
                 <div style="display:flex; flex-direction:column; gap:16px;" class=" flex-reverse">
                     <div class="card" style="padding:28px; text-align:center;">
@@ -257,120 +255,174 @@
             </div>
         </script>
 
-        <style>
-            .form-label {
-                font-size: 12px;
-                font-weight: 600;
-                color: var(--text-muted);
-                display: block;
-                margin-bottom: 6px;
-            }
-        </style>
+    <style>
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+    </style>
 
-        <script type="module">
-            adminVueApp.component('v-profile', {
-                template: '#v-profile-template',
+    <script type="module">
+        adminVueApp.component('v-profile', {
+            template: '#v-profile-template',
 
-                data() {
-                    return {
-                        isLoading: false,
-                        isPassLoading: false,
-                        avatarPreview: "{{ $admin->avatar_url }}",
+            data() {
+                return {
+                    isLoading: false,
+                    isPassLoading: false,
+                    avatarPreview: "{{ $admin->avatar_url }}",
 
-                        form: { 
-                            name: "{{$admin->name ?? ''}}",
-                            phone: "{{$admin->phone ?? ''}}",
-                            email: "{{$admin->email ?? ''}}",
-                            current_password: '',
-                            password: '',
-                            password_confirmation: ''
-                        }, 
+                    form: {
+                        name: "{{$admin->name ?? ''}}",
+                        phone: "{{$admin->phone ?? ''}}",
+                        email: "{{$admin->email ?? ''}}",
+                        current_password: '',
+                        password: '',
+                        password_confirmation: ''
+                    },
 
-                        currentTheme: document.documentElement.className || 'dark',
+                    currentTheme: document.documentElement.className || 'dark',
 
-                        themes: [
-                            
-                        ],
+                    themes: [
 
-                        notifPrefs: [ 
-                        ],
+                    ],
 
-                        activityLog: [
-                            { action: 'Logged in from Chrome / Windows', time: 'Today 9:12 AM', ip: '192.168.1.14', type: 'success' },
-                            { action: 'Updated user role: Priya Mehta → Manager', time: 'Yesterday 4:30 PM', ip: '192.168.1.14', type: 'success' },
-                            { action: 'Failed login attempt', time: 'Yesterday 8:11 AM', ip: '203.0.113.9', type: 'warning' },
-                            { action: 'Created new role: Content Editor', time: 'Apr 28, 2:15 PM', ip: '192.168.1.14', type: 'accent' },
-                            { action: 'Password changed', time: 'Apr 20, 11:00 AM', ip: '192.168.1.14', type: 'success' },
-                        ],
-                    };
+                    notifPrefs: [],
+
+                    activityLog: [{
+                            action: 'Logged in from Chrome / Windows',
+                            time: 'Today 9:12 AM',
+                            ip: '192.168.1.14',
+                            type: 'success'
+                        },
+                        {
+                            action: 'Updated user role: Priya Mehta → Manager',
+                            time: 'Yesterday 4:30 PM',
+                            ip: '192.168.1.14',
+                            type: 'success'
+                        },
+                        {
+                            action: 'Failed login attempt',
+                            time: 'Yesterday 8:11 AM',
+                            ip: '203.0.113.9',
+                            type: 'warning'
+                        },
+                        {
+                            action: 'Created new role: Content Editor',
+                            time: 'Apr 28, 2:15 PM',
+                            ip: '192.168.1.14',
+                            type: 'accent'
+                        },
+                        {
+                            action: 'Password changed',
+                            time: 'Apr 20, 11:00 AM',
+                            ip: '192.168.1.14',
+                            type: 'success'
+                        },
+                    ],
+                };
+            },
+
+            computed: {
+                quickInfo() {
+                    return [{
+                            label: 'Member Since',
+                            value: 'Jan 2023'
+                        },
+                        {
+                            label: 'Last Login',
+                            value: 'Today 9:12 AM'
+                        },
+                        {
+                            label: 'Sessions',
+                            value: '3 active'
+                        },
+                        {
+                            label: 'Timezone',
+                            value: 'IST (UTC+5:30)'
+                        },
+                    ];
                 },
 
-                computed: { 
-                    quickInfo() {
-                        return [
-                            { label: 'Member Since', value: 'Jan 2023' },
-                            { label: 'Last Login', value: 'Today 9:12 AM' },
-                            { label: 'Sessions', value: '3 active' },
-                            { label: 'Timezone', value: 'IST (UTC+5:30)' },
-                        ];
-                    },
+                passRequirements() {
+                    return [{
+                            label: 'At least 8 characters',
+                            met: this.form.password.length >= 8
+                        },
+                        {
+                            label: 'One uppercase letter',
+                            met: /[A-Z]/.test(this.form.password)
+                        },
+                        {
+                            label: 'One number',
+                            met: /\d/.test(this.form.password)
+                        },
+                        {
+                            label: 'One special character',
+                            met: /[^a-zA-Z0-9]/.test(this.form.password)
+                        },
+                    ];
+                },
+            },
 
-                    passRequirements() {
-                        return [
-                            { label: 'At least 8 characters', met: this.form.password.length >= 8 },
-                            { label: 'One uppercase letter', met: /[A-Z]/.test(this.form.password) },
-                            { label: 'One number', met: /\d/.test(this.form.password) },
-                            { label: 'One special character', met: /[^a-zA-Z0-9]/.test(this.form.password) },
-                        ];
-                    },
+            methods: {
+                triggerAvatarUpload() {
+                    document.getElementById('avatar').click();
                 },
 
-                methods: { 
-                    triggerAvatarUpload() {
-                        document.getElementById('avatar').click();
-                    },
+                handleImagePreview(event) {
+                    const file = event.target.files[0];
 
-                    handleImagePreview(event) { 
-                        const file = event.target.files[0];
-                        
-                        if (file) {  
-                            this.avatarPreview = URL.createObjectURL(file); 
-                        }
-                    },
-
-                    update(params, { resetForm, setErrors }) {
-                        console.log(params);
-                        this.isLoading = true;
-
-                        let formData = new FormData(this.$refs.updateProfileForm);
-
-                        formData.append('_method', 'PUT');
-                        
-                        /* Uncomment for real HTTP request */
-                        this.$axios.post("{{ route('admin.profile.update') }}", formData, {
-                                headers: {
-                                    'Content-Type': 'multipart/form-data',
-                                }
-                            })
-                            .then((response) => {
-                                this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-
-                                window.location.reload();
-                            })
-                            .catch(error => {
-                                if (error.response.status === 422) {
-                                    if (error.response.data.errors?.avatar) {
-                                        this.$emitter.emit('add-flash', { type: 'error', message: error.response.data.errors?.avatar[0] });
-                                    }
-
-                                    setErrors(error.response.data.errors);
-                                }
-                            }).then(() => {
-                                this.isLoading = false;
-                            });                        
+                    if (file) {
+                        this.avatarPreview = URL.createObjectURL(file);
                     }
                 },
-            });
-        </script>
+
+                update(params, {
+                    resetForm,
+                    setErrors
+                }) {
+                    console.log(params);
+                    this.isLoading = true;
+
+                    let formData = new FormData(this.$refs.updateProfileForm);
+
+                    formData.append('_method', 'PUT');
+
+                    /* Uncomment for real HTTP request */
+                    this.$axios.post("{{ route('admin.profile.update') }}", formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            }
+                        })
+                        .then((response) => {
+                            this.$emitter.emit('add-flash', {
+                                type: 'success',
+                                message: response.data.message
+                            });
+
+                            window.location.reload();
+                        })
+                        .catch(error => {
+                            if (error.response.status === 422) {
+                                if (error.response.data.errors?.avatar) {
+                                    this.$emitter.emit('add-flash', {
+                                        type: 'error',
+                                        message: error.response.data.errors?.avatar[0]
+                                    });
+                                }
+
+                                setErrors(error.response.data.errors);
+                            }
+                        }).then(() => {
+                            this.isLoading = false;
+                        });
+                }
+            },
+        });
+    </script>
     @endPushOnce
 </x-admin::layouts>

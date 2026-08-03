@@ -115,4 +115,26 @@ class ComplaintDataGrid extends DataGrid
             ]);
         }
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.complaints.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Complaints',
+                'method' => 'POST',
+                'url' => route('admin.complaints.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.complaints.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.complaints.mass_update'),
+                'options' => [
+                    ['label' => 'Active', 'value' => 1],
+                    ['label' => 'Inactive', 'value' => 0],
+                ],
+            ]);
+        }
+    }
 }

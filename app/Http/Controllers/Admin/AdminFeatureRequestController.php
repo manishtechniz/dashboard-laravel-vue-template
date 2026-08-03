@@ -59,4 +59,27 @@ class AdminFeatureRequestController extends Controller
 
         return response()->json(['message' => 'Feature request deleted successfully.']);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        FeatureRequest::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Feature requests deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|string|in:pending,reviewing,planned,in_progress,completed,rejected',
+        ]);
+
+        FeatureRequest::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
+
+        return response()->json(['message' => 'Feature requests status updated successfully.']);
+    }
 }

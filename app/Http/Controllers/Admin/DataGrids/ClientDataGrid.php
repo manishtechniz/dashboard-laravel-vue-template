@@ -89,4 +89,26 @@ class ClientDataGrid extends DataGrid
             ]);
         }
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.clients.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Clients',
+                'method' => 'POST',
+                'url' => route('admin.clients.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.clients.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.clients.mass_update'),
+                'options' => [
+                    ['label' => 'Active', 'value' => 1],
+                    ['label' => 'Inactive', 'value' => 0],
+                ],
+            ]);
+        }
+    }
 }

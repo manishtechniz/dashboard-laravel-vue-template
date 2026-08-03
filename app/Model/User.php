@@ -25,6 +25,8 @@ class User extends Authenticatable
         'last_login_at'     => 'datetime',
         'theme_config'      => 'array',
         'is_active'         => 'boolean',
+        'created_at' => 'date:Y-m-d h:i A',
+        'updated_at' => 'date:Y-m-d h:i A',
     ];
 
     protected function avatarUrl(): Attribute

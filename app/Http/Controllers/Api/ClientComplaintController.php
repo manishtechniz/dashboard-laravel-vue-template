@@ -66,7 +66,8 @@ class ClientComplaintController extends Controller
     {
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
-            'message' => 'required|string',
+            'message' => 'required|string|max:2000',
+            'remark' => 'nullable|string|max:200',
         ]);
 
         $complaint = $request->user()->complaints()->create($validated);

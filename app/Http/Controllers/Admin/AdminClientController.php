@@ -69,4 +69,27 @@ class AdminClientController extends Controller
             'message' => 'Client deleted successfully.',
         ]);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        Client::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Clients deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|boolean',
+        ]);
+
+        Client::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+
+        return response()->json(['message' => 'Clients status updated successfully.']);
+    }
 }

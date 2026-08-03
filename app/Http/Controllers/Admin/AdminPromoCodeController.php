@@ -75,4 +75,27 @@ class AdminPromoCodeController extends Controller
 
         return response()->json(['message' => 'Promo code deleted successfully.']);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        PromoCode::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Promo codes deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|boolean',
+        ]);
+
+        PromoCode::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+
+        return response()->json(['message' => 'Promo codes status updated successfully.']);
+    }
 }

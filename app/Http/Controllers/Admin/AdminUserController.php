@@ -74,4 +74,26 @@ class AdminUserController extends Controller
             'message' => 'User deleted successfully.',
         ]);
     }
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        User::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Users deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|boolean',
+        ]);
+
+        User::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+
+        return response()->json(['message' => 'Users status updated successfully.']);
+    }
 }

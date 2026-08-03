@@ -121,7 +121,7 @@
                                     class="place-self-end"
                                     v-if="available.actions.length"
                                 >
-                                    <template v-for="(action, index) in record.actions" :key="'actual-' + index"> 
+                                    <template v-for="(action, index) in record.actions" :key="action.index"> 
                                         <span
                                             v-if="action?.type !== 'custom'"
                                             class="cursor-pointer rounded-md p-1.5 text-2xl transition-all hover:bg-gray-200 dark:hover:bg-gray-800 max-sm:place-self-center"
@@ -130,19 +130,19 @@
                                             @click="performAction(action)"
                                         >
                                         </span>
-                                    </template> 
-
-                                    <!-- Custom Actions -->
-                                    <template v-for="(action, index) in record.actions" :key="'custom-' + index"> 
+                                        
+                                        <!-- Custom Actions -->
                                         <span
-                                            v-if="action?.type === 'custom'"
+                                            v-else
                                             class="cursor-pointer rounded-md p-1.5 text-2xl transition-all hover:bg-gray-200 dark:hover:bg-gray-800 max-sm:place-self-center"
                                             :class="action.icon"
                                             v-text="!action.icon ? action.title : ''"
                                             @click="performCustomActions(action.method, record)"
                                         >
                                         </span>
-                                    </template>
+                                    </template> 
+
+                                     
 
                                 </p>
                             </div>

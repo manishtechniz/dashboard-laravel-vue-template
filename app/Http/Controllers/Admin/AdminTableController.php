@@ -87,4 +87,27 @@ class AdminTableController extends Controller
 
         return response()->json(['message' => 'Table deleted successfully.']);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        ClubTable::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Tables deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|string|in:active,inactive',
+        ]);
+
+        ClubTable::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
+
+        return response()->json(['message' => 'Tables status updated successfully.']);
+    }
 }

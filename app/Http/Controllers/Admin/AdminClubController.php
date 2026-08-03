@@ -75,6 +75,29 @@ class AdminClubController extends Controller
         ]);
     }
 
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        Club::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Clubs deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|boolean',
+        ]);
+
+        Club::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+
+        return response()->json(['message' => 'Clubs status updated successfully.']);
+    }
+
     // Branch Operations
     public function storeBranch(Request $request)
     {
@@ -116,5 +139,28 @@ class AdminClubController extends Controller
         $branch->delete();
 
         return response()->json(['message' => 'Branch deleted successfully.']);
+    }
+
+    public function massDestroyBranch(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        Branch::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Branches deleted successfully.']);
+    }
+
+    public function massUpdateBranch(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|boolean',
+        ]);
+
+        Branch::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+
+        return response()->json(['message' => 'Branches status updated successfully.']);
     }
 }

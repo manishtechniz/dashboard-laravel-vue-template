@@ -142,4 +142,26 @@ class ReviewDataGrid extends DataGrid
             ]);
         }
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.reviews.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Reviews',
+                'method' => 'POST',
+                'url' => route('admin.reviews.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.reviews.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.reviews.mass_update'),
+                'options' => [
+                    ['label' => 'Active', 'value' => 1],
+                    ['label' => 'Inactive', 'value' => 0],
+                ],
+            ]);
+        }
+    }
 }

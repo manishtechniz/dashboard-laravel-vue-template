@@ -19,6 +19,8 @@ class PromoCode extends Model
         'is_active' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
+        'created_at' => 'date:Y-m-d h:i A',
+        'updated_at' => 'date:Y-m-d h:i A',
     ];
 
     public function event(): BelongsTo

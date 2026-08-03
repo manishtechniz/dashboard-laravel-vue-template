@@ -21,6 +21,8 @@ class ClubTable extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'cover_charge' => 'decimal:2',
+        'created_at' => 'date:Y-m-d h:i A',
+        'updated_at' => 'date:Y-m-d h:i A',
     ];
 
     public function club(): BelongsTo

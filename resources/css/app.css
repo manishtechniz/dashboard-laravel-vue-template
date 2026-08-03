@@ -720,9 +720,12 @@ html.rose {
         line-height: 1 !important;
     }
 
-    html.dark [class^="icon-"],
-    html.dark [class*=" icon-"] {
-        color: #d1d5db;
+    .d-pi {
+        font-size: 22px !important;
+    }
+
+    .pi {
+        color: var(--text-muted);
     }
 
     .box-shadow {

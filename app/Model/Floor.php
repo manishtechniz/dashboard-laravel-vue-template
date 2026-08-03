@@ -12,6 +12,8 @@ class Floor extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'created_at' => 'date:Y-m-d h:i A',
+        'updated_at' => 'date:Y-m-d h:i A',
     ];
 
     public function branch(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,17 +16,17 @@ class Booking extends Model
         'created_at',
     ];
 
-    protected $casts = [
-        'booking_date' => 'date',
-    ];
-
     // Append this to the JSON response automatically
-    protected $appends = ['encrypted_id'];
+    protected $appends = [''];
 
-    // Create the dynamic attribute
-    public function getEncryptedIdAttribute()
+    protected function casts(): array
     {
-        return Crypt::encryptString((string) $this->id);
+        return [
+            'status' => BookingStatus::class,
+            'booking_date' => 'date',
+            'created_at' => 'date:Y-m-d',
+            'updated_at' => 'date:Y-m-d',
+        ];
     }
 
     public function client(): BelongsTo

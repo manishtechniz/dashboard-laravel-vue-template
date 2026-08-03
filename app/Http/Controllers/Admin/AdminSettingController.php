@@ -17,6 +17,8 @@ class AdminSettingController extends Controller
             ]);
         }
 
+        // dd(1);
+
         return view('admin::global-config.index', compact('settings'));
     }
 
@@ -25,8 +27,8 @@ class AdminSettingController extends Controller
         $inputSettings = $request->except('_token');
 
         foreach ($inputSettings as $key => $value) {
-            $valueToSave = is_array($value) || is_object($value) 
-                ? json_encode($value) 
+            $valueToSave = is_array($value) || is_object($value)
+                ? json_encode($value)
                 : (string)$value;
 
             Setting::updateOrCreate(
@@ -43,4 +45,3 @@ class AdminSettingController extends Controller
         ]);
     }
 }
-

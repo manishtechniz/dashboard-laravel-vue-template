@@ -451,9 +451,9 @@ class AuthController extends Controller
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255|unique:clients,email,' . $client->id,
             'phone' => 'nullable|string|max:255|unique:clients,phone,' . $client->id,
-            'age' => 'nullable|integer|min:0',
-            'gender' => 'nullable|string|max:255',
-            'avatar' => 'nullable|string|max:1000',
+            'age' => 'nullable|integer|min:13',
+            'gender' => 'nullable|in:male,female|max:255',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'fcm_token' => 'nullable|string|max:1000',
             'password' => 'nullable|string|min:6|max:100',
         ]);

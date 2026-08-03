@@ -107,4 +107,26 @@ class UserDataGrid extends DataGrid
             ]);
         }
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.users.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Users',
+                'method' => 'POST',
+                'url' => route('admin.users.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.users.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.users.mass_update'),
+                'options' => [
+                    ['label' => 'Active', 'value' => 1],
+                    ['label' => 'Inactive', 'value' => 0],
+                ],
+            ]);
+        }
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BookingStatus;
 use App\Model\Booking;
 use App\Model\BookingGuest;
 use App\Model\ClientGuest;
@@ -348,12 +349,13 @@ class ClientBookingController extends Controller
             foreach ($clientGuests as $clientGuest) {
                 $prepareBookingGuest[] = [
                     'booking_id' => $booking->id,
+                    'client_id' => $clientId,
                     'guest_id' => $clientGuest->id,
-                    'email' => $client->email ?? null,
-                    'phone' => $client->phone ?? null,
-                    'name' => $client->name ?? null,
-                    'age' => $client->age ?? null,
-                    'gender' => $client->gender ?? null,
+                    'email' => $clientGuest->email ?? null,
+                    'phone' => $clientGuest->phone ?? null,
+                    'name' => $clientGuest->name ?? null,
+                    'age' => $clientGuest->age ?? null,
+                    'gender' => $clientGuest->gender ?? null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -409,7 +411,7 @@ class ClientBookingController extends Controller
             ], 404);
         }
 
-        if ($booking->status === 'checked_in') {
+        if ($booking->status === BookingStatus::CHECKED_IN) {
             return response()->json(['message' => 'Checked in bookings cannot be cancelled.'], 422);
         }
 

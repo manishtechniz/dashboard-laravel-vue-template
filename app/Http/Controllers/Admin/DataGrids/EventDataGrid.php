@@ -109,4 +109,15 @@ class EventDataGrid extends DataGrid
             ]);
         }
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.events.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Events',
+                'method' => 'POST',
+                'url' => route('admin.events.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+    }
 }

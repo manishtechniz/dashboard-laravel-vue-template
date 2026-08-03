@@ -13,7 +13,10 @@ return new class extends Migration
             $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
             $table->string('title');
             $table->text('body');
-            $table->string('type'); // booking_status, event_alert, promo
+            $table->unsignedInteger('created_by')->nullable();
+            $table->string('remark')->nullable();
+            $table->string('type')->nullable(); // booking_status, event_alert, promo
+            $table->string('additional')->default('{}');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });

@@ -66,4 +66,30 @@ class AdminPaymentController extends Controller
 
         return response()->json(['message' => 'Payment updated successfully.']);
     }
+
+    public function massDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+        ]);
+
+        Payment::whereIn('id', $validated['indices'])->delete();
+
+        return response()->json(['message' => 'Payments deleted successfully.']);
+    }
+
+    public function massUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'indices' => 'required|array',
+            'value' => 'required|string|in:pending,completed,failed,refunded',
+        ]);
+
+        Payment::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
+
+        $transactionStatus = $validated['value'] === 'completed' ? 'success' : ($validated['value'] === 'failed' ? 'failed' : 'pending');
+        Transaction::whereIn('payment_id', $validated['indices'])->update(['status' => $transactionStatus]);
+
+        return response()->json(['message' => 'Payments status updated successfully.']);
+    }
 }

@@ -22,41 +22,6 @@ return [
         ],
     ],
 
-    'roles' => [
-        [
-            'key' => 'roles.index',
-            'name' => 'Roles',
-            'description' => 'View list of admin roles.',
-            'route' => 'admin.roles.index',
-            'icon' => 'pi pi-shield',
-            'sort' => 1,
-        ],
-        [
-            'key' => 'roles.store',
-            'name' => 'Create Role',
-            'description' => 'Create new admin roles.',
-            'route' => 'admin.roles.store',
-            'icon' => 'pi pi-shield',
-            'sort' => 2,
-        ],
-        [
-            'key' => 'roles.update',
-            'name' => 'Update Role',
-            'description' => 'Update existing admin roles.',
-            'route' => 'admin.roles.update',
-            'icon' => 'pi pi-shield',
-            'sort' => 3,
-        ],
-        [
-            'key' => 'roles.delete',
-            'name' => 'Delete Role',
-            'description' => 'Delete admin roles.',
-            'route' => 'admin.roles.delete',
-            'icon' => 'pi pi-shield',
-            'sort' => 4,
-        ],
-    ],
-
     'users' => [
         [
             'key' => 'users.index',
@@ -92,6 +57,22 @@ return [
             'route' => 'admin.users.delete',
             'icon' => 'pi pi-users',
             'sort' => 4,
+        ],
+        [
+            'key' => 'users.mass-delete',
+            'name' => 'Mass Delete Users',
+            'description' => 'Mass delete system users.',
+            'route' => 'admin.users.mass_delete',
+            'icon' => 'pi pi-users',
+            'sort' => 5,
+        ],
+        [
+            'key' => 'users.mass-update',
+            'name' => 'Mass Update Users',
+            'description' => 'Mass update system users.',
+            'route' => 'admin.users.mass_update',
+            'icon' => 'pi pi-users',
+            'sort' => 6,
         ],
     ],
 
@@ -130,6 +111,22 @@ return [
             'route' => 'admin.clients.delete',
             'icon' => 'pi pi-users',
             'sort' => 4,
+        ],
+        [
+            'key' => 'clients.mass-delete',
+            'name' => 'Mass Delete Clients',
+            'description' => 'Mass delete clients.',
+            'route' => 'admin.clients.mass_delete',
+            'icon' => 'pi pi-users',
+            'sort' => 5,
+        ],
+        [
+            'key' => 'clients.mass-update',
+            'name' => 'Mass Update Clients',
+            'description' => 'Mass update clients.',
+            'route' => 'admin.clients.mass_update',
+            'icon' => 'pi pi-users',
+            'sort' => 6,
         ],
     ],
 
@@ -170,6 +167,22 @@ return [
             'icon' => 'pi pi-building',
             'sort' => 4,
         ],
+        [
+            'key' => 'clubs.mass-delete',
+            'name' => 'Mass Delete Clubs',
+            'description' => 'Mass delete clubs.',
+            'route' => 'admin.clubs.mass_delete',
+            'icon' => 'pi pi-building',
+            'sort' => 5,
+        ],
+        [
+            'key' => 'clubs.mass-update',
+            'name' => 'Mass Update Clubs',
+            'description' => 'Mass update clubs.',
+            'route' => 'admin.clubs.mass_update',
+            'icon' => 'pi pi-building',
+            'sort' => 6,
+        ],
     ],
 
     'tables' => [
@@ -207,6 +220,22 @@ return [
             'route' => 'admin.tables.delete',
             'icon' => 'pi pi-table',
             'sort' => 4,
+        ],
+        [
+            'key' => 'tables.mass-delete',
+            'name' => 'Mass Delete Tables',
+            'description' => 'Mass delete tables.',
+            'route' => 'admin.tables.mass_delete',
+            'icon' => 'pi pi-table',
+            'sort' => 5,
+        ],
+        [
+            'key' => 'tables.mass-update',
+            'name' => 'Mass Update Tables',
+            'description' => 'Mass update tables.',
+            'route' => 'admin.tables.mass_update',
+            'icon' => 'pi pi-table',
+            'sort' => 6,
         ],
     ],
 
@@ -246,6 +275,14 @@ return [
             'icon' => 'pi pi-calendar',
             'sort' => 4,
         ],
+        [
+            'key' => 'events.mass-delete',
+            'name' => 'Mass Delete Events',
+            'description' => 'Mass delete events.',
+            'route' => 'admin.events.mass_delete',
+            'icon' => 'pi pi-calendar',
+            'sort' => 5,
+        ],
     ],
 
     'bookings' => [
@@ -253,9 +290,17 @@ return [
             'key' => 'bookings.index',
             'name' => 'Bookings',
             'description' => 'View list of bookings.',
-            'route' => 'admin.bookings.index',
+            'route' => ['admin.bookings.index', 'admin.bookings.guests'],
             'icon' => 'pi pi-ticket',
             'sort' => 1,
+        ],
+        [
+            'key' => 'bookings.view',
+            'name' => 'View Booking',
+            'description' => 'View booking details.',
+            'route' => 'admin.bookings.view',
+            'icon' => 'pi pi-ticket',
+            'sort' => 2,
         ],
         [
             'key' => 'bookings.store',
@@ -283,6 +328,22 @@ return [
             'route' => 'admin.bookings.delete',
             'icon' => 'pi pi-ticket',
             'sort' => 4,
+        ],
+        [
+            'key' => 'bookings.mass-delete',
+            'name' => 'Mass Delete Bookings',
+            'description' => 'Mass delete bookings.',
+            'route' => 'admin.bookings.mass_delete',
+            'icon' => 'pi pi-ticket',
+            'sort' => 4,
+        ],
+        [
+            'key' => 'bookings.mass-status',
+            'name' => 'Mass Update Status',
+            'description' => 'Mass update bookings status.',
+            'route' => 'admin.bookings.mass_status',
+            'icon' => 'pi pi-ticket',
+            'sort' => 5,
         ],
     ],
 
@@ -321,6 +382,22 @@ return [
             'route' => 'admin.promo_codes.delete',
             'icon' => 'pi pi-percentage',
             'sort' => 4,
+        ],
+        [
+            'key' => 'promo_codes.mass-delete',
+            'name' => 'Mass Delete Promo Codes',
+            'description' => 'Mass delete promo codes.',
+            'route' => 'admin.promo_codes.mass_delete',
+            'icon' => 'pi pi-percentage',
+            'sort' => 5,
+        ],
+        [
+            'key' => 'promo_codes.mass-update',
+            'name' => 'Mass Update Promo Codes',
+            'description' => 'Mass update promo codes.',
+            'route' => 'admin.promo_codes.mass_update',
+            'icon' => 'pi pi-percentage',
+            'sort' => 6,
         ],
     ],
 
@@ -376,6 +453,22 @@ return [
             'icon' => 'pi pi-star',
             'sort' => 3,
         ],
+        [
+            'key' => 'reviews.mass-delete',
+            'name' => 'Mass Delete Reviews',
+            'description' => 'Mass delete reviews.',
+            'route' => 'admin.reviews.mass_delete',
+            'icon' => 'pi pi-star',
+            'sort' => 4,
+        ],
+        [
+            'key' => 'reviews.mass-update',
+            'name' => 'Mass Update Reviews',
+            'description' => 'Mass update reviews.',
+            'route' => 'admin.reviews.mass_update',
+            'icon' => 'pi pi-star',
+            'sort' => 5,
+        ],
     ],
 
     'complaints' => [
@@ -410,6 +503,22 @@ return [
             'route' => 'admin.complaints.delete',
             'icon' => 'pi pi-exclamation-circle',
             'sort' => 3,
+        ],
+        [
+            'key' => 'complaints.mass-delete',
+            'name' => 'Mass Delete Complaints',
+            'description' => 'Mass delete complaints.',
+            'route' => 'admin.complaints.mass_delete',
+            'icon' => 'pi pi-exclamation-circle',
+            'sort' => 4,
+        ],
+        [
+            'key' => 'complaints.mass-update',
+            'name' => 'Mass Update Complaints',
+            'description' => 'Mass update complaints.',
+            'route' => 'admin.complaints.mass_update',
+            'icon' => 'pi pi-exclamation-circle',
+            'sort' => 5,
         ],
     ],
 
@@ -446,6 +555,22 @@ return [
             'icon' => 'pi pi-lightbulb',
             'sort' => 3,
         ],
+        [
+            'key' => 'feature_requests.mass-delete',
+            'name' => 'Mass Delete Feature Requests',
+            'description' => 'Mass delete feature requests.',
+            'route' => 'admin.feature_requests.mass_delete',
+            'icon' => 'pi pi-lightbulb',
+            'sort' => 4,
+        ],
+        [
+            'key' => 'feature_requests.mass-update',
+            'name' => 'Mass Update Feature Requests',
+            'description' => 'Mass update feature requests.',
+            'route' => 'admin.feature_requests.mass_update',
+            'icon' => 'pi pi-lightbulb',
+            'sort' => 5,
+        ],
     ],
 
     'settings' => [
@@ -467,14 +592,49 @@ return [
         ],
     ],
 
-    'audit_logs' => [
+    // 'audit_logs' => [
+    //     [
+    //         'key' => 'audit_logs.index',
+    //         'name' => 'Audit Logs',
+    //         'description' => 'View system audit logs.',
+    //         'route' => 'admin.audit_logs.index',
+    //         'icon' => 'pi pi-list',
+    //         'sort' => 1,
+    //     ],
+    // ],
+
+    'roles' => [
         [
-            'key' => 'audit_logs.index',
-            'name' => 'Audit Logs',
-            'description' => 'View system audit logs.',
-            'route' => 'admin.audit_logs.index',
-            'icon' => 'pi pi-list',
+            'key' => 'roles.index',
+            'name' => 'Roles',
+            'description' => 'View list of admin roles.',
+            'route' => 'admin.roles.index',
+            'icon' => 'pi pi-shield',
             'sort' => 1,
+        ],
+        [
+            'key' => 'roles.store',
+            'name' => 'Create Role',
+            'description' => 'Create new admin roles.',
+            'route' => 'admin.roles.store',
+            'icon' => 'pi pi-shield',
+            'sort' => 2,
+        ],
+        [
+            'key' => 'roles.update',
+            'name' => 'Update Role',
+            'description' => 'Update existing admin roles.',
+            'route' => 'admin.roles.update',
+            'icon' => 'pi pi-shield',
+            'sort' => 3,
+        ],
+        [
+            'key' => 'roles.delete',
+            'name' => 'Delete Role',
+            'description' => 'Delete admin roles.',
+            'route' => 'admin.roles.delete',
+            'icon' => 'pi pi-shield',
+            'sort' => 4,
         ],
     ],
 
@@ -497,5 +657,7 @@ return [
             'sort' => 2,
         ],
     ],
+
+
 
 ];

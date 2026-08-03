@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ClientComplaintController;
 use App\Http\Controllers\Api\ClientGuestController;
 use App\Http\Controllers\Api\ClientFeatureRequestController;
 use App\Http\Controllers\Api\PromoCodeController;
+use App\Http\Controllers\Api\ClientClubController;
 use App\Http\Middleware\EncryptToDecryptId;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +48,10 @@ Route::middleware(['auth:sanctum', EncryptToDecryptId::class])->group(function (
 
     // Tables
     Route::get('/tables', [ClientTableController::class, 'index']);
+
+    // Clubs
+    Route::get('/clubs', [ClientClubController::class, 'index']);
+    Route::get('/clubs/{id}', [ClientClubController::class, 'show']);
 
     // Promo Code
     Route::get('/promo-codes', [PromoCodeController::class, 'index']);

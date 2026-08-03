@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Model\Notification as ModelNotification;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
@@ -37,6 +38,18 @@ class FirebaseNotificationService
         array $data = []
     ): bool {
         try {
+            ModelNotification::create([
+                'client_id' => $data['additional']['client_id'] ?? null,
+                'title' => $title,
+                'body' => $body,
+                'type' => $data['type'] ?? null,
+                'created_by' => $data['created_by'] ?? null,
+                'remark' => $data['remark'] ?? null,
+                'additional' => $data['additional'] ?? [],
+            ]);
+
+            // unset($data['additional']);
+
             $message = CloudMessage::withTarget('token', $token)
                 ->withNotification(Notification::create($title, $body))
                 ->withData($this->formatData($data));
@@ -62,7 +75,7 @@ class FirebaseNotificationService
         try {
             $message = CloudMessage::new()
                 ->withNotification(Notification::create($title, $body))
-                ->withData($this->formatData($data));
+                ->withData($data);
 
             // sendMulticast processes in chunks of 500 automatically in newer SDKs
             $report = $this->messaging->sendMulticast($message, $tokens);
@@ -100,7 +113,7 @@ class FirebaseNotificationService
         try {
             $message = CloudMessage::withTarget('topic', $topic)
                 ->withNotification(Notification::create($title, $body))
-                ->withData($this->formatData($data));
+                ->withData($data);
 
             $this->messaging->send($message);
 
@@ -120,7 +133,7 @@ class FirebaseNotificationService
     ): bool {
         try {
             $message = CloudMessage::withTarget('token', $token)
-                ->withData($this->formatData($data));
+                ->withData($data);
 
             $this->messaging->send($message);
 
@@ -137,7 +150,7 @@ class FirebaseNotificationService
     protected function formatData(array $data): array
     {
         return collect($data)
-            ->map(fn($value) => (string) $value)
+            ->map(fn($value) => is_array($value) ? json_encode($value) : $value)
             ->toArray();
     }
 }

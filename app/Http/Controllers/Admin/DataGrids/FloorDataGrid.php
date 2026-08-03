@@ -93,4 +93,26 @@ class FloorDataGrid extends DataGrid
             }
         ]);
     }
+    public function prepareMassActions()
+    {
+        if (hasPermission('admin.floors.mass-delete')) {
+            $this->addMassAction([
+                'title' => 'Delete Floors',
+                'method' => 'POST',
+                'url' => route('admin.floors.mass_delete'),
+                'confirm' => true,
+            ]);
+        }
+        if (hasPermission('admin.floors.mass-update')) {
+            $this->addMassAction([
+                'title' => 'Update Status',
+                'method' => 'POST',
+                'url' => route('admin.floors.mass_update'),
+                'options' => [
+                    ['label' => 'Active', 'value' => 1],
+                    ['label' => 'Inactive', 'value' => 0],
+                ],
+            ]);
+        }
+    }
 }

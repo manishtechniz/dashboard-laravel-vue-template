@@ -12,8 +12,14 @@ class AdminNotificationController extends Controller
     public function index()
     {
         $notifications = Notification::with('client')->latest()->get();
-        $deviceTokens = DeviceToken::with('client')->latest()->get();
-        $clients = Client::all();
+
+        // Fetch clients with the token included
+        $clients = Client::select('id', 'name', 'fcm_token')->get();
+        $deviceTokens = $clients->whereNotNull('fcm_token')
+            ->where('fcm_token', '!=', '')
+            ->toArray();
+
+        // dd($deviceTokens);
 
         return view('admin::notifications.index', compact('notifications', 'deviceTokens', 'clients'));
     }
