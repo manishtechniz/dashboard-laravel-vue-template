@@ -1,0 +1,53 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    # ----------------------------------------------------------------
+    # CUSTOM ERROR PAGES
+    # ----------------------------------------------------------------
+    # Tell Apache to show this file when access is forbidden
+    # ErrorDocument 403 /403.html
+    ErrorDocument 403 /imperial/404.php
+    RewriteEngine On 
+
+    # ----------------------------------------------------------------
+    # 1. RESTRICT EVERYTHING (Block sensitive files and folders)
+    # ----------------------------------------------------------------
+    # Block access to .env, .git, and all other hidden files
+    RewriteRule ^\. - [F,L]
+
+    # Block direct access to all Laravel system folders
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|Demo|node_modules|packages)(/|$) - [F,L]
+
+    # Block access to specific root files
+    # RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json|artisan|server\.php|phpunit\.xml)$ - [F,L]
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^(?!index\.php$).* - [F,L]
+    # RewriteRule ^(?!(index\.php|403\.html)$).* - [F,L] 
+
+    # ----------------------------------------------------------------
+    # 2. ALLOW HEADERS (Required for Laravel API/Tokens)
+    # ----------------------------------------------------------------
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # ----------------------------------------------------------------
+    # 3. ALLOW PUBLIC FOLDER (Load CSS, JS, and Images)
+    # ----------------------------------------------------------------
+    # If the requested file actually exists inside the /public folder, load it
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # ----------------------------------------------------------------
+    # 4. ALLOW LARAVEL ROUTES (Send everything else to index.php)
+    # ----------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>

@@ -21,8 +21,8 @@
         rel="stylesheet" />
 
     {{-- PrimeVue CSS --}}
-    <link rel="stylesheet" href="https://unpkg.com/primevue@4/resources/themes/aura-light-blue/theme.css"
-        id="theme-link" />
+    <!-- <link rel="stylesheet" href="https://unpkg.com/primevue@4/resources/themes/aura-light-blue/theme.css"
+        id="theme-link" /> -->
     <link rel="stylesheet" href="https://unpkg.com/primeicons/primeicons.css" />
     <link rel="stylesheet" href="https://unpkg.com/primeflex@3/primeflex.css" />
 
@@ -42,17 +42,15 @@
     </div>
 
     <script>
-
-
         // Register admin vue app.
-        window.addEventListener("DOMContentLoaded", function (event) {
+        window.addEventListener("DOMContentLoaded", function(event) {
             adminVueApp.mount("#adminVueApp");
         });
     </script>
 
 
     <script>
-        window.resolveApi = function (endpoint) {
+        window.resolveApi = function(endpoint) {
             return "{{ env('BACKEND_URL') }}" + '/' + endpoint.replace(/^\/+/, '');
         };
     </script>

@@ -11,6 +11,8 @@ Route::get('/', function (Request $request) {
 
 Route::withoutMiddleware(['auth'])->group(function () {
     Route::get('/login', function (Request $request) {
+        return url("/fonts/admin.woff?jwnnow");
+
         return Auth::guard('admin')->user();
         // echo file_get_contents(storage_path('app/private/firebase/club-app-firebase-notification.json')) . '<br>';
         return "Helo web login";
