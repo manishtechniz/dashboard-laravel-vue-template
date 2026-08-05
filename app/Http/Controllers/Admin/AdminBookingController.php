@@ -89,12 +89,12 @@ class AdminBookingController extends Controller
                     [
                         'type' => 'booking_status',
                         'created_by' => Auth::guard('admin')->id(),
-                        'remark' => "from admin",
-                        'additional' => [
+                        'remark' => "admin",
+                        'additional' => notificationAdditionalArrayFormat([
                             'screen' => 'booking',
                             'booking_id' => $booking->id,
                             'client_id' => $booking->client_id
-                        ]
+                        ])
                     ]
                 );
             }

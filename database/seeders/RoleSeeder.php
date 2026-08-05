@@ -9,13 +9,26 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        // Global default theme (white / clean)
-        Role::create([
-            'name' => 'Administrator',
-            'type' => 'system',
-            'permissions' => json_encode(['*']),
-        ]);
+        $roles = [
+            [
+                'id' => 1,
+                'name' => 'Administrator',
+                'type' => 'system',
+                'permissions' => ['*'],
+            ],
+        ];
 
-        $this->command->info('✅ Default roles seeded successfully.');
+        foreach ($roles as $role) {
+            Role::updateOrCreate(
+                ['id' => $role['id']],
+                [
+                    'name' => $role['name'],
+                    'type' => $role['type'],
+                    'permissions' => $role['permissions'],
+                ]
+            );
+        }
+
+        $this->command->info('✅ Default admin roles seeded successfully.');
     }
 }

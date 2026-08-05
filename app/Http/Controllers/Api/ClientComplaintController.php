@@ -27,7 +27,7 @@ class ClientComplaintController extends Controller
     {
         $complaints = $request->user()->complaints()
             ->with('club:id,name')
-            ->latest()
+            ->latest('id')
             ->paginate();
 
         return response()->json([

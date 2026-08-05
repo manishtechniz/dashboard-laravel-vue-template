@@ -5,7 +5,7 @@
             <div class="page-breadcrumb">Home / Reviews</div>
         </div>
         @if (hasPermission('admin.reviews.store'))
-        <Button label="Create Review" icon="pi pi-plus" size="small" @click="$refs.review.visible = true; $refs.review.editMode = false;" />
+        <Button label="Create" outlined icon="pi pi-plus" size="small" @click="$refs.review.visible = true; $refs.review.editMode = false;" />
         @endif
     </div>
 

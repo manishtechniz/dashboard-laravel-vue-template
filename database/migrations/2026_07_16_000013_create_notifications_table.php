@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('created_by')->nullable();
             $table->string('remark')->nullable();
             $table->string('type')->nullable(); // booking_status, event_alert, promo
-            $table->string('additional')->default('{}');
+            $table->text('additional')->default('{}');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });

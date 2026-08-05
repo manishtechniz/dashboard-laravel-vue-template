@@ -150,7 +150,7 @@
                         </div>
 
                         <div class="flex gap-2 justify-end">
-                            <Button label="Test" type="button" severity="secondary" outlined icon="pi pi-send" class="w-full sm:w-auto" />
+                            <Button label="Test" type="button" severity="secondary" icon="pi pi-send" class="w-full sm:w-auto" />
                             <Button label="Save" type="submit" :loading="isSaving" class="w-full sm:w-auto" />
                         </div>
                     </form>

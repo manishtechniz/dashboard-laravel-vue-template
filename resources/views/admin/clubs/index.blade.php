@@ -6,7 +6,7 @@
         </div>
         <div class="flex gap-2">
             @if (hasPermission('admin.clubs.store_club'))
-            <Button label="Create Club" icon="pi pi-plus" size="small" outlined @click="$refs.clubsBranches.clubVisible = true" />
+            <Button label="Create" icon="pi pi-plus" size="small" outlined @click="$refs.clubsBranches.clubVisible = true" />
             @endif
             <!-- <Button label="Create Branch" icon="pi pi-plus" size="small" @click="$refs.clubsBranches.branchVisible = true" /> -->
         </div>
@@ -15,8 +15,8 @@
     <v-clubs-branches ref="clubsBranches" :clubs-list='@json($clubs)'></v-clubs-branches>
 
     @pushOnce('scripts')
-        <script type="text/x-template" id="v-clubs-branches-template">
-            <div>
+    <script type="text/x-template" id="v-clubs-branches-template">
+        <div>
                 <!-- <TabViews value="0">
                     <TabList class="mb-4">
                         <Tab value="0">Clubs List</Tab>
@@ -177,132 +177,174 @@
             </div>
         </script>
 
-        <script type="module">
-            adminVueApp.component('v-clubs-branches', {
-                template: '#v-clubs-branches-template',
-                props: ['clubsList'],
-                data() {
-                    return {
-                        localClubsList: [...this.clubsList],
-                        clubVisible: false,
-                        clubEditMode: false,
-                        clubLoading: false,
-                        club: { id: null, name: '', description: '', address: '', city: '', is_active: true },
+    <script type="module">
+        adminVueApp.component('v-clubs-branches', {
+            template: '#v-clubs-branches-template',
+            props: ['clubsList'],
+            data() {
+                return {
+                    localClubsList: [...this.clubsList],
+                    clubVisible: false,
+                    clubEditMode: false,
+                    clubLoading: false,
+                    club: {
+                        id: null,
+                        name: '',
+                        description: '',
+                        address: '',
+                        city: '',
+                        is_active: true
+                    },
 
-                        branchVisible: false,
-                        branchEditMode: false,
-                        branchLoading: false,
-                        branch: { id: null, club_id: null, name: '', description: '', address: '', phone: '', is_active: true },
+                    branchVisible: false,
+                    branchEditMode: false,
+                    branchLoading: false,
+                    branch: {
+                        id: null,
+                        club_id: null,
+                        name: '',
+                        description: '',
+                        address: '',
+                        phone: '',
+                        is_active: true
+                    },
 
-                        emitter: null
-                    };
+                    emitter: null
+                };
+            },
+            watch: {
+                clubsList(newVal) {
+                    this.localClubsList = [...newVal];
                 },
-                watch: {
-                    clubsList(newVal) {
-                        this.localClubsList = [...newVal];
-                    },
-                    clubVisible(val) {
-                        if (val && !this.clubEditMode) {
-                            this.club = { id: null, name: '', description: '', address: '', city: '', is_active: true };
-                        } else if (!val) {
-                            this.clubEditMode = false;
-                        }
-                    },
-                    branchVisible(val) {
-                        if (val) {
-                            this.$axios.get("{{ route('admin.clubs.index') }}?list=1")
-                                .then(response => {
-                                    this.localClubsList = response.data;
-                                });
-                        }
-                        if (val && !this.branchEditMode) {
-                            this.branch = { id: null, club_id: null, name: '', description: '', address: '', phone: '', is_active: true };
-                        } else if (!val) {
-                            this.branchEditMode = false;
-                        }
+                clubVisible(val) {
+                    if (val && !this.clubEditMode) {
+                        this.club = {
+                            id: null,
+                            name: '',
+                            description: '',
+                            address: '',
+                            city: '',
+                            is_active: true
+                        };
+                    } else if (!val) {
+                        this.clubEditMode = false;
                     }
                 },
-                provide() {
-                    return {
-                        customActions: {
-                            edit: this.onEdit
-                        }
-                    };
-                },
-                mounted() {
-                },
-                methods: {
-                    onEdit(row) {
-                        // Distinguish edit row between Club and Branch based on properties
-                        if (row.branch_name !== undefined) {
-                            this.branchEditMode = true;
-                            // find club id from row or default first
-                            const parentClub = this.clubsList.find(c => c.name === row.club_name);
-                            this.branch = {
-                                id: row.id,
-                                club_id: parentClub ? parentClub.id : null,
-                                name: row.branch_name,
-                                description: row.description || '',
-                                address: row.address || '',
-                                phone: row.phone || '',
-                                is_active: !!row.is_active
-                            };
-                            this.branchVisible = true;
-                        } else {
-                            this.clubEditMode = true;
-                            this.club = {
-                                id: row.id,
-                                name: row.name,
-                                description: row.description || '',
-                                address: row.address || '',
-                                city: row.city || '',
-                                is_active: !!row.is_active
-                            };
-                            this.clubVisible = true;
-                        }
-                    },
-
-                    saveClub(params) {
-                        this.clubLoading = true;
-                        const url = this.clubEditMode
-                            ? `{{ route('admin.clubs.index') }}/club/${this.club.id}`
-                            : `{{ route('admin.clubs.store_club') }}`;
-
-                        this.$axios.post(url, { ...params, is_active: this.club.is_active ? 1 : 0 })
+                branchVisible(val) {
+                    if (val) {
+                        this.$axios.get("{{ route('admin.clubs.index') }}?list=1")
                             .then(response => {
-                                this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                this.clubVisible = false;
-                                this.clubLoading = false;
-                                if (response.data.clubs) {
-                                    this.localClubsList = response.data.clubs;
-                                }
-                                this.$refs.clubsGrid.get();
-                                this.$refs.branchesGrid.get();
-                            })
-                            .catch(err => { this.clubLoading = false; });
-                    },
-                    saveBranch(params) {
-                        this.branchLoading = true;
-                        const url = this.branchEditMode
-                            ? `{{ route('admin.clubs.index') }}/branch/${this.branch.id}`
-                            : `{{ route('admin.clubs.store_branch') }}`;
-
-                        this.$axios.post(url, { 
-                            ...params, 
-                            club_id: this.branch.club_id,
-                            is_active: this.branch.is_active ? 1 : 0 
-                        })
-                            .then(response => {
-                                this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                this.branchVisible = false;
-                                this.branchLoading = false;
-                                this.$refs.clubsGrid.get();
-                                this.$refs.branchesGrid.get();
-                            })
-                            .catch(err => { this.branchLoading = false; });
+                                this.localClubsList = response.data;
+                            });
+                    }
+                    if (val && !this.branchEditMode) {
+                        this.branch = {
+                            id: null,
+                            club_id: null,
+                            name: '',
+                            description: '',
+                            address: '',
+                            phone: '',
+                            is_active: true
+                        };
+                    } else if (!val) {
+                        this.branchEditMode = false;
                     }
                 }
-            });
-        </script>
+            },
+            provide() {
+                return {
+                    customActions: {
+                        edit: this.onEdit
+                    }
+                };
+            },
+            mounted() {},
+            methods: {
+                onEdit(row) {
+                    // Distinguish edit row between Club and Branch based on properties
+                    if (row.branch_name !== undefined) {
+                        this.branchEditMode = true;
+                        // find club id from row or default first
+                        const parentClub = this.clubsList.find(c => c.name === row.club_name);
+                        this.branch = {
+                            id: row.id,
+                            club_id: parentClub ? parentClub.id : null,
+                            name: row.branch_name,
+                            description: row.description || '',
+                            address: row.address || '',
+                            phone: row.phone || '',
+                            is_active: !!row.is_active
+                        };
+                        this.branchVisible = true;
+                    } else {
+                        this.clubEditMode = true;
+                        this.club = {
+                            id: row.id,
+                            name: row.name,
+                            description: row.description || '',
+                            address: row.address || '',
+                            city: row.city || '',
+                            is_active: !!row.is_active
+                        };
+                        this.clubVisible = true;
+                    }
+                },
+
+                saveClub(params) {
+                    this.clubLoading = true;
+                    const url = this.clubEditMode ?
+                        `{{ route('admin.clubs.index') }}/club/${this.club.id}` :
+                        `{{ route('admin.clubs.store_club') }}`;
+
+                    this.$axios.post(url, {
+                            ...params,
+                            is_active: this.club.is_active ? 1 : 0
+                        })
+                        .then(response => {
+                            this.$emitter.emit('add-flash', {
+                                type: 'success',
+                                message: response.data.message
+                            });
+                            this.clubVisible = false;
+                            this.clubLoading = false;
+                            if (response.data.clubs) {
+                                this.localClubsList = response.data.clubs;
+                            }
+                            this.$refs.clubsGrid.get();
+                            this.$refs.branchesGrid.get();
+                        })
+                        .catch(err => {
+                            this.clubLoading = false;
+                        });
+                },
+                saveBranch(params) {
+                    this.branchLoading = true;
+                    const url = this.branchEditMode ?
+                        `{{ route('admin.clubs.index') }}/branch/${this.branch.id}` :
+                        `{{ route('admin.clubs.store_branch') }}`;
+
+                    this.$axios.post(url, {
+                            ...params,
+                            club_id: this.branch.club_id,
+                            is_active: this.branch.is_active ? 1 : 0
+                        })
+                        .then(response => {
+                            this.$emitter.emit('add-flash', {
+                                type: 'success',
+                                message: response.data.message
+                            });
+                            this.branchVisible = false;
+                            this.branchLoading = false;
+                            this.$refs.clubsGrid.get();
+                            this.$refs.branchesGrid.get();
+                        })
+                        .catch(err => {
+                            this.branchLoading = false;
+                        });
+                }
+            }
+        });
+    </script>
     @endPushOnce
 </x-admin::layouts>

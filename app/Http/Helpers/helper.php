@@ -73,3 +73,12 @@ function hasPermission($permission)
 
     return $user->hasPermission($permission);
 }
+
+function notificationAdditionalArrayFormat($data = [])
+{
+    return array_merge([
+        'screen' => null,
+        'booking_id' => null,
+        'client_id' => null
+    ], $data);
+}

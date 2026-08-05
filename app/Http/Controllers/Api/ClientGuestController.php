@@ -26,7 +26,7 @@ class ClientGuestController extends Controller
     public function index(Request $request)
     {
         $guests = $request->user()->guests()
-            ->latest()
+            ->latest('id')
             ->get();
 
         return response()->json([

@@ -29,10 +29,11 @@ class AdminEventController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'event_date' => 'required|date',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
+        $event = Event::create($validated);
         // dd($validated);
 
         if ($request->hasFile('image')) {
@@ -57,8 +58,8 @@ class AdminEventController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'event_date' => 'required|date',
-            'image' => 'nullable|string',
-            'featured_image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
@@ -106,7 +107,7 @@ class AdminEventController extends Controller
         ]);
 
         $events = Event::whereIn('id', $validated['indices'])->get();
-        
+
         foreach ($events as $event) {
             if ($event->image && Storage::exists($event->image)) {
                 Storage::delete($event->image);

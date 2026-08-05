@@ -93,7 +93,7 @@ class ClientBookingController extends Controller
                     $query->whereDate('booking_date', $bookingDate);
                 })
                 ->with(['table:id,name', 'club:id,name', 'guests', 'event:id,name'])
-                ->latest()
+                ->latest('id')
                 ->paginate();
 
             return response()->json([

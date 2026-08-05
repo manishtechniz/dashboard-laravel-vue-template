@@ -5,7 +5,7 @@
             <div class="page-breadcrumb">Home / Events</div>
         </div>
         @if (hasPermission('admin.events.store'))
-        <Button label="Create Event" icon="pi pi-plus" size="small" @click="$refs.event.visible = true" />
+        <Button label="Create" outlined icon="pi pi-plus" size="small" @click="$refs.event.visible = true" />
         @endif
     </div>
 

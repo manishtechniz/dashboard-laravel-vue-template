@@ -4,14 +4,14 @@
             <h1 class="page-title">Floor Management</h1>
             <div class="page-breadcrumb">Home / Floors</div>
         </div>
-        <Button label="Create Floor" icon="pi pi-plus" size="small" @click="$refs.floor.visible = true" />
+        <Button label="Create" outlined icon="pi pi-plus" size="small" @click="$refs.floor.visible = true" />
     </div>
 
     <v-floors ref="floor" :branches='@json($branches)'></v-floors>
 
     @pushOnce('scripts')
-        <script type="text/x-template" id="v-floors-template">
-            <div>
+    <script type="text/x-template" id="v-floors-template">
+        <div>
                 <!-- Datagrid -->
                 <x-admin::datagrid
                     :is-multi-row="true"
@@ -73,82 +73,90 @@
             </div>
         </script>
 
-        <script type="module">
-            adminVueApp.component('v-floors', {
-                template: '#v-floors-template',
-                props: ['branches'],
-                data() {
-                    return {
-                        visible: false,
-                        editMode: false,
-                        loading: false,
-                        floor: {
+    <script type="module">
+        adminVueApp.component('v-floors', {
+            template: '#v-floors-template',
+            props: ['branches'],
+            data() {
+                return {
+                    visible: false,
+                    editMode: false,
+                    loading: false,
+                    floor: {
+                        id: null,
+                        branch_id: null,
+                        name: '',
+                        level: 0,
+                        is_active: true
+                    },
+                    emitter: null
+                };
+            },
+            watch: {
+                visible(val) {
+                    if (val && !this.editMode) {
+                        this.floor = {
                             id: null,
                             branch_id: null,
                             name: '',
                             level: 0,
                             is_active: true
-                        },
-                        emitter: null
-                    };
-                },
-                watch: {
-                    visible(val) {
-                        if (val && !this.editMode) {
-                            this.floor = { id: null, branch_id: null, name: '', level: 0, is_active: true };
-                        } else if (!val) {
-                            this.editMode = false;
-                        }
-                    }
-                },
-                provide() {
-                    return {
-                        customActions: {
-                            edit: this.onEdit
-                        }
-                    };
-                },
-                mounted() {
-                },
-                methods: {
-                    onEdit(row) {
-                        this.editMode = true;
-                        const parentBranch = this.branches.find(b => b.name === row.branch_name);
-                        this.floor = {
-                            id: row.id,
-                            branch_id: parentBranch ? parentBranch.id : null,
-                            name: row.floor_name,
-                            level: row.level,
-                            is_active: !!row.is_active
                         };
-                        this.visible = true;
-                    },
-
-                    saveFloor(params) {
-                        this.loading = true;
-                        const url = this.editMode 
-                            ? `{{ route('admin.floors.index') }}/${this.floor.id}`
-                            : `{{ route('admin.floors.store') }}`;
-
-                        const payload = {
-                            ...params,
-                            branch_id: this.floor.branch_id,
-                            is_active: this.floor.is_active ? 1 : 0
-                        };
-
-                        this.$axios.post(url, payload)
-                            .then(response => {
-                                this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                this.visible = false;
-                                this.loading = false;
-                                this.$refs.floorsGrid.get();
-                            })
-                            .catch(error => {
-                                this.loading = false;
-                            });
+                    } else if (!val) {
+                        this.editMode = false;
                     }
                 }
-            });
-        </script>
+            },
+            provide() {
+                return {
+                    customActions: {
+                        edit: this.onEdit
+                    }
+                };
+            },
+            mounted() {},
+            methods: {
+                onEdit(row) {
+                    this.editMode = true;
+                    const parentBranch = this.branches.find(b => b.name === row.branch_name);
+                    this.floor = {
+                        id: row.id,
+                        branch_id: parentBranch ? parentBranch.id : null,
+                        name: row.floor_name,
+                        level: row.level,
+                        is_active: !!row.is_active
+                    };
+                    this.visible = true;
+                },
+
+                saveFloor(params) {
+                    this.loading = true;
+                    const url = this.editMode ?
+                        `{{ route('admin.floors.index') }}/${this.floor.id}` :
+                        `{{ route('admin.floors.store') }}`;
+
+                    const payload = {
+                        ...params,
+                        branch_id: this.floor.branch_id,
+                        is_active: this.floor.is_active ? 1 : 0
+                    };
+
+                    this.$axios.post(url, payload)
+                        .then(response => {
+                            this.$emitter.emit('add-flash', {
+                                type: 'success',
+                                message: response.data.message
+                            });
+                            this.visible = false;
+                            this.loading = false;
+                            this.$refs.floorsGrid.get();
+                        })
+                        .catch(error => {
+                            this.loading = false;
+                        });
+                }
+            }
+        });
+    </script>
     @endPushOnce
 </x-admin::layouts>

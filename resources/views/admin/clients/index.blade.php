@@ -5,7 +5,7 @@
             <div class="page-breadcrumb">Home / Clients</div>
         </div>
         @if (hasPermission('admin.clients.store'))
-        <Button label="Create Client" icon="pi pi-plus" size="small" @click="$refs.clinet.visible = true" />
+        <Button label="Create" icon="pi pi-plus" outlined size="small" @click="$refs.clinet.visible = true" />
         @endif
     </div>
 

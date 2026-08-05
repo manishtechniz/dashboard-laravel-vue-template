@@ -220,11 +220,11 @@ class DashboardBookingDataGrid extends DataGrid
                 switch ($status) {
                     case 'paid':
                     case 'completed':
-                        return '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold" style="background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--success); border: 1px solid color-mix(in srgb, var(--success) 25%, transparent);">Paid</span>';
+                        return '<span class="badge badge-success">Paid</span>';
                     case 'pending':
-                        return '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold" style="background: color-mix(in srgb, var(--warning) 12%, transparent); color: var(--warning); border: 1px solid color-mix(in srgb, var(--warning) 25%, transparent);">Pending</span>';
+                        return '<span class="badge badge-warning">Pending</span>';
                     case 'failed':
-                        return '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold" style="background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent);">Failed</span>';
+                        return '<span class="badge badge-danger">Failed</span>';
                     case 'refunded':
                         return '<span class="px-2.5 py-0.5 rounded-full text-xs font-bold" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border);">Refunded</span>';
                     default:

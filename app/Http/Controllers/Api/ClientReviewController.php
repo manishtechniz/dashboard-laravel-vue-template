@@ -40,7 +40,7 @@ class ClientReviewController extends Controller
             $query->where('club_id', $clubId);
         }
 
-        $reviews = $query->latest()->with(['club:id,name', 'client:id,name'])->paginate();
+        $reviews = $query->latest('id')->with(['club:id,name', 'client:id,name'])->paginate();
 
         return response()->json([
             'data' => $reviews

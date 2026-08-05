@@ -5,7 +5,7 @@
             <div class="page-breadcrumb">Home / Complaints</div>
         </div>
         @if (hasPermission('admin.complaints.store'))
-        <Button label="Create Complaint" icon="pi pi-plus" size="small" @click="$refs.complaint.visible = true; $refs.complaint.editMode = false;" />
+        <Button label="Create" outlined icon="pi pi-plus" size="small" @click="$refs.complaint.visible = true; $refs.complaint.editMode = false;" />
         @endif
     </div>
 

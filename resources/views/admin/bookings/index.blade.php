@@ -5,7 +5,7 @@
             <div class="page-breadcrumb">Home / Bookings</div>
         </div>
         @if (hasPermission('admin.bookings.store'))
-        <Button label="Create Booking" icon="pi pi-plus" size="small" @click="$refs.booking.visible = true" />
+        <Button label="Create" outlined icon="pi pi-plus" size="small" @click="$refs.booking.visible = true" />
         @endif
     </div>
 

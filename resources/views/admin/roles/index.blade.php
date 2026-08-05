@@ -54,7 +54,7 @@
     {{-- Header actions --}}
     @if (hasPermission('admin.roles.store'))
         <div style="display:flex; justify-content:flex-end; margin-bottom:16px; gap:10px;">
-            <Button label="Create Role" icon="pi pi-plus" @click="showRoleDialog = true" />
+            <Button label="Create" size="small" outlined icon="pi pi-plus" @click="showRoleDialog = true" />
         </div>
     @endif
 
@@ -121,8 +121,7 @@
                                         label="Save Changes" 
                                         size="small" 
                                         :disabled="role.type === 'system'" 
-                                        @click="savePermissions" 
-                                        class="shrink-0"
+                                        @click="savePermissions"  
                                     />
                                 </div>
                             @endif
@@ -147,7 +146,7 @@
                                         :label="isGroupAllSelected(group) ? 'Deselect All' : 'Select All'" 
                                         size="small" 
                                         text 
-                                        class="text-[11px] px-2 py-0.5 h-auto"
+                                        class="text-[11px] px-2 py-0.5 h-auto text-[var(--accent)]!"
                                         @click="toggleGroup(group)"
                                     />
                                 </div>
@@ -207,8 +206,8 @@
             </div>
         </div>
         <template #footer>
-            <Button label="Cancel" severity="secondary" text @click="showRoleDialog = false" />
-            <Button label="Create Role" @click="createRole" :disabled="!newRole.name.trim()" />
+            <Button label="Cancel" size="small" severity="secondary" text @click="showRoleDialog = false" />
+            <Button label="Save" size="small" @click="createRole" :disabled="!newRole.name.trim()" />
         </template>
     </Dialog>
 
@@ -225,8 +224,8 @@
             </div>
         </div>
         <template #footer>
-            <Button label="Cancel" severity="secondary" text @click="showEditRoleDialog = false" />
-            <Button label="Save Changes" @click="updateRoleDetails" :disabled="!editRoleData.name.trim()" />
+            <Button label="Cancel" severity="secondary" size="small" text @click="showEditRoleDialog = false" />
+            <Button label="Save Changes" size="small" @click="updateRoleDetails" :disabled="!editRoleData.name.trim()" />
         </template>
     </Dialog>
 </div>

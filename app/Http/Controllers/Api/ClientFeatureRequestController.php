@@ -28,7 +28,7 @@ class ClientFeatureRequestController extends Controller
         $featureRequests = $request->user()->featureRequests()
             ->latest()
             ->with(['client:id,name'])
-            ->paginate();
+            ->paginate('id');
 
         return response()->json([
             'data' => $featureRequests

@@ -61,8 +61,7 @@
 <v-field
     v-slot="{ field, errors }"
     {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules']) }}>
-    <FloatLabel variant="on"
-        :class="[errors.length ? 'border !border-red-600 hover:border-red-600' : '']">
+    <FloatLabel variant="on">
         <Textarea
             type="{{ $type }}"
             v-bind="field"
@@ -91,8 +90,7 @@
 <v-field
     v-slot="{ field, errors }"
     {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }}>
-    <FloatLabel variant="on"
-        :class="[errors.length ? 'border !border-red-600 hover:border-red-600' : '']">
+    <FloatLabel variant="on">
         <DatePicker
             v-bind="field"
             showIcon
@@ -112,8 +110,7 @@
 <v-field
     v-slot="{ field, errors }"
     {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }}>
-    <FloatLabel variant="on"
-        :class="[errors.length ? 'border !border-red-600 hover:border-red-600' : '']">
+    <FloatLabel variant="on">
         <DatePicker
             v-bind="field"
             showIcon
@@ -134,8 +131,7 @@
 <v-field
     v-slot="{ field, errors }"
     {{ $attributes->only(['value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }}>
-    <FloatLabel variant="on"
-        :class="[errors.length ? 'border !border-red-600 hover:border-red-600' : '']">
+    <FloatLabel variant="on">
         <DatePicker
             v-bind="field"
             showIcon
@@ -176,8 +172,7 @@
 <v-field
     v-slot="{ field, errors }"
     {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }}>
-    <FloatLabel variant="on"
-        :class="[errors.length ? 'border !border-red-600 hover:border-red-600' : '']">
+    <FloatLabel variant="on">
         <MultiSelect
             :modelValue="field.value"
             @update:modelValue="field.onChange($event)"

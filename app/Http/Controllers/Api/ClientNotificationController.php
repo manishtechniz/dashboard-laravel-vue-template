@@ -28,7 +28,7 @@ class ClientNotificationController extends Controller
     )]
     public function index(Request $request)
     {
-        $notifications = $request->user()->notifications()->latest()
+        $notifications = $request->user()->notifications()->latest('id')
             ->paginate();
 
         return response()->json([

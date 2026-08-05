@@ -3,24 +3,37 @@
 namespace Database\Seeders;
 
 use App\Model\MobileAppRole;
-use App\Model\Role;
 use Illuminate\Database\Seeder;
 
 class MobileAppRoleSeeder extends Seeder
 {
     public function run(): void
     {
-        MobileAppRole::create([
-            'name' => 'administrator',
-            'type' => 'system',
-            'permissions' => json_encode(['*']),
-        ]);
+        $roles = [
+            [
+                'id' => 1,
+                'name' => 'Administrator',
+                'type' => 'system',
+                'permissions' => ['*'],
+            ],
+            [
+                'id' => 2,
+                'name' => 'Staff',
+                'type' => 'custom',
+                'permissions' => ['can_qr_scan', 'can_booking_check_in'],
+            ],
+        ];
 
-        MobileAppRole::create([
-            'name' => 'Staff',
-            'type' => 'custom',
-            'permissions' => json_encode(['qr_scan']),
-        ]);
+        foreach ($roles as $role) {
+            MobileAppRole::updateOrCreate(
+                ['id' => $role['id']],
+                [
+                    'name' => $role['name'],
+                    'type' => $role['type'],
+                    'permissions' => $role['permissions'],
+                ]
+            );
+        }
 
         $this->command->info('✅ Default mobile roles seeded successfully.');
     }

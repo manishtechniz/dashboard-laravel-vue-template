@@ -5,7 +5,7 @@
             <div class="page-breadcrumb">Home / Feature Requests</div>
         </div>
         @if (hasPermission('admin.feature_requests.store'))
-        <Button label="Create Request" icon="pi pi-plus" size="small" @click="$refs.featureRequest.visible = true; $refs.featureRequest.editMode = false;" />
+        <Button label="Create" outlined icon="pi pi-plus" size="small" @click="$refs.featureRequest.visible = true; $refs.featureRequest.editMode = false;" />
         @endif
     </div>
 

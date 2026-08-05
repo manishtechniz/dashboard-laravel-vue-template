@@ -5,7 +5,7 @@
             <div class="page-breadcrumb">Home / Promo Codes</div>
         </div>
         @if (hasPermission('admin.promo_codes.store'))
-        <Button label="Create Promo Code" icon="pi pi-plus" size="small" @click="$refs.promo.visible = true" />
+        <Button label="Create" outlined icon="pi pi-plus" size="small" @click="$refs.promo.visible = true" />
         @endif
     </div>
 
