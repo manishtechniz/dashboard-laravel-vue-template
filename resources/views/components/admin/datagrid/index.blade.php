@@ -168,8 +168,6 @@
 
         mounted() {
             this.boot();
-
-            // console.log(11);
         },
 
         methods: {
