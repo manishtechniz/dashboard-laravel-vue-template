@@ -126,6 +126,7 @@ class AuthController extends Controller
             ]);
         }
 
+        $client->tokens()->delete();
         $token = $client->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -247,6 +248,7 @@ class AuthController extends Controller
             ]);
         }
 
+        $client->tokens()->delete();
         $token = $client->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -327,6 +329,7 @@ class AuthController extends Controller
             ]);
         }
 
+        $client->tokens()->delete();
         $token = $client->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -502,7 +505,13 @@ class AuthController extends Controller
     )]
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $client = $request->user();
+        $client->currentAccessToken()->delete();
+        $client->update([
+            'fcm_token' => null
+        ]);
+
+        $client->fresh();
 
         return response()->json(['message' => 'Logged out successfully.']);
     }

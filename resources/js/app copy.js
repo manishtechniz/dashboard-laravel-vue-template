@@ -5,7 +5,6 @@
 
 /**
  * Main vue bundler.
- * ADDED: defineAsyncComponent for lazy loading
  */
 import { createApp, defineAsyncComponent } from "vue/dist/vue.esm-bundler";
 import PrimeVue from 'primevue/config';
@@ -13,6 +12,10 @@ import Aura from '@primeuix/themes/aura';
 import Lara from '@primeuix/themes/lara';
 import Nora from '@primeuix/themes/nora';
 import Material from '@primeuix/themes/material';
+// import 'primeicons/primeicons.css'
+
+// import 'primeicons/primeicons.css';
+// import './assets/main.css';
 
 /**
  * Main root application registry.
@@ -129,65 +132,96 @@ window.adminVueApp = createApp({
 
 adminVueApp.use(PrimeVue, {
     theme: {
-        preset: Aura
+        preset: Aura,
+        // options: {
+        //     darkModeSelector: '.dark-app',
+        // }
     }
 });
 
 /**
- * ------------------------------------------------------------------------
- * ASYNC COMPONENT REGISTRATION (CODE SPLITTING FIX)
- * ------------------------------------------------------------------------
- * Instead of eager imports, we map components to dynamic imports.
- * Vite will automatically split these into smaller, separate JS files.
+ * PrimeVue Components
  */
-const asyncComponents = {
-    "DataTable": () => import('primevue/datatable'),
-    "Column": () => import('primevue/column'),
-    "Row": () => import('primevue/row'),
-    "ColumnGroup": () => import('primevue/columngroup'),
-    "Button": () => import('primevue/button'),
-    "Tag": () => import('primevue/tag'),
-    "Dialog": () => import('primevue/dialog'),
-    "InputText": () => import('primevue/inputtext'),
-    "Textarea": () => import('primevue/textarea'),
-    "Select": () => import('primevue/select'),
-    "Password": () => import('primevue/password'),
-    "TabView": () => import('primevue/tab'),
-    "TabViews": () => import('primevue/tabs'),
-    "TabPanel": () => import('primevue/tabpanel'),
-    "TabPanels": () => import('primevue/tabpanels'),
-    "TabList": () => import('primevue/tablist'),
-    "Tab": () => import('primevue/tab'),
-    "Tabs": () => import('primevue/tabs'),
-    "ToggleSwitch": () => import('primevue/toggleswitch'),
-    "Timeline": () => import('primevue/timeline'),
-    "FloatLabel": () => import('primevue/floatlabel'),
-    "DatePicker": () => import('primevue/datepicker'),
-    "MultiSelect": () => import('primevue/multiselect'),
-    "Slider": () => import('primevue/slider'),
-    "Checkbox": () => import('primevue/checkbox'),
-    "CheckboxGroup": () => import('primevue/checkboxgroup'),
-    "RadioButton": () => import('primevue/radiobutton'),
-    "RadioButtonGroup": () => import('primevue/radiobuttongroup'),
-    "Toast": () => import('primevue/toast'),
-    "Paginator": () => import('primevue/paginator'),
+import Button from "primevue/button";
+import Tag from "primevue/tag";
+import Checkbox from "primevue/checkbox";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
+import Select from "primevue/select";
+import Password from 'primevue/password';
+import TabView from 'primevue/tab';
+import TabViews from 'primevue/tabs';
+import TabPanel from "primevue/tabpanel";
+import TabPanels from 'primevue/tabpanels';
+import TabList from 'primevue/tablist';
+import ToggleSwitch from "primevue/toggleswitch";
+import Timeline from "primevue/timeline";
+import FloatLabel from 'primevue/floatlabel';
+import DatePicker from 'primevue/datepicker';
+import MultiSelect from 'primevue/multiselect';
+import CheckboxGroup from 'primevue/checkboxgroup';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';
+import Row from 'primevue/row';
+import Slider from 'primevue/slider';
+import RadioButton from 'primevue/radiobutton';
+import RadioButtonGroup from 'primevue/radiobuttongroup';
+import Toast from 'primevue/toast';
+import { Form } from '@primevue/forms';
+import Paginator from 'primevue/paginator';
 
-    // Note: Form requires named export handling
-    "Form": () => import('@primevue/forms').then(m => m.Form),
-
-    // Boneyard Skeleton
-    "Skeleton": () => import('boneyard-js/vue')
-};
-
-// Register them all globally, but lazily
-Object.entries(asyncComponents).forEach(([name, importFn]) => {
-    adminVueApp.component(name, defineAsyncComponent(importFn));
-});
+/**
+ * Boneyard AUTO SLELETON
+ */
+import Skeleton from 'boneyard-js/vue'
+// import './bones/registry.js'
 
 
 /**
+ * Register globally PrimeVue Components
+ */
+[
+    ["DataTable", DataTable],
+    ["Column", Column],
+    ["Row", Row],
+    ["ColumnGroup", ColumnGroup],
+    ["Button", Button],
+    ["Tag", Tag],
+    ["Dialog", Dialog],
+    ["InputText", InputText],
+    ["Textarea", Textarea],
+    ["Select", Select],
+    ["Password", Password],
+    ["TabView", TabView],
+    ["TabViews", TabViews],
+    ["TabPanel", TabPanel],
+    ["TabPanels", TabPanels],
+    ["TabList", TabList],
+    ["Tab", TabView],
+    ["Tabs", TabViews],
+    ["ToggleSwitch", ToggleSwitch],
+    ["Timeline", Timeline],
+    ["FloatLabel", FloatLabel],
+    ["DatePicker", DatePicker],
+    ["MultiSelect", MultiSelect],
+    ["Slider", Slider],
+    ["Checkbox", Checkbox],
+    ["CheckboxGroup", CheckboxGroup],
+    ["RadioButton", RadioButton],
+    ["RadioButtonGroup", RadioButtonGroup],
+    ["Toast", Toast],
+    ["Form", Form],
+    ["Paginator", Paginator],
+
+    ["Skeleton", Skeleton]
+].forEach(([name, component]) => {
+    adminVueApp.component(name, component);
+});
+
+/**
  * Global plugins registration.
- * (Plugins must remain synchronously loaded as they setup the core app instance)
  */
 import GuestRedirectTo from "../plugins/guest-redirect-to";
 import Emitter from "../plugins/emitter";
@@ -195,7 +229,6 @@ import Flatpickr from "../plugins/flatpickr";
 import VeeValidate from "../plugins/vee-validate";
 import Axios from "../plugins/axios";
 import ToastService from 'primevue/toastservice';
-
 [
     Axios,
     Emitter,

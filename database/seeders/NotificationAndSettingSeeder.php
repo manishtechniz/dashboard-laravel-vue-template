@@ -29,7 +29,7 @@ class NotificationAndSettingSeeder extends Seeder
                 [
                     'title'      => 'Upcoming Event: Neon EDM Carnival! ⚡',
                     'body'       => 'Get ready for ultraviolet lasers, international guest DJs, and bass music this weekend. Limited VIP tables left!',
-                    'type'       => 'event_alert',
+                    'type'       => 'event',
                     'remark'     => 'Event Campaign Broadcast',
                     'additional' => json_encode(['club_id' => 1, 'event_id' => 2, 'route' => '/events/2']),
                     'read'       => false,
@@ -38,7 +38,7 @@ class NotificationAndSettingSeeder extends Seeder
                 [
                     'title'      => 'Exclusive Promo: 20% Off! 🎁',
                     'body'       => 'Use coupon code MIDNIGHT20 to unlock 20% off on your next weekend reservation.',
-                    'type'       => 'promo',
+                    'type'       => 'offer',
                     'remark'     => 'VIP Promotion Push',
                     'additional' => json_encode(['promo_code' => 'MIDNIGHT20']),
                     'read'       => false,

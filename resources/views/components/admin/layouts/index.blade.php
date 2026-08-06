@@ -17,18 +17,14 @@
     <!-- <link rel="manifest" href="{{ asset('web.dev/manifest.json') }}">
     <meta name="theme-color" content="#4f46e5"> -->
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    {{-- Fonts --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    {{-- PrimeVue CSS --}}
-    {{-- <link rel="stylesheet" href="https://unpkg.com/primevue@4/resources/themes/aura-light-blue/theme.css" id="theme-link" /> --}}
-    <link rel="stylesheet" href="https://unpkg.com/primeicons/primeicons.css" />
-    {{-- <link rel="stylesheet" href="https://unpkg.com/primevue/resources/primevue.min.css" /> --}}
-    {{-- <link rel="stylesheet" href="https://unpkg.com/primeflex@3/primeflex.css" /> --}}
+    {{-- Optimize Laravel Vite CSS --}}
+    @php
+    // Tells Laravel Vite to apply these attributes to the generated
+    Vite::useStyleTagAttributes([
+    'media' => 'print',
+    'onload' => "this.media='all'"
+    ]);
+    @endphp
 
     <!-- Link js files -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -127,7 +123,7 @@
                 return {
                     sidebarCollapsed: false,
                     mobileSidebarOpen: false,
-                    currentTheme: document.documentElement.className || 'light',
+                    currentTheme: document.documentElement.className || 'dark',
                     notifCount: 3,
 
                     navItems: @json($adminMenu ?? []),
@@ -175,7 +171,7 @@
             },
 
             mounted() {
-                const saved = localStorage.getItem('admin-theme') || '{{ session("theme", "light") }}';
+                const saved = localStorage.getItem('admin-theme') || '{{ session("theme", "dark") }}';
 
                 this.applyTheme(saved);
             }
@@ -259,10 +255,10 @@
                         </button>
                     </div>
 
-                    <button class="header-icon-btn">
+                    <!-- <button class="header-icon-btn">
                         <i class="pi pi-bell" style="font-size:14px;"></i>
                         <span class="badge">@{{ notifCount }}</span>
-                    </button>
+                    </button> -->
 
                     <div class="avatar" title="My Profile">AU</div>
                 </header>

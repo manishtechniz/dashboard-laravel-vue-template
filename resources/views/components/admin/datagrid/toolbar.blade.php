@@ -1,7 +1,7 @@
 @props([
-    'isPagination' => true,
-    'isFilter' => true,
-    'isSearchBox' => true, 
+'isPagination' => true,
+'isFilter' => true,
+'isSearchBox' => true,
 ])
 
 <template v-if="isLoading">
@@ -28,43 +28,41 @@
                             :applied="applied"
                             :mass-actions="massActions"
                             :validate-mass-action="validateMassAction"
-                            :perform-mass-action="performMassAction"
-                        >
+                            :perform-mass-action="performMassAction">
                         </slot>
                     </template>
                 </x-admin::datagrid.toolbar.mass-action>
             </template>
-            
+
             @if ($isSearchBox)
-                <!-- Search Panel -->
-                <template v-else>
-                    <x-admin::datagrid.toolbar.search>
-                        <template #search="{
+            <!-- Search Panel -->
+            <template v-else>
+                <x-admin::datagrid.toolbar.search>
+                    <template #search="{
                             available,
                             applied,
                             search,
                             getSearchedValues
                         }">
-                            <slot
-                                name="search"
-                                :available="available"
-                                :applied="applied"
-                                :search="search"
-                                :get-searched-values="getSearchedValues"
-                            >
-                            </slot>
-                        </template>
-                    </x-admin::datagrid.toolbar.search>
-                </template>
+                        <slot
+                            name="search"
+                            :available="available"
+                            :applied="applied"
+                            :search="search"
+                            :get-searched-values="getSearchedValues">
+                        </slot>
+                    </template>
+                </x-admin::datagrid.toolbar.search>
+            </template>
             @endif
         </div>
 
         <!-- Right Toolbar -->
-        <div class="flex gap-x-4"> 
-            @if ($isFilter)                  
-                <!-- Filter Panel -->
-                <x-admin::datagrid.toolbar.filter>
-                    <template #filter="{
+        <div class="flex gap-x-4">
+            @if ($isFilter)
+            <!-- Filter Panel -->
+            <x-admin::datagrid.toolbar.filter>
+                <template #filter="{
                         available,
                         applied,
                         filters,
@@ -76,43 +74,41 @@
                         removeAppliedColumnValue,
                         removeAppliedColumnAllValues
                     }">
-                        <slot
-                            name="filter"
-                            :available="available"
-                            :applied="applied"
-                            :filters="filters"
-                            :apply-filter="applyFilter"
-                            :apply-column-values="applyColumnValues"
-                            :find-applied-column="findAppliedColumn"
-                            :has-any-applied-column-values="hasAnyAppliedColumnValues"
-                            :get-applied-column-values="getAppliedColumnValues"
-                            :remove-applied-column-value="removeAppliedColumnValue"
-                            :remove-applied-column-all-values="removeAppliedColumnAllValues"
-                        >
-                        </slot>
-                    </template>
-                </x-admin::datagrid.toolbar.filter>
+                    <slot
+                        name="filter"
+                        :available="available"
+                        :applied="applied"
+                        :filters="filters"
+                        :apply-filter="applyFilter"
+                        :apply-column-values="applyColumnValues"
+                        :find-applied-column="findAppliedColumn"
+                        :has-any-applied-column-values="hasAnyAppliedColumnValues"
+                        :get-applied-column-values="getAppliedColumnValues"
+                        :remove-applied-column-value="removeAppliedColumnValue"
+                        :remove-applied-column-all-values="removeAppliedColumnAllValues">
+                    </slot>
+                </template>
+            </x-admin::datagrid.toolbar.filter>
             @endif
 
             @if ($isPagination)
-                <!-- Pagination Panel -->
-                <x-admin::datagrid.toolbar.pagination>
-                    <template #pagination="{
+            <!-- Pagination Panel -->
+            <x-admin::datagrid.toolbar.pagination>
+                <template #pagination="{
                         available,
                         applied,
                         changePage,
                         changePerPageOption
                     }">
-                        <slot
-                            name="pagination"
-                            :available="available"
-                            :applied="applied"
-                            :change-page="changePage"
-                            :change-per-page-option="changePerPageOption"
-                        >
-                        </slot>
-                    </template>
-                </x-admin::datagrid.toolbar.pagination>
+                    <slot
+                        name="pagination"
+                        :available="available"
+                        :applied="applied"
+                        :change-page="changePage"
+                        :change-per-page-option="changePerPageOption">
+                    </slot>
+                </template>
+            </x-admin::datagrid.toolbar.pagination>
             @endif
         </div>
     </div>

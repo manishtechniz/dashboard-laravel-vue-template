@@ -1,29 +1,9 @@
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
+1.
 
-    RewriteEngine On
+php /home/u598407524/domains/sunoyaar.com/public_html/midnightclub/artisan schedule:run >> /dev/null 2>&1
 
-    # Handle Authorization Header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    # Handle X-XSRF-Token Header
-    RewriteCond %{HTTP:x-xsrf-token} .
-    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
-
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-
-    # Send Requests To Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
-</IfModule>
-
+2. 
+Add in htaccess.
 # ----------------------------------------------------------------
 # GZIP COMPRESSION (Optimize asset delivery)
 # ----------------------------------------------------------------
@@ -38,9 +18,8 @@
     AddOutputFilterByType DEFLATE font/woff2
 </IfModule>
 
-
 # ----------------------------------------------------------------
-# BROWSER CACHING (mod_expires)
+# 6. BROWSER CACHING (mod_expires)
 # ----------------------------------------------------------------
 <IfModule mod_expires.c>
     ExpiresActive On
