@@ -15,6 +15,10 @@ class RecalculateClubRatingJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+
+    public $tries = 3;
+    public $maxExceptions = 3;
+
     /**
      * Create a new job instance. 
      */

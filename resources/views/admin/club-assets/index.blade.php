@@ -11,7 +11,7 @@
                 size="small"
                 severity="secondary"
                 outlined
-                @click="openBatchesDrawer" />
+                @click="$refs.clubAssets.openBatchesDrawer()" />
             <Button
                 label="Refresh"
                 icon="pi pi-refresh"
@@ -19,7 +19,7 @@
                 severity="secondary"
                 outlined
                 :loading="loading"
-                @click="fetchAssets(1)" />
+                @click="$refs.clubAssets.fetchAssets(1)" />
             @if (hasPermission('admin.club_assets.bulk_upload'))
             <!-- <Button
                 label="Bulk Upload"
@@ -46,7 +46,7 @@
     <script type="text/x-template" id="v-club-assets-template">
         <div>
             <!-- Active Jobs Banner if running in background -->
-            <div v-if="activeBatch && !activeBatch.finished" class="mb-6 p-4 rounded-xl border border-indigo-500/30 bg-indigo-500/10 backdrop-blur-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div v-if="activeBatch && !activeBatch.finished && (activeBatch.worked_job < activeBatch.total_jobs)" class="mb-6 p-4 rounded-xl border border-indigo-500/30 bg-indigo-500/10 backdrop-blur-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center animate-pulse">
                         <i class="pi pi-spin pi-spinner text-xl"></i>
@@ -710,52 +710,75 @@
                 position="right"
                 :style="{ width: '500px', maxWidth: '95vw' }"
             >
-                <div class="space-y-4 pt-2">
+                <div class="space-y-4 pt-2 flex flex-col h-full">
                     <div class="flex items-center justify-between text-xs text-(--text-muted)">
                         <span>Recent media batches (job_batches)</span>
-                        <Button icon="pi pi-refresh" size="small" text @click="fetchBatchesList" />
-                    </div>
-
-                    <div v-if="batchesLoading" class="space-y-3 animate-pulse">
-                        <div v-for="n in 5" :key="n" class="h-20 bg-(--bg-subtle) rounded-xl"></div>
-                    </div>
-
-                    <div v-else-if="batchesList.length === 0" class="py-12 text-center text-xs text-(--text-muted)">
-                        No recent job batches recorded.
-                    </div>
-
-                    <div v-else class="space-y-3">
-                        <div
-                            v-for="b in batchesList"
-                            :key="b.id"
-                            class="p-3.5 rounded-2xl border border-(--border) bg-(--bg-subtle) space-y-2 cursor-pointer hover:border-indigo-500/50 transition"
-                            @click="showBatchModal(b)"
-                        >
-                            <div class="flex items-start justify-between gap-2">
-                                <div>
-                                    <div class="font-semibold text-xs text-(--text-base) truncate max-w-[280px]">
-                                        @{{ b.name }}
-                                    </div>
-                                    <div class="text-[11px] text-(--text-muted) mt-0.5">
-                                        ID: <span class="font-mono text-[10px]">@{{ b.id.substring(0, 8) }}...</span> • @{{ b.created_at }}
-                                    </div>
-                                </div>
-                                <span
-                                    class="px-2 py-0.5 text-[10px] font-semibold uppercase rounded-md"
-                                    :class="getBatchBadgeClass(b.status)"
-                                >
-                                    @{{ b.status }}
-                                </span>
-                            </div>
-
-                            <ProgressBar :value="b.progress" :showValue="false" style="height: 6px;"></ProgressBar>
-
-                            <div class="flex items-center justify-between text-[11px] text-(--text-muted) pt-1">
-                                <span>@{{ b.processed_jobs }} / @{{ b.total_jobs }} jobs done</span>
-                                <span v-if="b.failed_jobs > 0" class="text-red-400 font-medium">@{{ b.failed_jobs }} failed</span>
-                                <span>@{{ b.progress }}%</span>
-                            </div>
+                        <div class="flex items-center gap-2">
+                            <span v-if="totalBatches > 0" class="text-[11px] bg-(--bg-surface) border border-(--border) px-2 py-0.5 rounded-full font-medium">
+                                @{{ totalBatches }} total
+                            </span>
+                            <Button icon="pi pi-refresh" size="small" text :loading="batchesLoading && batchesPage === 1" @click="resetAndFetchBatches" />
                         </div>
+                    </div>
+
+                    <!-- Scrollable Container with Infinite Scroll on scroll -->
+                    <div
+                        ref="batchesScrollContainer"
+                        class="space-y-3 overflow-y-auto max-h-[calc(100vh-140px)] pr-1 scroll-smooth"
+                        @scroll="onBatchesScroll"
+                    >
+                        <div v-if="batchesLoading && batchesPage === 1" class="space-y-3 animate-pulse">
+                            <div v-for="n in 5" :key="n" class="h-20 bg-(--bg-subtle) rounded-xl"></div>
+                        </div>
+
+                        <div v-else-if="batchesList.length === 0" class="py-12 text-center text-xs text-(--text-muted)">
+                            No recent job batches recorded.
+                        </div>
+
+                        <template v-else>
+                            <div
+                                v-for="b in batchesList"
+                                :key="b.id"
+                                class="p-3.5 rounded-2xl border border-(--border) bg-(--bg-subtle) space-y-2 cursor-pointer hover:border-indigo-500/50 transition"
+                                @click="showBatchModal(b)"
+                            >
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <div class="font-semibold text-xs text-(--text-base) truncate max-w-[280px]">
+                                            @{{ b.name }}
+                                        </div>
+                                        <div class="text-[11px] text-(--text-muted) mt-0.5">
+                                            ID: <span class="font-mono text-[10px]">@{{ b.id.substring(0, 8) }}...</span> • @{{ b.created_at }}
+                                        </div>
+                                    </div>
+                                    <span
+                                        class="px-2 py-0.5 text-[10px] font-semibold uppercase rounded-md"
+                                        :class="getBatchBadgeClass(b.status)"
+                                    >
+                                        @{{ b.status }}
+                                    </span>
+                                </div>
+
+                                <ProgressBar :value="b.progress" :showValue="false" style="height: 6px;"></ProgressBar>
+
+                                <div class="flex items-center justify-between text-[11px] text-(--text-muted) pt-1">
+                                    <span>@{{ b.processed_jobs }} / @{{ b.total_jobs }} jobs done</span>
+                                    <span v-if="b.failed_jobs > 0" class="text-red-400 font-medium">@{{ b.failed_jobs }} failed</span>
+                                    <span>@{{ b.progress }}%</span>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Loading indicator for page > 1 -->
+                            <div v-if="batchesLoading && batchesPage > 1" class="py-3 flex items-center justify-center gap-2 text-xs text-(--text-muted)">
+                                <i class="pi pi-spin pi-spinner text-indigo-400"></i>
+                                <span>Loading more batches...</span>
+                            </div>
+
+                            <!-- End of list message -->
+                            <div v-else-if="!hasMoreBatches && batchesList.length > 0" class="py-3 text-center text-[11px] text-(--text-muted)">
+                                All @{{ totalBatches }} batches loaded
+                            </div>
+                        </template>
                     </div>
                 </div>
             </Drawer>
@@ -818,6 +841,9 @@
                     batchesDrawerVisible: false,
                     batchesLoading: false,
                     batchesList: [],
+                    batchesPage: 1,
+                    hasMoreBatches: true,
+                    totalBatches: 0,
 
                     sortOptions: [{
                             label: 'Newest First',
@@ -1154,7 +1180,7 @@
                                 this.currentBatchTracking = batch;
                                 this.activeBatch = batch;
 
-                                if (batch.finished) {
+                                if (batch.finished || batch.worked_job >= batch.total_jobs) {
                                     clearInterval(this.pollInterval);
                                     this.fetchAssets(1);
                                     if (batch.status === 'completed') {
@@ -1166,6 +1192,11 @@
                                         this.$emitter.emit('add-flash', {
                                             type: 'warning',
                                             message: `Batch finished with ${batch.failed_jobs} failed items.`
+                                        });
+                                    } else if (batch.status === 'failed') {
+                                        this.$emitter.emit('add-flash', {
+                                            type: 'error',
+                                            message: `Batch failed! ${batch.failed_jobs} items failed.`
                                         });
                                     }
                                 }
@@ -1226,24 +1257,67 @@
                 // Batches History Drawer
                 openBatchesDrawer() {
                     this.batchesDrawerVisible = true;
-                    this.fetchBatchesList();
+                    this.resetAndFetchBatches();
                 },
 
-                fetchBatchesList() {
+                resetAndFetchBatches() {
+                    this.batchesPage = 1;
+                    this.batchesList = [];
+                    this.hasMoreBatches = true;
+                    this.totalBatches = 0;
+                    this.fetchBatchesList(1);
+                },
+
+                fetchBatchesList(page = 1) {
+                    if (this.batchesLoading) return;
+                    if (page > 1 && !this.hasMoreBatches) return;
+
                     this.batchesLoading = true;
-                    this.$axios.get('{{ route("admin.club_assets.batches") }}')
+                    this.batchesPage = page;
+
+                    this.$axios.get('{{ route("admin.club_assets.batches") }}', {
+                            params: {
+                                page: page,
+                                per_page: 15
+                            }
+                        })
                         .then(res => {
-                            this.batchesList = res.data.batches || [];
+                            const newBatches = res.data.batches || [];
+                            if (page === 1) {
+                                this.batchesList = newBatches;
+                            } else {
+                                const existingIds = new Set(this.batchesList.map(b => b.id));
+                                const filtered = newBatches.filter(b => !existingIds.has(b.id));
+                                this.batchesList.push(...filtered);
+                            }
+                            this.hasMoreBatches = res.data.has_more_pages ?? false;
+                            this.totalBatches = res.data.total ?? this.batchesList.length;
+                        })
+                        .catch(err => {
+                            this.$emitter.emit('add-flash', {
+                                type: 'error',
+                                message: 'Failed to load job batches history.'
+                            });
                         })
                         .finally(() => {
                             this.batchesLoading = false;
                         });
                 },
 
+                onBatchesScroll(e) {
+                    const el = e.target;
+                    if (!el || this.batchesLoading || !this.hasMoreBatches) return;
+
+                    // Trigger next page when scrolled within 80px of bottom
+                    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 80) {
+                        this.fetchBatchesList(this.batchesPage + 1);
+                    }
+                },
+
                 showBatchModal(batch) {
                     this.currentBatchTracking = batch;
                     this.uploadDialogVisible = true;
-                    if (!batch.finished) {
+                    if (!batch.finished && (batch.worked_job < batch.total_jobs)) {
                         this.startBatchPolling(batch.id);
                     }
                 }

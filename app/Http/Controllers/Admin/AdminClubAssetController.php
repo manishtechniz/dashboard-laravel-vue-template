@@ -170,45 +170,57 @@ class AdminClubAssetController extends Controller
      */
     public function batchesList(Request $request): JsonResponse
     {
-        $batches = DB::table('job_batches')
+        $perPage = (int) $request->get('per_page', 15);
+
+        $paginated = DB::table('job_batches')
             ->where('name', 'like', 'Club Media%')
             ->orderBy('created_at', 'desc')
-            ->take(20)
-            ->get()
-            ->map(function ($b) {
-                $total = (int) $b->total_jobs;
-                $pending = (int) $b->pending_jobs;
-                $failed = (int) $b->failed_jobs;
-                $processed = $total - $pending;
-                $progress = $total > 0 ? (int) round(($processed / $total) * 100) : 0;
-                $finished = ! is_null($b->finished_at);
-                $cancelled = ! is_null($b->cancelled_at);
+            ->paginate($perPage);
 
-                $status = 'processing';
-                if ($cancelled) {
-                    $status = 'cancelled';
-                } elseif ($finished) {
-                    $status = $failed > 0 ? ($failed === $total ? 'failed' : 'partial_failure') : 'completed';
-                }
+        $batches = collect($paginated->items())->map(function ($b) {
+            $total = (int) $b->total_jobs;
+            $pending = (int) $b->pending_jobs;
+            $failed = (int) $b->failed_jobs;
+            $processed = $total - $pending;
+            $progress = $total > 0 ? (int) round(($processed / $total) * 100) : 0;
+            $finished = ! is_null($b->finished_at) || ($total > 0 && $pending === 0);
+            $cancelled = ! is_null($b->cancelled_at);
 
-                return [
-                    'id'             => $b->id,
-                    'name'           => $b->name,
-                    'total_jobs'     => $total,
-                    'pending_jobs'   => $pending,
-                    'processed_jobs' => $processed,
-                    'failed_jobs'    => $failed,
-                    'progress'       => $progress,
-                    'status'         => $status,
-                    'finished'       => $finished,
-                    'created_at'     => Carbon::createFromTimestamp($b->created_at)->format('M d, h:i A'),
-                    'finished_at'    => $b->finished_at ? Carbon::createFromTimestamp($b->finished_at)->format('M d, h:i A') : null,
-                ];
-            });
+            $workedJobs = $processed + $failed;
+
+            $status = 'processing';
+            if ($cancelled) {
+                $status = 'cancelled';
+            } elseif ($finished) {
+                $status = $failed > 0 ? ($failed === $total ? 'failed' : 'partial_failure') : 'completed';
+            } elseif ($workedJobs >= $total) {
+                $status = $failed > 0 ? ($failed === $total ? 'failed' : 'partial_failure') : 'completed';
+            }
+
+            return [
+                'id'             => $b->id,
+                'name'           => $b->name,
+                'total_jobs'     => $total,
+                'pending_jobs'   => $pending,
+                'processed_jobs' => $processed,
+                'failed_jobs'    => $failed,
+                'worked_job'     => $workedJobs,
+                'progress'       => $progress,
+                'status'         => $status,
+                'finished'       => $finished,
+                'created_at'     => Carbon::createFromTimestamp($b->created_at)->format('M d, h:i A'),
+                'finished_at'    => $b->finished_at ? Carbon::createFromTimestamp($b->finished_at)->format('M d, h:i A') : null,
+            ];
+        });
 
         return response()->json([
-            'success' => true,
-            'batches' => $batches,
+            'success'        => true,
+            'batches'        => $batches,
+            'current_page'   => $paginated->currentPage(),
+            'last_page'      => $paginated->lastPage(),
+            'per_page'       => $paginated->perPage(),
+            'total'          => $paginated->total(),
+            'has_more_pages' => $paginated->hasMorePages(),
         ]);
     }
 
@@ -284,13 +296,16 @@ class AdminClubAssetController extends Controller
         $failed = $batch->failedJobs;
         $processed = $batch->processedJobs();
         $progress = $batch->progress();
-        $finished = $batch->finished();
+        $finished = $batch->finished() || ($total > 0 && $pending === 0);
         $cancelled = $batch->cancelled();
+        $workedJobs = $processed + $failed;
 
         $status = 'processing';
         if ($cancelled) {
             $status = 'cancelled';
         } elseif ($finished) {
+            $status = $failed > 0 ? ($failed === $total ? 'failed' : 'partial_failure') : 'completed';
+        } elseif ($workedJobs >= $total) {
             $status = $failed > 0 ? ($failed === $total ? 'failed' : 'partial_failure') : 'completed';
         }
 
@@ -303,6 +318,7 @@ class AdminClubAssetController extends Controller
             'processed_jobs' => $processed,
             'success_jobs'   => max(0, $processed - $failed),
             'failed_jobs'    => $failed,
+            'worked_job'     => $workedJobs,
             'progress'       => $progress,
             'status'         => $status,
             'finished'       => $finished,

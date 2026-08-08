@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use ZipArchive;
 
@@ -22,6 +23,9 @@ class ProcessZipArchiveJob implements ShouldQueue
     protected ?int $adminId;
     protected string $zipRelativePath;
     protected string $originalZipName;
+
+    public $tries = 3;
+    public $maxExceptions = 3;
 
     /**
      * Create a new job instance.
@@ -43,9 +47,10 @@ class ProcessZipArchiveJob implements ShouldQueue
             return;
         }
 
-        $fullZipPath = storage_path('app/' . $this->zipRelativePath);
+        // $fullZipPath = storage_path('app/' . $this->zipRelativePath);
+        $fullZipPath = Storage::path($this->zipRelativePath);
         $uniqueDir = 'temp_zip/' . ($this->batch()?->id ?? Str::uuid());
-        $extractPath = storage_path('app/' . $uniqueDir);
+        $extractPath = Storage::path($uniqueDir);
 
         if (! file_exists($fullZipPath)) {
             throw new \RuntimeException("ZIP file {$this->originalZipName} not found on server.");

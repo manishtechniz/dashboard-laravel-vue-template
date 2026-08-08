@@ -25,6 +25,9 @@ class ProcessClubAssetFileJob implements ShouldQueue
     protected string $originalName;
     protected bool $deleteTempFile;
 
+    public $tries = 3;
+    public $maxExceptions = 3;
+
     /**
      * Create a new job instance.
      */
