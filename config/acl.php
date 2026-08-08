@@ -185,7 +185,51 @@ return [
         ],
     ],
 
+    'club_assets' => [
+        [
+            'key' => 'club_assets.index',
+            'name' => 'Club Assets',
+            'description' => 'View, manage, and bulk upload club media assets (images & videos).',
+            'route' => 'admin.club_assets.index',
+            'icon' => 'pi pi-images',
+            'sort' => 1,
+        ],
+        [
+            'key' => 'club_assets.bulk_upload',
+            'name' => 'Bulk Upload Assets',
+            'description' => 'Bulk upload images, videos, and zip files for clubs.',
+            'route' => 'admin.club_assets.bulk_upload',
+            'icon' => 'pi pi-upload',
+            'sort' => 2,
+        ],
+        [
+            'key' => 'club_assets.update',
+            'name' => 'Update Asset',
+            'description' => 'Update asset details.',
+            'route' => 'admin.club_assets.update',
+            'icon' => 'pi pi-pencil',
+            'sort' => 3,
+        ],
+        [
+            'key' => 'club_assets.delete',
+            'name' => 'Delete Asset',
+            'description' => 'Delete media assets.',
+            'route' => 'admin.club_assets.delete',
+            'icon' => 'pi pi-trash',
+            'sort' => 4,
+        ],
+        [
+            'key' => 'club_assets.mass-delete',
+            'name' => 'Mass Delete Assets',
+            'description' => 'Mass delete multiple club assets.',
+            'route' => 'admin.club_assets.mass_delete',
+            'icon' => 'pi pi-trash',
+            'sort' => 5,
+        ],
+    ],
+
     'tables' => [
+
         [
             'key' => 'tables.index',
             'name' => 'Tables',

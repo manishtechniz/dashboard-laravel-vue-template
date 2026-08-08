@@ -172,6 +172,16 @@ const asyncComponents = {
     "RadioButtonGroup": () => import('primevue/radiobuttongroup'),
     "Toast": () => import('primevue/toast'),
     "Paginator": () => import('primevue/paginator'),
+    "ProgressBar": () => import('primevue/progressbar'),
+    "Badge": () => import('primevue/badge'),
+    "Message": () => import('primevue/message'),
+    "Card": () => import('primevue/card'),
+    "Image": () => import('primevue/image'),
+    "Accordion": () => import('primevue/accordion'),
+    "AccordionPanel": () => import('primevue/accordionpanel'),
+    "AccordionHeader": () => import('primevue/accordionheader'),
+    "AccordionContent": () => import('primevue/accordioncontent'),
+    "Drawer": () => import('primevue/drawer'),
 
     // Note: Form requires named export handling
     "Form": () => import('@primevue/forms').then(m => m.Form),

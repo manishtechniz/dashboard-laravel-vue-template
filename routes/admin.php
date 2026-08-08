@@ -222,6 +222,20 @@ Route::group(['prefix' => 'audit-logs'], function () {
 });
 
 /**
+ * Club Assets & Media Routes
+ */
+Route::group(['prefix' => 'club-assets'], function () {
+    Route::get('/', [App\Http\Controllers\Admin\AdminClubAssetController::class, 'index'])->name('club_assets.index');
+    Route::post('/bulk-upload', [App\Http\Controllers\Admin\AdminClubAssetController::class, 'bulkUpload'])->name('club_assets.bulk_upload');
+    Route::get('/batch-status/{batchUuid}', [App\Http\Controllers\Admin\AdminClubAssetController::class, 'batchStatus'])->name('club_assets.batch_status');
+    Route::get('/batches', [App\Http\Controllers\Admin\AdminClubAssetController::class, 'batchesList'])->name('club_assets.batches');
+    Route::post('/mass-delete', [App\Http\Controllers\Admin\AdminClubAssetController::class, 'massDestroy'])->name('club_assets.mass_delete');
+    Route::post('/{id}', [App\Http\Controllers\Admin\AdminClubAssetController::class, 'update'])->name('club_assets.update');
+    Route::delete('/{id}', [App\Http\Controllers\Admin\AdminClubAssetController::class, 'destroy'])->name('club_assets.delete');
+});
+
+/**
  * Upload file.
  */
 Route::post('/upload-url', [UploadFileController::class, 'getUploadUrl']);
+

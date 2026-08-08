@@ -94,4 +94,11 @@ class Club extends Model
     {
         return $this->hasMany(ClubTable::class);
     }
+
+    public function assets(): HasMany
+    {
+        return $this->hasMany(ClubAsset::class);
+    }
 }
+
+
