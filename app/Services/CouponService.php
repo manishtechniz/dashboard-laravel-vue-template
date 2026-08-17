@@ -1,0 +1,114 @@
+<?php
+
+namespace App\Services;
+
+use App\Model\PromoCode;
+use Carbon\Carbon;
+
+class CouponService
+{
+    public function apply($code, $amount, $data = [])
+    {
+        $eventId = $data['event_id'] ?? null;
+        $clubId = $data['club_id'] ?? null;
+        $bookingDate = $data['booking_date'] ?? null;
+
+        $coupon = PromoCode::where('code', $code)
+            ->where('is_active', 1)
+            ->first();
+
+        // case: When someone try invalid coupon
+        if (empty($coupon)) {
+            return array_merge(create422ErrorFormat('coupon_code', 'Invalid coupon code'), [
+                'status' => false,
+                'type' => 'INVALID_COUPON',
+            ]);
+        }
+
+        // case: When someone try event coupon in general booking
+        if (empty($eventId) && ! empty($coupon->event_id)) {
+            return array_merge(create422ErrorFormat('coupon_code', 'This coupon is only valid for events, not general bookings.'), [
+                'status' => false,
+            ]);
+        }
+
+        // case: When someone try event coupon in wrong event
+        if (! empty($eventId) && $coupon->event_id != $eventId) {
+            return array_merge(create422ErrorFormat('coupon_code', 'This coupon is only valid for the specified event.'), [
+                'status' => false,
+            ]);
+        }
+
+        $valid = $this->valid($coupon, $amount);
+
+        if (! ($valid['status'] ?? false)) {
+            return array_merge($valid, [
+                'status' => false,
+            ]);
+        }
+
+        return [
+            'status' => true,
+            'discount' => $this->calculateDiscount($coupon, $amount),
+            'discount_type' => $coupon->type,
+            'max_discount_amount' => $coupon->max_discount,
+            'instance' => $coupon,
+        ];
+    }
+
+    public function valid($coupon, $amount): array |bool
+    {
+        // Find coupon
+        if (! $coupon) {
+            return create422ErrorFormat('coupon_code', 'Invalid coupon code');
+        }
+
+        // Check date validity
+        $now = Carbon::now();
+
+        if ($coupon->start_date && $now->lt($coupon->start_date)) {
+            return create422ErrorFormat('coupon_code', 'Coupon not started yet');
+        }
+
+        if ($coupon->end_date && $now->gt($coupon->end_date)) {
+            return create422ErrorFormat('coupon_code', 'Coupon expired');
+        }
+
+        // Check usage limit
+        if ($coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit) {
+            return create422ErrorFormat('coupon_code', 'Coupon usage limit reached');
+        }
+
+        // Check minimum amount
+        // if ($coupon->min_spend && $amount < $coupon->min_spend) {
+        //     return create422ErrorFormat('coupon_code', 'Minimum order amount not reached. Atlease amount should be ' . $coupon->min_amount_for_apply, [
+        //         'status' => false,
+        //     ]);
+        // }
+
+        return [
+            'status' => true,
+        ];
+    }
+
+    public function calculateDiscount(PromoCode $coupon, float $amount): float
+    {
+        $discount = 0;
+
+        if ($coupon->type === 'fixed') {
+            $discount = $coupon->value;
+        } elseif ($coupon->type === 'percentage') {
+            $discount = ($amount * $coupon->value) / 100;
+
+            // Apply max cap
+            if ($coupon->max_discount) {
+                $discount = min($discount, $coupon->max_discount);
+            }
+        }
+
+        // Ensure discount not more than amount
+        $discount = min($discount, $amount);
+
+        return $discount;
+    }
+}

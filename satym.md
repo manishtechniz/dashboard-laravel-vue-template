@@ -1,0 +1,1 @@
+1. add parsed_disclaimer_list columns in clubs and tables

@@ -1,0 +1,145 @@
+Now i am  creation final project for club booking table including apis and admin dashboard. This project has same page theme design like as previus laravel vue remmeber it.
+
+I already discuss tech stack, even i tell you agaiin
+
+Tech Stack:
+-------------------------------------
+Laravel, VUE, I alreday told page design layout prevous,
+
+
+now i tell you datagrid rendering from server and how to use
+-------------------------------------------------------------------------
+I attacked some file related datagrid amd form layout and how call and page Design also. You can take proper reffence.
+
+
+
+
+DB tables:
+----------------------------------------------------
+clubs
+branches
+floors
+tables
+events
+bookings
+booking_guests
+payments
+transactions
+promo_codes
+notifications
+device_tokens
+reviews
+settings
+audit_logs
+clients
+
+# Project Modules
+----------------------------------------- 
+Clinets
+Club
+Tables
+Events 
+Booking
+Payment
+Notification 
+
++
+
+Dashboard
+Customer management
+Table management
+Floor management
+Event management
+Booking management
+Payments
+Promo codes
+Notification management
+Reports
+Roles & permissions
+
+# Backend APIs  
+-----------------------------------------
+Authentication
+Booking APIs
+Event APIs
+Table APIs
+Payment APIs
+Notification APIs
+Admin APIs
+QR Code APIs
+
+
+
+Prompt 2
+---------------------------
+
+[php](terminal;16104) [CustomOperationDatagridConfig.php](file;file:///d%3A/Repos/imperial/Demo/CustomOperationDatagridConfig.php) [CustomOperationOnSamePageFromDatagrid.blade.php](file;file:///d%3A/Repos/imperial/Demo/CustomOperationOnSamePageFromDatagrid.blade.php)
+
+NOTE:: I am using also PrimeVue-v4 in project but you can use for it make attreactive design except in form because already layout made.
+
+NOTE:: Dont use this compoent in forms and remove this which you generated because this already use in form compoent
+
+<x-admin::form.control-group.error>
+
+
+NOTE:: Dont use Softdelete in modals
+
+
+if you made route for edit please dont use datatable, you can create attreactive edit page if you create otherwise you can use edit and create dialoag in same index file using custom operarion
+
+
+Make Sure font size shouldbe match accroing this project .  
+
+
+
+
+# prompt 3:
+----------------------------------
+@[ProductDataGridCompleteExample.php](file;file:///d%3A/Repos/imperial/Demo/ProductDataGridCompleteExample.php) 
+
+NOTE:: Add filter if need when prepare datagrid using joins
+
+
+NOTE:: When we create record and update record from datagrid, dont refresh entire page. instead of this, yoiu can use:
+
+this.$refs.datagrid-ref-name.get();
+
+
+NOTE:: increase width of dialog in desktop 580px width and in mobile, make responseive
+
+
+NOTE:: Keep single horizontal scroll bar in blade in dialog box
+
+Example (Optional):
+
+Right Dialog Scroll: resources\views\admin\clients\index.blade.php
+
+Wrong Dialog Scrool: 
+resources\views\admin\bookings\index.blade.php
+
+
+
+Prompt 4:
+Create complete CRUD functionality for complaints,feature_requests for admin dashboard
+
+table are: complaints, feature_requests
+
+for menu and permission config
+@file: config\acl.php
+
+page reffernce 
+@file: resources\views\admin\reviews\index.blade.php
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
