@@ -80,8 +80,9 @@
                                 optionLabel="name"
                                 optionValue="id"
                                 placeholder="Filter by Club"
-                                class="w-full reset-dropdown p-3"
+                                class="w-full"
                                 filter
+                                size="small"
                                 filterPlaceholder="Search club..."
                                 @change="onFilterChange"
                             >
@@ -122,10 +123,10 @@
 
                     <div class="flex flex-col lg:flex-row justify-between gap-4">
                         <!-- Media Type Filter Pill s -->
-                        <div class="flex items-center bg-(--bg-subtle) p-1 rounded-xl border border-(--border)">
+                            <x-admin::scrollable-tabs>
                             <button
                                 type="button"
-                                class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
+                                class="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
                                 :class="selectedType === 'all' ? 'bg-(--bg-surface) text-(--text-base) shadow-xs font-semibold' : 'text-(--text-muted) hover:text-(--text-base)'"
                                 @click="setTypeFilter('all')"
                             >
@@ -133,7 +134,7 @@
                             </button>
                             <button
                                 type="button"
-                                class="px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
+                                class="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
                                 :class="selectedType === 'image' ? 'bg-(--bg-surface) text-indigo-500 shadow-xs font-semibold' : 'text-(--text-muted) hover:text-(--text-base)'"
                                 @click="setTypeFilter('image')"
                             >
@@ -142,7 +143,7 @@
                             </button>
                             <button
                                 type="button"
-                                class="px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
+                                class="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
                                 :class="selectedType === 'video' ? 'bg-(--bg-surface) text-pink-500 shadow-xs font-semibold' : 'text-(--text-muted) hover:text-(--text-base)'"
                                 @click="setTypeFilter('video')"
                             >
@@ -151,7 +152,7 @@
                             </button>
                             <button
                                 type="button"
-                                class="px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
+                                class="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
                                 :class="selectedType === 'image_url' ? 'bg-(--bg-surface) text-blue-500 shadow-xs font-semibold' : 'text-(--text-muted) hover:text-(--text-base)'"
                                 @click="setTypeFilter('image_url')"
                             >
@@ -160,14 +161,14 @@
                             </button>
                             <button
                                 type="button"
-                                class="px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
+                                class="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
                                 :class="selectedType === 'video_url' ? 'bg-(--bg-surface) text-purple-500 shadow-xs font-semibold' : 'text-(--text-muted) hover:text-(--text-base)'"
                                 @click="setTypeFilter('video_url')"
                             >
                                 <i class="pi pi-link text-xs"></i>
                                 Video URL
                             </button> 
-                        </div>
+                         </x-admin::scrollable-tabs>
 
                         <div class="relative">
                             <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-(--text-muted) text-xs"></i>
@@ -494,10 +495,11 @@
                         </div>
 
                         <!-- Upload Type Tabs -->
-                        <div class="flex rounded-xl border border-(--border) p-1 bg-(--bg-subtle)">
+                        {{-- <div class="flex rounded-xl border border-(--border) p-1 bg-(--bg-subtle)"> --}}
+                            <x-admin::scrollable-tabs class="w-full">
                             <button
                                 type="button"
-                                class="flex-1 py-2 text-xs font-medium rounded-lg flex items-center justify-center gap-2 transition"
+                                class="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
                                 :class="uploadForm.type === 'multiple' ? 'bg-(--bg-surface) text-(--text-base) font-semibold shadow-xs' : 'text-(--text-muted) hover:text-(--text-base)'"
                                 @click="uploadForm.type = 'multiple'"
                             >
@@ -506,7 +508,7 @@
                             </button>
                             <button
                                 type="button"
-                                class="flex-1 py-2 text-xs font-medium rounded-lg flex items-center justify-center gap-2 transition"
+                                class="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
                                 :class="uploadForm.type === 'zip' ? 'bg-(--bg-surface) text-(--text-base) font-semibold shadow-xs' : 'text-(--text-muted) hover:text-(--text-base)'"
                                 @click="uploadForm.type = 'zip'"
                             >
@@ -515,14 +517,15 @@
                             </button>
                             <button
                                 type="button"
-                                class="flex-1 py-2 text-xs font-medium rounded-lg flex items-center justify-center gap-2 transition"
+                                class="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
                                 :class="uploadForm.type === 'url' ? 'bg-(--bg-surface) text-(--text-base) font-semibold shadow-xs' : 'text-(--text-muted) hover:text-(--text-base)'"
                                 @click="uploadForm.type = 'url'"
                             >
                                 <i class="pi pi-link"></i>
                                 Add URL
                             </button>
-                        </div>
+                            </x-admin::scrollable-tabs>
+                        <!-- </div> -->
 
                         <!-- TAB 1: Multiple Files Drag and Drop -->
                         <div v-if="uploadForm.type === 'multiple'" class="space-y-3">
@@ -682,7 +685,7 @@
                             />
                             <Button
                                 type="button"
-                                label="Start Upload & Dispatch Batch"
+                                label="Upload & Dispatch"
                                 icon="pi pi-cloud-upload"
                                 size="small"
                                 :loading="uploading"

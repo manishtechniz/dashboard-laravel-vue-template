@@ -152,7 +152,7 @@ html.dark .p-button-outlined,
 
 @font-face {
     font-family: "custom-admin-font";
-    src: url("../fonts/admin.woff?jwnnow") format("woff");
+    src: url("../../fonts/admin.woff?jwnnow") format("woff");
     font-weight: normal;
     font-style: normal;
     font-display: swap;

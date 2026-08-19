@@ -40,6 +40,11 @@ class AppServiceProvider extends ServiceProvider
             'admin'
         );
 
+        $this->loadViewsFrom(
+            __DIR__ . '/../../resources/views/websocket',
+            'websocket'
+        );
+
         $this->prepareMenuAndProvide();
     }
 

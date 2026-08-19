@@ -1,4 +1,6 @@
 php artisan l5-swagger:generate
+ln -s ../storage/app/public storage
+php artisan migrate --database=supabase --path=database/migrations/supabase
 
 club
 club

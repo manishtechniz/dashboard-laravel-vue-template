@@ -16,7 +16,7 @@
     @endphp
 
     <!-- Link js files -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/admin/css/app.css', 'resources/admin/js/app.js'])
 
     <!-- Add dynamic css -->
     @stack('styles')

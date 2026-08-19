@@ -22,6 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
             Route::middleware(['web', 'auth'])
                 ->group(base_path('routes/web.php'));
+
+            Route::middleware(['web', 'auth'])
+                ->prefix('realtime')
+                ->name('realtime.')
+                ->group(base_path('routes/supabase.php'));
         }
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -36,7 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('admin.login');
             }
 
-            return route('login');
+            // return route('login');
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -200,15 +200,16 @@ Object.entries(asyncComponents).forEach(([name, importFn]) => {
  * Global plugins registration.
  * (Plugins must remain synchronously loaded as they setup the core app instance)
  */
-import GuestRedirectTo from "../plugins/guest-redirect-to";
-import Emitter from "../plugins/emitter";
-import Flatpickr from "../plugins/flatpickr";
-import VeeValidate from "../plugins/vee-validate";
-import Axios from "../plugins/axios";
+import GuestRedirectTo from "../../plugins/guest-redirect-to";
+import Emitter from "../../plugins/emitter";
+import Flatpickr from "../../plugins/flatpickr";
+import VeeValidate from "../../plugins/vee-validate";
+import Axios from "../../plugins/axios";
+
 import ToastService from 'primevue/toastservice';
 
 // Helper functions
-import Helpers from "../plugins/utils";
+import Helpers from "../../plugins/utils";
 
 [
     Axios,

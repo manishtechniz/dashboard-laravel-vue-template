@@ -17,6 +17,7 @@
     "dependencies": {
         "@primeuix/themes": "^2.0.3",
         "@primevue/forms": "^4.5.5",
+        "@supabase/supabase-js": "^2.112.3",
         "@vee-validate/i18n": "^4.9.1",
         "@vee-validate/rules": "^4.9.1",
         "@vitejs/plugin-vue": "^6.0.6",

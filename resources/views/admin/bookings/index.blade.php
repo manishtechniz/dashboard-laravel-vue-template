@@ -76,7 +76,7 @@
                                 <x-admin::form.control-group>
                                     <x-admin::form.control-group.label label="Start Time" />
                                     <x-admin::form.control-group.control
-                                        type="text"
+                                        type="time"
                                         name="start_time"
                                         v-model="booking.start_time"
                                         rules="required"
@@ -87,7 +87,7 @@
                                 <x-admin::form.control-group>
                                     <x-admin::form.control-group.label label="End Time" />
                                     <x-admin::form.control-group.control
-                                        type="text"
+                                        type="time"
                                         name="end_time"
                                         v-model="booking.end_time"
                                         rules="required"
@@ -132,8 +132,7 @@
                                     />
                                 </x-admin::form.control-group> 
                             </div>
-
-                            @{{ booking.discount_code }}
+ 
                             <x-admin::form.control-group>
                                 <x-admin::form.control-group.label label="Promo Code" />
                                 <Select

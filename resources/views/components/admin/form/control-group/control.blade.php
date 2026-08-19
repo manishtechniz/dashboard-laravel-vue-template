@@ -85,17 +85,18 @@
 </v-field>
 
 @break
-
 @case('date')
 <v-field
     v-slot="{ field, errors }"
-    {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }}>
+    {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules']) }}>
     <FloatLabel variant="on">
         <DatePicker
-            v-bind="field"
+            :modelValue="field.value ? new Date(field.value) : null"
+            @update:modelValue="field.onChange($event ? new Date($event.getTime() - ($event.getTimezoneOffset() * 60000)).toISOString().split('T')[0] : null)"
             showIcon
             fluid
             iconDisplay="input"
+            dateFormat="yy-mm-dd"
             {{ $attributes->except(['value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }} />
 
         <x-admin::form.control-group.label {{ $attributes->only(['label', ':label']) }} />
@@ -103,21 +104,22 @@
 
     <x-admin::form.control-group.error {{ $attributes->only(['name', ':name']) }} />
 </v-field>
-
 @break
 
 @case('datetime')
 <v-field
     v-slot="{ field, errors }"
-    {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }}>
+    {{ $attributes->only(['name', ':name', 'value', ':value', 'v-model', 'rules', ':rules']) }}>
     <FloatLabel variant="on">
         <DatePicker
-            v-bind="field"
+            :modelValue="field.value ? new Date(field.value.replace(' ', 'T')) : null"
+            @update:modelValue="field.onChange($event ? new Date($event.getTime() - ($event.getTimezoneOffset() * 60000)).toISOString().slice(0, 19).replace('T', ' ') : null)"
             showIcon
             showTime
-            hourFormat="12"
+            hourFormat="24"
             fluid
             iconDisplay="input"
+            dateFormat="yy-mm-dd"
             {{ $attributes->except(['value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }} />
 
         <x-admin::form.control-group.label {{ $attributes->only(['label', ':label']) }} />
@@ -140,9 +142,7 @@
             fluid
             hourFormat="12"
             iconDisplay="input"
-            {{ $attributes->except(['value', ':value', 'v-model', 'rules', ':rules', 'label', ':label'])->merge([
-                'class' => 'text-(--text-muted)'
-            ]) }} />
+            {{ $attributes->except(['value', ':value', 'v-model', 'rules', ':rules', 'label', ':label']) }} />
 
         <x-admin::form.control-group.label {{ $attributes->only(['label', ':label']) }} />
     </FloatLabel>

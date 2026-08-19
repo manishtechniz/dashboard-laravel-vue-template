@@ -64,8 +64,18 @@ function errorControl(error, setErrors = null) {
     });
 }
 
+function supabase() {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+    return {
+        'url': import.meta.env.VITE_SUPABASE_URL,
+        'key': import.meta.env.VITE_SUPABASE_ANON_KEY,
+    }
+}
+
 const originHelpers = {
-    number_format, ucwords, errorControl, formatRupee
+    number_format, ucwords, errorControl, formatRupee, supabase
 }
 
 /**
