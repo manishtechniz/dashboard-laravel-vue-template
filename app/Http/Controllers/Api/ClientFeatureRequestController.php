@@ -63,7 +63,7 @@ class ClientFeatureRequestController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:256',
             'description' => 'required|string',
         ]);
 

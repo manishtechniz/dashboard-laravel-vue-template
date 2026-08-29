@@ -117,14 +117,16 @@ class AdminPaymentController extends Controller
                         'dueType' => 'debit',
                     ]);
                 } else if ($payment->payment_type === 'advance') {
-                    $paymentMethod = PaymentMethod::CASH->value;
+                    if ($paymentMethod == PaymentMethod::WALLET->value) {
+                        $paymentMethod = PaymentMethod::CASH->value;
+                    }
 
                     $bSReq = array_merge($bSReq, [
                         'advanceAmount' => $amount,
                         'advanceType' => 'credit',
                     ]);
                 } else if ($payment->payment_type === 'withdrawal_advance') {
-                    $paymentMethod = PaymentMethod::CASH->value;
+                    $paymentMethod = PaymentMethod::WALLET->value;
 
                     $bSReq = array_merge($bSReq, [
                         'advanceAmount' => -$amount,
@@ -153,7 +155,7 @@ class AdminPaymentController extends Controller
     //     $validated = $request->validate([
     //         'amount' => 'required|numeric|min:0',
     //         'status' => 'required|string|in:' . implode(',', PaymentStatus::values()),
-    //         'transaction_reference' => 'nullable|string|max:256',
+    //         'transaction_reference' => 'nullable|string|max:2000',
     //         'notes' => 'nullable|string|max:2000',
     //     ]);
 
@@ -283,7 +285,7 @@ class AdminPaymentController extends Controller
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
             'status' => 'required|string|in:' . implode(',', PaymentStatus::values()),
-            'transaction_reference' => 'nullable|string|max:256',
+            'transaction_reference' => 'nullable|string|max:2000',
             'notes' => 'nullable|string|max:2000',
         ]);
 
@@ -378,9 +380,12 @@ class AdminPaymentController extends Controller
             'indices' => 'required|array',
         ]);
 
-        Payment::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Payments deleted successfully.']);
+        try {
+            Payment::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Payments deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -390,12 +395,16 @@ class AdminPaymentController extends Controller
             'value' => 'required|string|in:pending,completed,failed,refunded',
         ]);
 
-        Payment::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
+        try {
+            Payment::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
 
-        $transactionStatus = $validated['value'] === 'completed' ? 'success' : ($validated['value'] === 'failed' ? 'failed' : 'pending');
-        Transaction::whereIn('payment_id', $validated['indices'])->update(['status' => $transactionStatus]);
+            $transactionStatus = $validated['value'] === 'completed' ? 'success' : ($validated['value'] === 'failed' ? 'failed' : 'pending');
+            Transaction::whereIn('payment_id', $validated['indices'])->update(['status' => $transactionStatus]);
 
-        return response()->json(['message' => 'Payments status updated successfully.']);
+            return response()->json(['message' => 'Payments status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 
     public function transactions(Request $request)

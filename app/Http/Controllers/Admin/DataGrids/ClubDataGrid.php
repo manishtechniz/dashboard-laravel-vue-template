@@ -10,8 +10,12 @@ class ClubDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('clubs')
-            ->select('clubs.*');
+        $query = DB::table('clubs')
+            ->select('clubs.*', 'clubs.is_active as html_is_active');
+
+        $this->addFilter('html_is_active', 'clubs.is_active');
+
+        return $query;
     }
 
     public function prepareColumns()
@@ -87,10 +91,12 @@ class ClubDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'is_active',
+            'index' => 'html_is_active',
             'label' => 'Status',
             'type' => 'boolean',
+            'searchable' => true,
             'filterable' => true,
+            'sortable' => true,
             'closure' => function ($row) {
                 return $row->is_active
                     ? '<span class="label-active">Active</span>'

@@ -37,11 +37,11 @@ class Client extends Model
         return $this->fcm_token;
     }
 
-    protected function avatarUrl(): Attribute
+    protected function avatar(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->getFileUrl(
-                $this->avatar
+            get: fn($avatar) => $this->getFileUrl(
+                $avatar
             )
         );
     }

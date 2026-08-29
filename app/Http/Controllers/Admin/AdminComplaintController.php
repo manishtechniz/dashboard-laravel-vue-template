@@ -34,9 +34,12 @@ class AdminComplaintController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        Complaint::create($validated);
-
-        return response()->json(['message' => 'Complaint created successfully.']);
+        try {
+            Complaint::create($validated);
+            return response()->json(['message' => 'Complaint created successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -52,17 +55,23 @@ class AdminComplaintController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $complaint->update($validated);
-
-        return response()->json(['message' => 'Complaint updated successfully.']);
+        try {
+            $complaint->update($validated);
+            return response()->json(['message' => 'Complaint updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $complaint = Complaint::findOrFail($id);
-        $complaint->delete();
-
-        return response()->json(['message' => 'Complaint deleted successfully.']);
+        try {
+            $complaint = Complaint::findOrFail($id);
+            $complaint->delete();
+            return response()->json(['message' => 'Complaint deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function massDestroy(Request $request)
@@ -71,9 +80,12 @@ class AdminComplaintController extends Controller
             'indices' => 'required|array',
         ]);
 
-        Complaint::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Complaints deleted successfully.']);
+        try {
+            Complaint::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Complaints deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -83,8 +95,11 @@ class AdminComplaintController extends Controller
             'value' => 'required|boolean',
         ]);
 
-        Complaint::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
-
-        return response()->json(['message' => 'Complaints status updated successfully.']);
+        try {
+            Complaint::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+            return response()->json(['message' => 'Complaints status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 }

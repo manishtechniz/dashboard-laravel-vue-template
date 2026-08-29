@@ -24,6 +24,7 @@ class ComplaintDataGrid extends DataGrid
                 'complaints.message',
                 'complaints.created_at',
                 'complaints.is_active',
+                'complaints.is_active as html_is_active',
                 'complaints.remark'
             );
 
@@ -31,7 +32,9 @@ class ComplaintDataGrid extends DataGrid
         $this->addFilter('client_name', 'clients.name');
         $this->addFilter('club_name', 'clubs.name');
         $this->addFilter('message', 'complaints.message');
+        $this->addFilter('remark', 'complaints.remark');
         $this->addFilter('is_active', 'complaints.is_active');
+        $this->addFilter('html_is_active', 'complaints.is_active');
 
         return $queryBuilder;
     }
@@ -79,7 +82,7 @@ class ComplaintDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'is_active',
+            'index' => 'html_is_active',
             'label' => 'Status',
             'type' => 'boolean',
             'filterable' => true,

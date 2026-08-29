@@ -55,6 +55,9 @@ class BookingDataGrid extends DataGrid
         $this->addFilter('event_name', 'events.name');
         $this->addFilter('booking_date', 'bookings.booking_date');
         $this->addFilter('guest_count', 'bookings.guest_count');
+        $this->addFilter('total_amount_incl_tax_html', 'bookings.total_amount_incl_tax');
+        $this->addFilter('paid_amount_html', 'bookings.paid_amount');
+        $this->addFilter('due_amount_html', 'bookings.due_amount');
         $this->addFilter('status', 'bookings.status');
         $this->addFilter('status_html', 'bookings.status');
 
@@ -85,6 +88,7 @@ class BookingDataGrid extends DataGrid
             'label' => 'Table',
             'type' => 'string',
             'searchable' => true,
+            'sortable' => true,
             'filterable' => true,
         ]);
 

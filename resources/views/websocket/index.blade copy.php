@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -14,17 +15,32 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .text-glow {
             text-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
         }
+
         /* Custom scrollbar for dark theme */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen p-4 md:p-8 font-sans selection:bg-yellow-500/30"> 
+
+<body class="bg-slate-900 text-slate-200 min-h-screen p-4 md:p-8 font-sans selection:bg-yellow-500/30">
 
     <div id="websocket" class="max-w-7xl mx-auto">
         <v-table-dashboard></v-table-dashboard>
@@ -35,10 +51,10 @@
             adminVueApp.mount("#websocket");
         });
     </script>
-      
-<!-- Template Definition -->
-<script type="text/x-template" id="v-table-dashboard-template">
-  <div class="w-full flex flex-col items-center">
+
+    <!-- Template Definition -->
+    <script type="text/x-template" id="v-table-dashboard-template">
+        <div class="w-full flex flex-col items-center">
     <!-- Header -->
     <div class="flex flex-col items-center gap-2 mb-10 w-full">
       <h1 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600 tracking-wider text-center drop-shadow-lg">
@@ -78,9 +94,9 @@
   </div>
 </script>
 
-<!-- Table Card Component Template -->
-<script type="text/x-template" id="table-card-template">
-    <div class="glass-card rounded-xl overflow-hidden shadow-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,0,0,0.5)] relative"
+    <!-- Table Card Component Template -->
+    <script type="text/x-template" id="table-card-template">
+        <div class="glass-card rounded-xl overflow-hidden shadow-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,0,0,0.5)] relative"
          :class="{'opacity-80 grayscale-[20%]': isEffectivelyLocked}">
         
         <!-- Top Header -->
@@ -112,11 +128,11 @@
             <div class="p-3 bg-slate-800/50 flex items-center text-xs font-bold text-slate-400 uppercase tracking-wider">Type</div>
             <div class="p-2 bg-slate-900/50">
                 <select v-model="localTable.table_type" @change="emitUpdate('table_type')" :disabled="isEffectivelyLocked" class="w-full bg-slate-800 text-slate-200 text-sm rounded border border-slate-600 px-2 py-1.5 focus:ring-2 focus:ring-yellow-500 outline-none disabled:opacity-50 cursor-pointer">
-                    <option value='"Empty Table"'>Empty</option>
-                    <option value='"Company Table"'>Company</option>
-                    <option value='"TW Table"'>TW</option>
-                    <option value='"Nirmal Table"'>Nirmal</option>
-                    <option value='"R/B Table"'>R/B</option>
+                    <option value='Empty Table'>Empty</option>
+                    <option value='Company Table'>Company</option>
+                    <option value='TW Table'>TW</option>
+                    <option value='Nirmal Table'>Nirmal</option>
+                    <option value='R/B Table'>R/B</option>
                 </select>
             </div>
 
@@ -138,7 +154,7 @@
             <!-- Time -->
             <div class="p-3 bg-slate-800/50 flex items-center text-xs font-bold text-slate-400 uppercase tracking-wider">Time</div>
             <div class="p-2 bg-slate-900/50">
-                <input type="text" v-model="localTable.booking_time" @change="emitUpdate('booking_time')" :disabled="isEffectivelyLocked" placeholder="00:00 AM" class="w-full bg-transparent text-slate-200 text-sm px-2 py-1 focus:bg-slate-800 rounded outline-none disabled:opacity-50" />
+                <input type="time" v-model="localTable.booking_time" @change="emitUpdate('booking_time')" :disabled="isEffectivelyLocked" class="w-full bg-transparent text-slate-200 text-sm px-2 py-1 focus:bg-slate-800 rounded outline-none disabled:opacity-50" />
             </div>
 
             <!-- Status -->
@@ -157,13 +173,14 @@
             <div class="p-3 bg-slate-800/50 flex items-center text-xs font-bold text-slate-400 uppercase tracking-wider">Bill</div>
             <div class="p-2 bg-slate-900/50 flex items-center px-3">
                 <span class="text-slate-400 font-bold mr-1">₹</span>
-                <input type="number" v-model="localTable.bill_amount" @change="emitUpdate('bill_amount')" :disabled="isEffectivelyLocked" placeholder="0.00" min="0" step="1" class="w-full bg-transparent text-slate-200 text-sm py-1 focus:bg-slate-800 rounded outline-none disabled:opacity-50" />
+                <input type="number" v-model="localTable.bill_amount" @input="debouncedEmitUpdate('bill_amount')" :disabled="isEffectivelyLocked" placeholder="0.00" min="0" step="1" class="w-full bg-transparent text-slate-200 text-sm py-1 focus:bg-slate-800 rounded outline-none disabled:opacity-50" />
             </div>
 
             <!-- Guest -->
             <div class="p-3 bg-slate-800/50 flex items-center text-xs font-bold text-slate-400 uppercase tracking-wider">Guest</div>
             <div class="p-2 bg-slate-900/50">
-                <input type="text" v-model="localTable.guest_name" @change="emitUpdate('guest_name')" :disabled="isEffectivelyLocked" placeholder="Guest name..." class="w-full bg-transparent text-slate-200 text-sm px-2 py-1 focus:bg-slate-800 rounded outline-none disabled:opacity-50" />
+                <input 
+                    type="text" v-model="localTable.guest_name" @input="debouncedEmitUpdate('guest_name')" :disabled="isEffectivelyLocked" placeholder="Guest name..." class="w-full bg-transparent text-slate-200 text-sm px-2 py-1 focus:bg-slate-800 rounded outline-none disabled:opacity-50" />
             </div>
         </div>
 
@@ -174,302 +191,320 @@
     </div>
 </script>
 
-<script type="module">
-    // Child Component for Table Cards
-    adminVueApp.component('table-card', {
-        template: '#table-card-template',
-        props: ['table', 'userName', 'updatingStatus', 'localUnlocked'],
-        data() {
-            return {
-                localTable: { ...this.table }
-            }
-        },
-        watch: {
-            table: {
-                handler(newVal) {
-                    // Sync external changes to local state if we aren't currently editing
-                    this.localTable = { ...newVal };
-                },
-                deep: true
-            }
-        },
-        computed: {
-            isEffectivelyLocked() {
-                return this.table.is_locked && !this.localUnlocked[this.table.id];
-            },
-            statusColorClass() {
-                switch(this.localTable.status) {
-                    case 'Empty': return 'text-slate-300';
-                    case 'Booked': return 'text-red-400';
-                    case 'Seated': return 'text-blue-400';
-                    case 'Billed': return 'text-amber-400';
-                    case 'Cleaned': return 'text-green-400';
-                    default: return 'text-slate-200';
-                }
-            }
-        },
-        methods: {
-            emitUpdate(field) {
-                this.$emit('update-field', this.table.id, field, this.localTable[field]);
-            }
-        }
-    });
-
-    // Main Dashboard Component
-    adminVueApp.component('v-table-dashboard', {
-        template: '#v-table-dashboard-template',
-        data() {
-            return {
-                loading: true,
-                userName: '',
-                tables: [],
-                updatingStatus: {}, 
-                localUnlockedTables: {}, // { id: 'password' }
-                updateTimeouts: {},
-                currentDateTime: '',
-                clockInterval: null,
-                realtimeChannel: null,
-                broadcastChannel: null,
-                expectedTableNumbers: [
-                    '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                    'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9'
-                ]
-            };
-        },
-        computed: {
-            regularTables() {
-                return this.tables.filter(t => !t.table_number.startsWith('S'))
-                    .sort((a, b) => parseInt(a.table_number) - parseInt(b.table_number));
-            },
-            specialTables() {
-                return this.tables.filter(t => t.table_number.startsWith('S'))
-                    .sort((a, b) => {
-                        let numA = parseInt(a.table_number.replace('S', ''));
-                        let numB = parseInt(b.table_number.replace('S', ''));
-                        return numA - numB;
-                    });
-            }
-        },
-        async mounted() {
-            this.initClock();
-            this.initUser();
-            await this.fetchTables();
-            this.initRealtime();
-            this.initBroadcast();
-        },
-        beforeUnmount() {
-            if (this.clockInterval) clearInterval(this.clockInterval);
-            if (this.realtimeChannel) supabase.removeChannel(this.realtimeChannel);
-            if (this.broadcastChannel) supabase.removeChannel(this.broadcastChannel);
-        },
-        methods: {
-            initClock() {
-                const update = () => {
-                    const now = new Date();
-                    const dateStr = now.toLocaleDateString('en-GB');
-                    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-                    this.currentDateTime = `${dateStr} | ${timeStr}`;
-                };
-                update();
-                this.clockInterval = setInterval(update, 1000);
-            },
-            initUser() {
-                let storedName = localStorage.getItem('club_userName');
-                if (!storedName) {
-                    storedName = prompt("Please enter your name for the Dashboard:");
-                    if (storedName) {
-                        localStorage.setItem('club_userName', storedName);
-                    } else {
-                        storedName = "Anonymous";
+    <script type="module">
+        // Child Component for Table Cards
+        adminVueApp.component('table-card', {
+            template: '#table-card-template',
+            props: ['table', 'userName', 'updatingStatus', 'localUnlocked'],
+            data() {
+                return {
+                    localTable: {
+                        ...this.table
                     }
                 }
-                this.userName = storedName;
             },
-            async fetchTables() {
-                this.loading = true;
-                const { data, error } = await supabase
-                    .from('club_tables')
-                    .select('*');
-                
-                if (error) {
-                    console.error("Error fetching tables:", error);
-                    return;
-                }
-
-                this.tables = data || [];
-                
-                let missingTables = [];
-                const existingTableNumbers = this.tables.map(t => t.table_number);
-                
-                for (const num of this.expectedTableNumbers) {
-                    if (!existingTableNumbers.includes(num)) {
-                        missingTables.push({
-                            table_number: num,
-                            table_type: '"Empty Table"',
-                            service_staff: 'None',
-                            booking_time: '00:00 AM',
-                            status: 'Empty',
-                            bill_amount: 0.00,
-                            guest_name: '',
-                            is_locked: false
-                        });
-                    }
-                }
-
-                if (missingTables.length > 0) {
-                    const { data: insertedData } = await supabase
-                        .from('club_tables')
-                        .insert(missingTables)
-                        .select();
-                        
-                    if (insertedData) {
-                        this.tables.push(...insertedData);
-                    }
-                }
-                this.loading = false;
-            },
-            initRealtime() {
-                this.realtimeChannel = supabase
-                    .channel('public:club_tables')
-                    .on(
-                        'postgres_changes',
-                        { event: '*', schema: 'public', table: 'club_tables' },
-                        (payload) => {
-                            if (payload.eventType === 'UPDATE') {
-                                const index = this.tables.findIndex(t => t.id === payload.new.id);
-                                if (index !== -1) {
-                                    this.tables[index] = payload.new;
-                                }
-                            } else if (payload.eventType === 'INSERT') {
-                                this.tables.push(payload.new);
-                            } else if (payload.eventType === 'DELETE') {
-                                this.tables = this.tables.filter(t => t.id !== payload.old.id);
-                            }
-                        }
-                    )
-                    .subscribe();
-            },
-            initBroadcast() {
-                this.broadcastChannel = supabase
-                    .channel('club_tables_presence')
-                    .on(
-                        'broadcast',
-                        { event: 'table-updating' },
-                        (payload) => {
-                            const { table_number, user } = payload.payload;
-                            if (user !== this.userName) {
-                                this.updatingStatus[table_number] = user;
-                                if (this.updateTimeouts[table_number]) {
-                                    clearTimeout(this.updateTimeouts[table_number]);
-                                }
-                                this.updateTimeouts[table_number] = setTimeout(() => {
-                                    delete this.updatingStatus[table_number];
-                                }, 3000);
-                            }
-                        }
-                    )
-                    .subscribe();
-            },
-            broadcastUpdating(table_number) {
-                if (!this.broadcastChannel) return;
-                this.broadcastChannel.send({
-                    type: 'broadcast',
-                    event: 'table-updating',
-                    payload: {
-                        table_number: table_number,
-                        user: this.userName
+            watch: {
+                table: {
+                    handler(newVal) {
+                        // Sync external changes to local state if we aren't currently editing
+                        this.localTable = {
+                            ...newVal
+                        };
                     },
-                });
+                    deep: true
+                }
             },
-            validateInput(field, value) {
-                // Frontend Validations
-                if (field === 'bill_amount' && parseFloat(value) < 0) {
-                    alert("Bill amount cannot be negative.");
-                    return false;
-                }
-                if (field === 'guest_name' && value && /<script|javascript:|onload|onerror/i.test(value)) {
-                    alert("Invalid characters in guest name. Please remove HTML tags.");
-                    return false;
-                }
-                return true;
-            },
-            async updateTableField(table_id, field, value) {
-                if (!this.validateInput(field, value)) {
-                    await this.fetchTables(); // Revert local change
-                    return;
-                }
-
-                const updateData = {};
-                if (field === 'bill_amount') {
-                    value = parseFloat(value) || 0;
-                }
-                updateData[field] = value;
-
-                // Send password if table is unlocked locally
-                const provided_password = this.localUnlockedTables[table_id] || null;
-
-                // Use the secure RPC function
-                const { error } = await supabase.rpc('secure_update_club_table', {
-                    p_table_id: table_id,
-                    p_updates: updateData,
-                    p_provided_password: provided_password
-                });
-
-                if (error) {
-                    console.error(`Error updating ${field} for table ${table_id}:`, error);
-                    alert(`Update failed: ${error.message}`);
-                    if (error.message.toLowerCase().includes('password')) {
-                        delete this.localUnlockedTables[table_id]; // wrong password
+            computed: {
+                isEffectivelyLocked() {
+                    return this.table.is_locked && !this.localUnlocked[this.table.id];
+                },
+                statusColorClass() {
+                    switch (this.localTable.status) {
+                        case 'Empty':
+                            return 'text-slate-300';
+                        case 'Booked':
+                            return 'text-red-400';
+                        case 'Seated':
+                            return 'text-blue-400';
+                        case 'Billed':
+                            return 'text-amber-400';
+                        case 'Cleaned':
+                            return 'text-green-400';
+                        default:
+                            return 'text-slate-200';
                     }
-                    await this.fetchTables(); // Revert local change
                 }
             },
-            unlockLocally(table) {
-                const pass = prompt(`Enter password to edit Table ${table.table_number}:`);
-                if (pass) {
-                    this.localUnlockedTables[table.id] = pass;
-                }
-            },
-            async toggleLock(table) {
-                if (table.is_locked) {
-                    // This is only shown if the user has unlocked it locally, allowing them to completely remove the lock
-                    if (confirm(`Remove lock permanently for Table ${table.table_number}?`)) {
-                        const provided_password = this.localUnlockedTables[table.id];
-                        
-                        // We also need to update lock status. We can reuse the RPC function.
-                        const { error } = await supabase.rpc('secure_update_club_table', {
-                            p_table_id: table.id,
-                            p_updates: { is_locked: false, lock_password: null, locked_by_name: null },
-                            p_provided_password: provided_password
-                        });
-
-                        if (error) {
-                            alert("Failed to unlock: " + error.message);
-                        } else {
-                            delete this.localUnlockedTables[table.id];
-                        }
+            methods: {
+                emitUpdate(field) {
+                    this.$emit('update-field', this.table.id, field, this.localTable[field]);
+                },
+                debouncedEmitUpdate(field) {
+                    if (this.timeoutId) {
+                        clearTimeout(this.timeoutId);
                     }
-                } else {
-                    // Lock flow
-                    const pass = prompt(`Set a password to lock Table ${table.table_number}:`);
-                    if (pass) {
-                        // For a table that is NOT locked yet, we can use the RPC function (provided_password can be null since it's not locked yet)
-                        const { error } = await supabase.rpc('secure_update_club_table', {
-                            p_table_id: table.id,
-                            p_updates: {
-                                is_locked: true,
-                                lock_password: pass,
-                                locked_by_name: this.userName
-                            },
-                            p_provided_password: null
-                        });
-                        
-                        if (error) alert("Failed to lock table.");
-                    }
+                    this.timeoutId = setTimeout(() => {
+                        this.emitUpdate(field);
+                    }, 1000);
                 }
             }
-        },
-    });
-</script>
+        });
+
+        // Main Dashboard Component
+        adminVueApp.component('v-table-dashboard', {
+            template: '#v-table-dashboard-template',
+            data() {
+                return {
+                    loading: true,
+                    userName: '',
+                    tables: [],
+                    updatingStatus: {},
+                    localUnlockedTables: {}, // { id: 'password' }
+                    updateTimeouts: {},
+                    currentDateTime: '',
+                    clockInterval: null,
+                    realtimeChannel: null,
+                    broadcastChannel: null,
+                    expectedTableNumbers: [
+                        '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                        'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9'
+                    ]
+                };
+            },
+            computed: {
+                regularTables() {
+                    return this.tables.filter(t => !t.table_number.startsWith('S'))
+                        .sort((a, b) => parseInt(a.table_number) - parseInt(b.table_number));
+                },
+                specialTables() {
+                    return this.tables.filter(t => t.table_number.startsWith('S'))
+                        .sort((a, b) => {
+                            let numA = parseInt(a.table_number.replace('S', ''));
+                            let numB = parseInt(b.table_number.replace('S', ''));
+                            return numA - numB;
+                        });
+                }
+            },
+            async mounted() {
+                this.initClock();
+                this.initUser();
+                await this.fetchTables();
+                this.initRealtime();
+                this.initBroadcast();
+            },
+            beforeUnmount() {
+                if (this.clockInterval) clearInterval(this.clockInterval);
+                if (this.realtimeChannel) supabase.removeChannel(this.realtimeChannel);
+                if (this.broadcastChannel) supabase.removeChannel(this.broadcastChannel);
+            },
+            methods: {
+                initClock() {
+                    const update = () => {
+                        const now = new Date();
+                        const dateStr = now.toLocaleDateString('en-GB');
+                        const timeStr = now.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true
+                        });
+                        this.currentDateTime = `${dateStr} | ${timeStr}`;
+                    };
+                    update();
+                    this.clockInterval = setInterval(update, 1000);
+                },
+                initUser() {
+                    let storedName = localStorage.getItem('club_userName');
+                    if (!storedName) {
+                        storedName = prompt("Please enter your name for the Dashboard:");
+                        if (storedName) {
+                            localStorage.setItem('club_userName', storedName);
+                        } else {
+                            storedName = "Anonymous";
+                        }
+                    }
+                    this.userName = storedName;
+                },
+                async fetchTables() {
+                    this.loading = true;
+                    const {
+                        data,
+                        error
+                    } = await supabase
+                        .from('club_tables')
+                        .select('*');
+
+                    this.loading = false;
+
+                    if (error) {
+                        console.error("Error fetching tables:", error);
+                        return;
+                    }
+
+                    this.tables = data || [];
+
+                },
+                initRealtime() {
+                    this.realtimeChannel = supabase
+                        .channel('public:club_tables')
+                        .on(
+                            'postgres_changes', {
+                                event: '*',
+                                schema: 'public',
+                                table: 'club_tables'
+                            },
+                            (payload) => {
+                                if (payload.eventType === 'UPDATE') {
+                                    const index = this.tables.findIndex(t => t.id === payload.new.id);
+                                    if (index !== -1) {
+                                        this.tables[index] = payload.new;
+                                    }
+                                } else if (payload.eventType === 'INSERT') {
+                                    this.tables.push(payload.new);
+                                } else if (payload.eventType === 'DELETE') {
+                                    this.tables = this.tables.filter(t => t.id !== payload.old.id);
+                                }
+                            }
+                        )
+                        .subscribe();
+                },
+                initBroadcast() {
+                    this.broadcastChannel = supabase
+                        .channel('club_tables_presence')
+                        .on(
+                            'broadcast', {
+                                event: 'table-updating'
+                            },
+                            (payload) => {
+                                const {
+                                    table_number,
+                                    user
+                                } = payload.payload;
+                                if (user !== this.userName) {
+                                    this.updatingStatus[table_number] = user;
+                                    if (this.updateTimeouts[table_number]) {
+                                        clearTimeout(this.updateTimeouts[table_number]);
+                                    }
+                                    this.updateTimeouts[table_number] = setTimeout(() => {
+                                        delete this.updatingStatus[table_number];
+                                    }, 3000);
+                                }
+                            }
+                        )
+                        .subscribe();
+                },
+                broadcastUpdating(table_number) {
+                    if (!this.broadcastChannel) return;
+                    this.broadcastChannel.send({
+                        type: 'broadcast',
+                        event: 'table-updating',
+                        payload: {
+                            table_number: table_number,
+                            user: this.userName
+                        },
+                    });
+                },
+                validateInput(field, value) {
+                    // Frontend Validations
+                    if (field === 'bill_amount' && parseFloat(value) < 0) {
+                        alert("Bill amount cannot be negative.");
+                        return false;
+                    }
+                    if (field === 'guest_name' && value && /<script|javascript:|onload|onerror/i.test(value)) {
+                        alert("Invalid characters in guest name. Please remove HTML tags.");
+                        return false;
+                    }
+                    return true;
+                },
+                async updateTableField(table_id, field, value) {
+                    if (!this.validateInput(field, value)) {
+                        await this.fetchTables(); // Revert local change
+                        return;
+                    }
+
+                    const updateData = {};
+                    if (field === 'bill_amount') {
+                        value = parseFloat(value) || 0;
+                    }
+                    updateData[field] = value;
+
+                    // Send password if table is unlocked locally
+                    const provided_password = this.localUnlockedTables[table_id] || null;
+
+                    // Use the secure RPC function
+                    const {
+                        error
+                    } = await supabase.rpc('secure_update_club_table', {
+                        p_table_id: table_id,
+                        p_updates: updateData,
+                        p_provided_password: provided_password
+                    });
+
+                    if (error) {
+                        console.error(`Error updating ${field} for table ${table_id}:`, error);
+                        alert(`Update failed: ${error.message}`);
+                        if (error.message.toLowerCase().includes('password')) {
+                            delete this.localUnlockedTables[table_id]; // wrong password
+                        }
+                        await this.fetchTables(); // Revert local change
+                    }
+                },
+                unlockLocally(table) {
+                    const pass = prompt(`Enter password to edit Table ${table.table_number}:`);
+                    if (pass) {
+                        this.localUnlockedTables[table.id] = pass;
+                    }
+                },
+                async toggleLock(table) {
+                    if (table.is_locked) {
+                        // This is only shown if the user has unlocked it locally, allowing them to completely remove the lock
+                        if (confirm(`Remove lock permanently for Table ${table.table_number}?`)) {
+                            const provided_password = this.localUnlockedTables[table.id];
+
+                            // We also need to update lock status. We can reuse the RPC function.
+                            const {
+                                error
+                            } = await supabase.rpc('secure_update_club_table', {
+                                p_table_id: table.id,
+                                p_updates: {
+                                    is_locked: false,
+                                    lock_password: null,
+                                    locked_by_name: null
+                                },
+                                p_provided_password: provided_password
+                            });
+
+                            if (error) {
+                                alert("Failed to unlock: " + error.message);
+                            } else {
+                                delete this.localUnlockedTables[table.id];
+                            }
+                        }
+                    } else {
+                        // Lock flow
+                        const pass = prompt(`Set a password to lock Table ${table.table_number}:`);
+
+                        if (pass) {
+                            // For a table that is NOT locked yet, we can use the RPC function (provided_password can be null since it's not locked yet)
+                            const {
+                                error
+                            } = await supabase.rpc('secure_update_club_table', {
+                                p_table_id: table.id,
+                                p_updates: {
+                                    is_locked: true,
+                                    lock_password: pass,
+                                    locked_by_name: this.userName
+                                },
+                                p_provided_password: null
+                            });
+
+                            if (error) alert("Failed to lock table.");
+                        }
+                    }
+                }
+            },
+        });
+    </script>
 </body>
+
 </html>

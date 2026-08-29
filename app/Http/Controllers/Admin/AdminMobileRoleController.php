@@ -23,7 +23,7 @@ class AdminMobileRoleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:255|unique:mobile_app_roles,name',
+            'name'        => 'required|string|max:256|unique:mobile_app_roles,name',
             'description' => 'nullable|string',
             'permissions' => 'nullable|array',
             'route_permissions' => 'nullable|array',
@@ -34,12 +34,16 @@ class AdminMobileRoleController extends Controller
         $validated['route_permissions'] = $validated['route_permissions'] ?? [];
         $validated['type']        = $validated['type'] ?? 'custom';
 
-        $role = MobileAppRole::create($validated);
+        try {
+            $role = MobileAppRole::create($validated);
 
-        return response()->json([
-            'message' => 'Mobile App Role created successfully.',
-            'data'    => $role,
-        ]);
+            return response()->json([
+                'message' => 'Mobile App Role created successfully.',
+                'data'    => $role,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -53,34 +57,42 @@ class AdminMobileRoleController extends Controller
         }
 
         $validated = $request->validate([
-            'name'        => 'sometimes|required|string|max:255|unique:mobile_app_roles,name,' . $role->id,
+            'name'        => 'sometimes|required|string|max:2000|unique:mobile_app_roles,name,' . $role->id,
             'description' => 'nullable|string',
             'permissions' => 'nullable|array',
             'route_permissions' => 'nullable|array',
         ]);
 
-        $role->update($validated);
+        try {
+            $role->update($validated);
 
-        return response()->json([
-            'message' => 'Mobile App Role updated successfully.',
-            'data'    => $role,
-        ]);
+            return response()->json([
+                'message' => 'Mobile App Role updated successfully.',
+                'data'    => $role,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $role = MobileAppRole::findOrFail($id);
+        try {
+            $role = MobileAppRole::findOrFail($id);
 
-        if ($role->type === 'system') {
+            if ($role->type === 'system') {
+                return response()->json([
+                    'message' => 'System roles cannot be deleted.',
+                ], 422);
+            }
+
+            $role->delete();
+
             return response()->json([
-                'message' => 'System roles cannot be deleted.',
-            ], 422);
+                'message' => 'Mobile App Role deleted successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
         }
-
-        $role->delete();
-
-        return response()->json([
-            'message' => 'Mobile App Role deleted successfully.',
-        ]);
     }
 }

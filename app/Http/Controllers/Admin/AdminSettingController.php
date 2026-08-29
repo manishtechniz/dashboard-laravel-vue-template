@@ -26,22 +26,26 @@ class AdminSettingController extends Controller
     {
         $inputSettings = $request->except('_token');
 
-        foreach ($inputSettings as $key => $value) {
-            $valueToSave = is_array($value) || is_object($value)
-                ? json_encode($value)
-                : (string)$value;
+        try {
+            foreach ($inputSettings as $key => $value) {
+                $valueToSave = is_array($value) || is_object($value)
+                    ? json_encode($value)
+                    : (string)$value;
 
-            Setting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $valueToSave]
-            );
+                Setting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $valueToSave]
+                );
+            }
+
+            $allSettings = Setting::all()->pluck('value', 'key')->toArray();
+
+            return response()->json([
+                'message' => 'Settings updated successfully.',
+                'data'    => $allSettings,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
         }
-
-        $allSettings = Setting::all()->pluck('value', 'key')->toArray();
-
-        return response()->json([
-            'message' => 'Settings updated successfully.',
-            'data'    => $allSettings,
-        ]);
     }
 }

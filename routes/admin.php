@@ -43,8 +43,9 @@ Route::get('/', function () {
 
 Route::get('test', [AdminTestController::class, 'test']);
 
-Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-Route::get('/dashboard/analytics', [AdminDashboardController::class, 'analytics'])->name('dashboard.analytics');
+Route::get('/dashboard/analytic', [AdminDashboardController::class, 'analytics'])->name('dashboard.analytics');
+Route::get('/dashboard/clients', [AdminDashboardController::class, 'clients'])->name('dashboard.clients');
+Route::get('/dashboard/{view?}', [AdminDashboardController::class, 'index'])->name('dashboard');
 
 Route::group(['prefix' => 'roles'], function () {
     Route::get('/', [AdminRoleController::class, 'index'])->name('roles.index');
@@ -92,7 +93,7 @@ Route::group(['prefix' => 'clubs'], function () {
     Route::post('/branch/{id}', [App\Http\Controllers\Admin\AdminClubController::class, 'updateBranch'])->name('clubs.update_branch');
     Route::delete('/branch/{id}', [App\Http\Controllers\Admin\AdminClubController::class, 'destroyBranch'])->name('clubs.delete_branch');
     Route::get('/branch/edit/{id}', [App\Http\Controllers\Admin\AdminClubController::class, 'index'])->name('branches.edit');
-    
+
     // Club Staff Management
     Route::get('/{club_id}/staff', [App\Http\Controllers\Admin\AdminClubStaffController::class, 'index'])->name('clubs.staff.index');
     Route::post('/{club_id}/staff', [App\Http\Controllers\Admin\AdminClubStaffController::class, 'store'])->name('clubs.staff.store');

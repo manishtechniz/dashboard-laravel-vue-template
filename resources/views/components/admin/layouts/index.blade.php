@@ -1,6 +1,7 @@
 @props([
 'hasHeader' => true,
 'hasFooter' => true,
+'hasSidebar' => true,
 ])
 
 <!DOCTYPE html>
@@ -182,6 +183,7 @@
         {{-- <Toast /> --}}
 
         <div class="admin-shell">
+            @if($hasSidebar)
             {{-- Sidebar --}}
             <aside :class="['admin-sidebar', { collapsed: sidebarCollapsed, 'mobile-open': mobileSidebarOpen }]">
                 <div class="relative">
@@ -222,10 +224,12 @@
                     </div>
                 </div>
             </aside>
+            @endif
 
             {{-- Main --}}
-            <div :class="['admin-main', { 'sidebar-collapsed': sidebarCollapsed }]" class="overflow-x-hidden">
+            <div :class="['', { 'sidebar-collapsed': sidebarCollapsed, 'admin-main': {{ $hasSidebar ? 'true' : 'false' }} }]" class="overflow-x-hidden">
                 {{-- Header --}}
+                @if($hasHeader)
                 <header class="admin-header">
                     <button class="header-toggle-btn hidden lg:block" @click="toggleSidebar">
                         <i class="pi pi-bars"></i>
@@ -262,6 +266,7 @@
 
                     <div class="avatar" title="My Profile">AU</div>
                 </header>
+                @endif
 
                 {{-- Content Slot --}}
                 <main class="sadmin-content p-3 md:p-7 ">

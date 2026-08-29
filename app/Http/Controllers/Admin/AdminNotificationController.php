@@ -37,7 +37,7 @@ class AdminNotificationController extends Controller
     {
         $validated = $request->validate([
             'client_id' => 'required|array|min:1', // null means send to all
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:256',
             'body' => 'required|string',
             'type' => 'required|in:' . implode(',', NotificationEvent::values()),
         ]);

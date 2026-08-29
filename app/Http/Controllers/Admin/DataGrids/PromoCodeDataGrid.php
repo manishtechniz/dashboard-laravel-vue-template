@@ -10,8 +10,14 @@ class PromoCodeDataGrid extends DataGrid
 {
     public function prepareQueryBuilder()
     {
-        return DB::table('promo_codes')
-            ->select('*', 'value as value_html');
+        $query =  DB::table('promo_codes')
+            ->select('*', 'value as value_html', 'visibility as html_visibility', 'is_active as html_is_active');
+
+        $this->addFilter('html_visibility', 'promo_codes.html_visibility');
+        $this->addFilter('value_html', 'promo_codes.value');
+        $this->addFilter('html_is_active', 'promo_codes.is_active');
+
+        return $query;
     }
 
     public function prepareColumns()
@@ -48,7 +54,7 @@ class PromoCodeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'visibility',
+            'index' => 'html_visibility',
             'label' => 'Mode',
             'type' => 'string',
             'filterable' => true,
@@ -73,7 +79,7 @@ class PromoCodeDataGrid extends DataGrid
             'label' => 'Event ID',
             'type' => 'integer',
             'closure' => function ($row) {
-                return $row->event_id ?? '-';
+                return $row->event_id;
             }
         ]);
 
@@ -109,7 +115,7 @@ class PromoCodeDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'is_active',
+            'index' => 'html_is_active',
             'label' => 'Status',
             'type' => 'boolean',
             'filterable' => true,

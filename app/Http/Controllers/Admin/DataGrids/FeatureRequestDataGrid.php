@@ -66,6 +66,34 @@ class FeatureRequestDataGrid extends DataGrid
             'type' => 'string',
             'searchable' => true,
             'filterable' => true,
+            'filterable_type' => 'dropdown',
+            'filterable_options' => [
+                [
+                    'label' => 'Pending',
+                    'value' => 'pending',
+                ],
+                [
+                    'label' => 'Reviewing',
+                    'value' => 'reviewing',
+                ],
+                [
+                    'label' => 'In Progress',
+                    'value' => 'in_progress',
+                ],
+                [
+                    'label' => 'Completed',
+                    'value' => 'completed',
+                ],
+                [
+                    'label' => 'Planned',
+                    'value' => 'planned',
+                ],
+                [
+                    'label' => 'Rejected',
+                    'value' => 'rejected',
+                ]
+
+            ],
             'sortable' => true,
         ]);
 

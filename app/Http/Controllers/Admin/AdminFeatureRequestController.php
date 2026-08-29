@@ -24,15 +24,18 @@ class AdminFeatureRequestController extends Controller
     {
         $validated = $request->validate([
             'client_id' => 'nullable|integer|exists:clients,id',
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:256',
             'description' => 'required|string',
             'status' => 'required|string|in:pending,reviewing,planned,in_progress,completed,rejected',
             'priority' => 'required|string|in:low,medium,high',
         ]);
 
-        FeatureRequest::create($validated);
-
-        return response()->json(['message' => 'Feature request created successfully.']);
+        try {
+            FeatureRequest::create($validated);
+            return response()->json(['message' => 'Feature request created successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -41,23 +44,29 @@ class AdminFeatureRequestController extends Controller
 
         $validated = $request->validate([
             'client_id' => 'nullable|integer|exists:clients,id',
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:2000',
             'description' => 'required|string',
             'status' => 'required|string|in:pending,reviewing,planned,in_progress,completed,rejected',
             'priority' => 'required|string|in:low,medium,high',
         ]);
 
-        $featureRequest->update($validated);
-
-        return response()->json(['message' => 'Feature request updated successfully.']);
+        try {
+            $featureRequest->update($validated);
+            return response()->json(['message' => 'Feature request updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $featureRequest = FeatureRequest::findOrFail($id);
-        $featureRequest->delete();
-
-        return response()->json(['message' => 'Feature request deleted successfully.']);
+        try {
+            $featureRequest = FeatureRequest::findOrFail($id);
+            $featureRequest->delete();
+            return response()->json(['message' => 'Feature request deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function massDestroy(Request $request)
@@ -66,9 +75,12 @@ class AdminFeatureRequestController extends Controller
             'indices' => 'required|array',
         ]);
 
-        FeatureRequest::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Feature requests deleted successfully.']);
+        try {
+            FeatureRequest::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Feature requests deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -78,8 +90,11 @@ class AdminFeatureRequestController extends Controller
             'value' => 'required|string|in:pending,reviewing,planned,in_progress,completed,rejected',
         ]);
 
-        FeatureRequest::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
-
-        return response()->json(['message' => 'Feature requests status updated successfully.']);
+        try {
+            FeatureRequest::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
+            return response()->json(['message' => 'Feature requests status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 }

@@ -41,7 +41,23 @@ class User extends Authenticatable
     protected function avatarPreviewUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->previewURL()
+            get: fn() => Storage::url('avatar-preview.png')
         );
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function hasPermission($permission)
+    {
+        $tablePermission = $this->role?->permissions ?? [];
+
+        if (in_array('*', $tablePermission)) {
+            return true;
+        }
+
+        return in_array($permission, $tablePermission);
     }
 }

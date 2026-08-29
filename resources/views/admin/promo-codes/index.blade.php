@@ -157,7 +157,7 @@
                                     />
                                 </x-admin::form.control-group>
 
-                                <x-admin::form.control-group v-if="promo.visibility == 'private'">
+                                <x-admin::form.control-group v-if="promo.visibility == 'private' || true">
                                     <x-admin::form.control-group.label label="Event" />
                                     <x-admin::form.control-group.control
                                         v-model="promo.event_id"
@@ -166,7 +166,7 @@
                                         optionLabel="name"
                                         optionValue="id"
                                         placeholder="Select Event"
-                                        ::rules="{required: promo.visibility == 'private'}"
+                                        ::rules="{required: false}"
                                         name="event_id"
                                         type="select"
                                     />

@@ -35,9 +35,12 @@ class AdminReviewController extends Controller
             'remark' => 'nullable|string|max:1000',
         ]);
 
-        Review::create($validated);
-
-        return response()->json(['message' => 'Review created successfully.']);
+        try {
+            Review::create($validated);
+            return response()->json(['message' => 'Review created successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -55,17 +58,23 @@ class AdminReviewController extends Controller
             'remark' => 'nullable|string|max:1000',
         ]);
 
-        $review->update($validated);
-
-        return response()->json(['message' => 'Review updated successfully.']);
+        try {
+            $review->update($validated);
+            return response()->json(['message' => 'Review updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $review = Review::findOrFail($id);
-        $review->delete();
-
-        return response()->json(['message' => 'Review deleted successfully.']);
+        try {
+            $review = Review::findOrFail($id);
+            $review->delete();
+            return response()->json(['message' => 'Review deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function massDestroy(Request $request)
@@ -74,9 +83,12 @@ class AdminReviewController extends Controller
             'indices' => 'required|array',
         ]);
 
-        Review::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Reviews deleted successfully.']);
+        try {
+            Review::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Reviews deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -86,8 +98,11 @@ class AdminReviewController extends Controller
             'value' => 'required|boolean',
         ]);
 
-        Review::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
-
-        return response()->json(['message' => 'Reviews status updated successfully.']);
+        try {
+            Review::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+            return response()->json(['message' => 'Reviews status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 }

@@ -19,6 +19,7 @@ class ClientDataGrid extends DataGrid
                 'clients.email',
                 'clients.phone',
                 'clients.is_active',
+                'clients.is_active as html_is_active',
                 'clients.created_at',
                 'clients.role_id',
                 'mobile_app_roles.name as role_name',
@@ -27,7 +28,13 @@ class ClientDataGrid extends DataGrid
             );
 
         $this->addFilter('name', 'clients.name');
+        $this->addFilter('email', 'clients.email');
+        $this->addFilter('phone', 'clients.phone');
+        $this->addFilter('is_active', 'clients.is_active');
+        $this->addFilter('html_is_active', 'clients.is_active');
         $this->addFilter('role_name', 'mobile_app_roles.name');
+        $this->addFilter('total_due', 'client_balances.total_due');
+        $this->addFilter('total_advance', 'client_balances.total_advance');
         $this->addFilter('id', 'clients.id');
 
         return $queryBuilder;
@@ -83,7 +90,7 @@ class ClientDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'is_active',
+            'index' => 'html_is_active',
             'label' => 'Status',
             'type' => 'boolean',
             'filterable' => true,
@@ -117,12 +124,12 @@ class ClientDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        if (hasPermission('admin.clients.update')) {
+        if (hasPermission('admin.dashboard.index')) {
             $this->addAction([
                 'type' => 'custom',
-                'icon' => 'icon-edit',
-                'title' => 'Edit Client',
-                'method' => 'edit',
+                'icon' => 'd-pi pi pi-chart-line',
+                'title' => 'See Analytics',
+                'method' => 'seeAnalytics',
                 'url' => function ($row) {
                     return '';
                 }
@@ -146,6 +153,18 @@ class ClientDataGrid extends DataGrid
                 'method' => 'DELETE',
                 'url' => function ($row) {
                     return route('admin.clients.delete', $row->id);
+                }
+            ]);
+        }
+
+        if (hasPermission('admin.clients.update')) {
+            $this->addAction([
+                'type' => 'custom',
+                'icon' => 'icon-edit',
+                'title' => 'Edit Client',
+                'method' => 'edit',
+                'url' => function ($row) {
+                    return '';
                 }
             ]);
         }

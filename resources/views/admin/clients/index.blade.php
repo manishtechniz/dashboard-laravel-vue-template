@@ -88,7 +88,7 @@
                                     type="password"
                                     name="password"
                                     v-model="client.password"
-                                    placeholder="Enter password (optional)"
+                                    placeholder="Enter password"
                                 />
                             </x-admin::form.control-group>
 
@@ -189,7 +189,7 @@
                                             <div class="flex justify-between items-center py-2 border-t border-(--border) text-xs">
                                                 <span class="font-medium text-(--text-muted)">Client</span>
                                                 <span class="font-bold">
-                                                    @{{ ledger?.client?.name || '-' }}
+                                                    @{{ ledger?.client?.name || "" }}
 
                                                     <a 
                                                         v-if="ledger.client" 
@@ -224,6 +224,11 @@
                     </x-slot:content>
                 </x-admin::drawer>
 
+                <!-- Analytics Dialog -->
+                <Dialog v-model:visible="analyticsVisible" header="Client Analytics" :style="{ width: '90vw', height: '90vh' }" maximizable modal class="p-dialog-maximized">
+                    <iframe v-if="analyticsUrl" :src="analyticsUrl" style="width: 100%; height: 100%; min-height: 80vh; border: none;" allowfullscreen></iframe>
+                </Dialog>
+
                 <Toast />
             </div>
         </script>
@@ -252,7 +257,9 @@
                     loadingLedger: false,
                     ledgerPage: 1,
                     ledgerTotal: 0,
-                    ledgerLastPage: 1
+                    ledgerLastPage: 1,
+                    analyticsVisible: false,
+                    analyticsUrl: null
                 };
             },
             watch: {
@@ -276,7 +283,8 @@
                 return {
                     customActions: {
                         edit: this.onEdit,
-                        viewLedger: this.viewLedger
+                        viewLedger: this.viewLedger,
+                        seeAnalytics: this.seeAnalytics
                     }
                 };
             },
@@ -305,6 +313,11 @@
                     this.ledgerLastPage = 1;
                     this.$refs.viewLedgerDrawer.open();
                     this.loadLedgers();
+                },
+
+                seeAnalytics(row) {
+                    this.analyticsUrl = `{{ route('admin.dashboard', ['view'=>'iframe']) }}?client=${row.id}`;
+                    this.analyticsVisible = true;
                 },
 
                 loadLedgers() {
@@ -341,7 +354,10 @@
                     }
                 },
 
-                saveClient(params) {
+                saveClient(params, {
+                    resetForm,
+                    setErrors
+                }) {
                     this.loading = true;
                     const url = this.editMode ?
                         `{{ route('admin.clients.index') }}/${this.client.id}` :
@@ -365,12 +381,8 @@
                         })
                         .catch(error => {
                             this.loading = false;
-                            if (error.response && error.response.status === 422) {
-                                this.$emitter.emit('add-flash', {
-                                    type: 'error',
-                                    message: 'Validation failed.'
-                                });
-                            }
+
+                            this.$helpers.errorControl(error, setErrors);
                         });
                 }
             }

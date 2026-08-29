@@ -18,20 +18,4 @@ class Admin extends User
             $admin->user_type = 'admin';
         });
     }
-
-    public function role()
-    {
-        return $this->belongsTo(Role::class, 'role_id');
-    }
-
-    public function hasPermission($permission)
-    {
-        $tablePermission = $this->role?->permissions ?? [];
-
-        if (in_array('*', $tablePermission)) {
-            return true;
-        }
-
-        return in_array($permission, $tablePermission);
-    }
 }

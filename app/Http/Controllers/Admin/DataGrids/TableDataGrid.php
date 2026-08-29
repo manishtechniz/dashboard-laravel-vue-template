@@ -17,7 +17,15 @@ class TableDataGrid extends DataGrid
             ->join('clubs', 'tables.club_id', '=', 'clubs.id')
             ->select('tables.*', 'clubs.name as club_name', 'tables.status as status_html', 'tables.name as table_name', 'tables.price as price_html', 'tables.cover_charge as html_cover_charge', 'tables.late_cover_charge as html_late_cover_charge');
 
+        $this->addFilter('id', 'tables.id');
+        $this->addFilter('club_name', 'clubs.name');
         $this->addFilter('table_name', 'tables.name');
+        $this->addFilter('label', 'tables.label');
+        $this->addFilter('html_cover_charge', 'tables.cover_charge');
+        $this->addFilter('html_late_cover_charge', 'tables.late_cover_charge');
+        $this->addFilter('capacity', 'tables.capacity');
+        $this->addFilter('total_tables', 'tables.total_tables');
+        $this->addFilter('status_html', 'tables.status');
 
         return $queryBuilder;
     }
@@ -127,6 +135,7 @@ class TableDataGrid extends DataGrid
             'label' => 'Status',
             'type' => 'string',
             'filterable' => true,
+            'sortable' => true,
             'filterable_type' => 'dropdown',
             'filterable_options' => [
                 ['label' => 'Active', 'value' => 'active'],

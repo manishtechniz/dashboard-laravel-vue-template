@@ -16,13 +16,45 @@ class AdminDashboardController extends Controller
      *
      * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index($view = null)
     {
+        // dd(route('admin.dashboard.analytics'));
         if (request()->ajax()) {
             return datagrid(DashboardBookingDataGrid::class)->process();
         }
 
+        if ($view == 'iframe') {
+            return view('admin::dashboard.iframe');
+        }
+
         return view('admin::dashboard.index');
+    }
+
+    /**
+     * Fetch paginated clients for dashboard dropdown.
+     */
+    public function clients(Request $request)
+    {
+        $query = \App\Model\Client::select('id', 'name', 'phone');
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%");
+            });
+        }
+
+        $clients = $query->orderBy('name')->paginate(15);
+
+        if ($request->page == 1 && $request->client_id) {
+            $selectedClient = \App\Model\Client::select('id', 'name', 'phone')->find($request->client_id);
+            if ($selectedClient && !$clients->contains('id', $selectedClient->id)) {
+                $clients->getCollection()->prepend($selectedClient);
+            }
+        }
+
+        return response()->json($clients);
     }
 
     /**
@@ -32,6 +64,8 @@ class AdminDashboardController extends Controller
      */
     public function analytics()
     {
+
+        // dd(1);
         $now = Carbon::now();
         $today = $now->toDateString();
         $startOfMonth = $now->copy()->startOfMonth()->toDateTimeString();

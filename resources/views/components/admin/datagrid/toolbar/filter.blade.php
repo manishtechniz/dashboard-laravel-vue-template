@@ -1054,10 +1054,10 @@
                     this.applyColumnValues(column, $event.target.value, additional);
 
                     if (column) {
-                        console.log('before this.dynamicsFields', this.dynamicsFields);
+                        // console.log('before this.dynamicsFields', this.dynamicsFields);
                         $event.target.value = '';
                         this.dynamicsFields[column.index] = '';
-                        console.log('after this.dynamicsFields', this.dynamicsFields);
+                        // console.log('after this.dynamicsFields', this.dynamicsFields);
                     }
                 }
             },

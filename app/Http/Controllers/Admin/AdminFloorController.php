@@ -23,14 +23,17 @@ class AdminFloorController extends Controller
     {
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:256',
             'level' => 'required|integer',
             'is_active' => 'boolean',
         ]);
 
-        Floor::create($validated);
-
-        return response()->json(['message' => 'Floor created successfully.']);
+        try {
+            Floor::create($validated);
+            return response()->json(['message' => 'Floor created successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -39,22 +42,28 @@ class AdminFloorController extends Controller
 
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:2000',
             'level' => 'required|integer',
             'is_active' => 'boolean',
         ]);
 
-        $floor->update($validated);
-
-        return response()->json(['message' => 'Floor updated successfully.']);
+        try {
+            $floor->update($validated);
+            return response()->json(['message' => 'Floor updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $floor = Floor::findOrFail($id);
-        $floor->delete();
-
-        return response()->json(['message' => 'Floor deleted successfully.']);
+        try {
+            $floor = Floor::findOrFail($id);
+            $floor->delete();
+            return response()->json(['message' => 'Floor deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function massDestroy(Request $request)
@@ -63,9 +72,12 @@ class AdminFloorController extends Controller
             'indices' => 'required|array',
         ]);
 
-        Floor::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Floors deleted successfully.']);
+        try {
+            Floor::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Floors deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -75,8 +87,11 @@ class AdminFloorController extends Controller
             'value' => 'required|boolean',
         ]);
 
-        Floor::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
-
-        return response()->json(['message' => 'Floors status updated successfully.']);
+        try {
+            Floor::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+            return response()->json(['message' => 'Floors status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 }

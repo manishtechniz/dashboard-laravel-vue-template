@@ -24,8 +24,8 @@ class AdminTableController extends Controller
     {
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
-            'name' => 'required|string|max:255',
-            'label' => 'required|string|max:255',
+            'name' => 'required|string|max:256',
+            'label' => 'required|string|max:256',
             'disclaimer' => 'nullable|string|max:2000',
             'price' => 'required|numeric|min:0',
             'cover_charge' => 'required|numeric|min:0',
@@ -36,16 +36,15 @@ class AdminTableController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,webp',
         ]);
 
+        try {
+            $validated['image'] = $request->file('image')->store('tables');
 
-        // $fileData = $request->file('image')->store('tables');
+            ClubTable::create($validated);
 
-        // dd($fileData);
-
-        $validated['image'] = $request->file('image')->store('tables');
-
-        ClubTable::create($validated);
-
-        return response()->json(['message' => 'Table created successfully.']);
+            return response()->json(['message' => 'Table created successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -53,9 +52,9 @@ class AdminTableController extends Controller
         // dd(1);
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:2000',
             'disclaimer' => 'nullable|string|max:2000',
-            'label' => 'required|string|max:255',
+            'label' => 'required|string|max:2000',
             'price' => 'required|numeric|min:0',
             'cover_charge' => 'required|numeric|min:0',
             'late_cover_charge' => 'required|numeric|gte:cover_charge',
@@ -65,31 +64,41 @@ class AdminTableController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $table = ClubTable::findOrFail($id);
+        try {
+            $table = ClubTable::findOrFail($id);
 
-        unset($validated['image']);
+            unset($validated['image']);
 
-        // 3. Handle Avatar Upload
-        if ($request->hasFile('image')) {
-            if ($table->avatar && Storage::exists($table->avatar)) {
-                Storage::delete($table->avatar);
+            // 3. Handle image Upload
+            if ($request->hasFile('image')) {
+                if ($table->image && Storage::exists($table->image)) {
+                    Storage::delete($table->image);
+                }
+
+                // Store new image and update the data array with the path
+                $validated['image'] = $request->file('image')->store('tables');
             }
 
-            // Store new avatar and update the data array with the path
-            $validated['image'] = $request->file('image')->store('tables');
+            $table->update($validated);
+
+            return response()->json(['message' => 'Table updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
         }
-
-        $table->update($validated);
-
-        return response()->json(['message' => 'Table updated successfully.']);
     }
 
     public function destroy($id)
     {
-        $table = ClubTable::findOrFail($id);
-        $table->delete();
-
-        return response()->json(['message' => 'Table deleted successfully.']);
+        try {
+            $table = ClubTable::findOrFail($id);
+            if ($table->image && Storage::exists($table->image)) {
+                Storage::delete($table->image);
+            }
+            $table->delete();
+            return response()->json(['message' => 'Table deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function massDestroy(Request $request)
@@ -98,9 +107,18 @@ class AdminTableController extends Controller
             'indices' => 'required|array',
         ]);
 
-        ClubTable::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Tables deleted successfully.']);
+        try {
+            $tables = ClubTable::whereIn('id', $validated['indices'])->get();
+            foreach ($tables as $table) {
+                if ($table->image && Storage::exists($table->image)) {
+                    Storage::delete($table->image);
+                }
+                $table->delete();
+            }
+            return response()->json(['message' => 'Tables deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -110,8 +128,11 @@ class AdminTableController extends Controller
             'value' => 'required|string|in:active,inactive',
         ]);
 
-        ClubTable::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
-
-        return response()->json(['message' => 'Tables status updated successfully.']);
+        try {
+            ClubTable::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
+            return response()->json(['message' => 'Tables status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 }

@@ -337,6 +337,60 @@ return [
         ],
     ],
 
+    'flyers' => [
+        [
+            'key' => 'flyers.index',
+            'name' => 'Flyers',
+            'description' => 'View list of flyers.',
+            'route' => 'admin.flyers.index',
+            'icon' => 'pi pi-image',
+            'sort' => 1,
+        ],
+        [
+            'key' => 'flyers.store',
+            'name' => 'Create Flyer',
+            'description' => 'Create new flyers.',
+            'route' => 'admin.flyers.store',
+            'icon' => 'pi pi-image',
+            'sort' => 2,
+        ],
+        [
+            'key' => 'flyers.update',
+            'name' => 'Update Flyer',
+            'description' => 'Update existing flyers.',
+            'route' => [
+                'admin.flyers.update',
+                'admin.flyers.edit',
+            ],
+            'icon' => 'pi pi-image',
+            'sort' => 3,
+        ],
+        [
+            'key' => 'flyers.delete',
+            'name' => 'Delete Flyer',
+            'description' => 'Delete flyers.',
+            'route' => 'admin.flyers.delete',
+            'icon' => 'pi pi-image',
+            'sort' => 4,
+        ],
+        [
+            'key' => 'flyers.mass-delete',
+            'name' => 'Mass Delete Flyers',
+            'description' => 'Mass delete flyers.',
+            'route' => 'admin.flyers.mass_delete',
+            'icon' => 'pi pi-image',
+            'sort' => 5,
+        ],
+        [
+            'key' => 'flyers.mass-update',
+            'name' => 'Mass Update Flyers',
+            'description' => 'Mass update flyers.',
+            'route' => 'admin.flyers.mass_update',
+            'icon' => 'pi pi-image',
+            'sort' => 6,
+        ],
+    ],
+
     'bookings' => [
         [
             'key' => 'bookings.index',
@@ -625,35 +679,52 @@ return [
         ],
     ],
 
-    'settings' => [
+    'payments' => [
         [
-            'key' => 'settings.index',
-            'name' => 'Settings',
-            'description' => 'View application settings.',
-            'route' => 'admin.settings.index',
-            'icon' => 'pi pi-cog',
+            'key' => 'payments.index',
+            'name' => 'Payments',
+            'description' => 'View list of payments.',
+            'route' => 'admin.payments.index',
+            'icon' => 'pi pi-money-bill',
             'sort' => 1,
         ],
         [
-            'key' => 'settings.store',
-            'name' => 'Update Settings',
-            'description' => 'Update application settings.',
-            'route' => 'admin.settings.store',
-            'icon' => 'pi pi-cog',
+            'key' => 'payments.store',
+            'name' => 'Create Payment',
+            'description' => 'Create new payments.',
+            'route' => 'admin.payments.store',
+            'icon' => 'pi pi-money-bill',
             'sort' => 2,
+        ],
+        [
+            'key' => 'payments.update',
+            'name' => 'Update Payment',
+            'description' => 'Update existing payments.',
+            'route' => [
+                'admin.payments.update',
+                'admin.payments.edit',
+            ],
+            'icon' => 'pi pi-money-bill',
+            'sort' => 3,
+        ],
+        [
+            'key' => 'payments.mass-delete',
+            'name' => 'Mass Delete Payments',
+            'description' => 'Mass delete payments.',
+            'route' => 'admin.payments.mass_delete',
+            'icon' => 'pi pi-money-bill',
+            'sort' => 4,
+        ],
+        [
+            'key' => 'payments.mass-update',
+            'name' => 'Mass Update Payments',
+            'icon' => 'pi pi-exclamation-circle',
+            'description' => 'Mass update payments.',
+            'route' => 'admin.payments.mass_update',
+            'sort' => 5,
         ],
     ],
 
-    // 'audit_logs' => [
-    //     [
-    //         'key' => 'audit_logs.index',
-    //         'name' => 'Audit Logs',
-    //         'description' => 'View system audit logs.',
-    //         'route' => 'admin.audit_logs.index',
-    //         'icon' => 'pi pi-list',
-    //         'sort' => 1,
-    //     ],
-    // ],
 
     'roles' => [
         [
@@ -725,6 +796,25 @@ return [
         ],
     ],
 
+    // 'settings' => [
+    //     [
+    //         'key' => 'settings.index',
+    //         'name' => 'Settings',
+    //         'description' => 'View application settings.',
+    //         'route' => 'admin.settings.index',
+    //         'icon' => 'pi pi-cog',
+    //         'sort' => 1,
+    //     ],
+    //     [
+    //         'key' => 'settings.store',
+    //         'name' => 'Update Settings',
+    //         'description' => 'Update application settings.',
+    //         'route' => 'admin.settings.store',
+    //         'icon' => 'pi pi-cog',
+    //         'sort' => 2,
+    //     ],
+    // ], 
+
     'profile' => [
         [
             'key' => 'profile.index',
@@ -745,104 +835,8 @@ return [
         ],
     ],
 
-    'payments' => [
-        [
-            'key' => 'payments.index',
-            'name' => 'Payments',
-            'description' => 'View list of payments.',
-            'route' => 'admin.payments.index',
-            'icon' => 'pi pi-money-bill',
-            'sort' => 1,
-        ],
-        [
-            'key' => 'payments.store',
-            'name' => 'Create Payment',
-            'description' => 'Create new payments.',
-            'route' => 'admin.payments.store',
-            'icon' => 'pi pi-money-bill',
-            'sort' => 2,
-        ],
-        [
-            'key' => 'payments.update',
-            'name' => 'Update Payment',
-            'description' => 'Update existing payments.',
-            'route' => [
-                'admin.payments.update',
-                'admin.payments.edit',
-            ],
-            'icon' => 'pi pi-money-bill',
-            'sort' => 3,
-        ],
-        [
-            'key' => 'payments.mass-delete',
-            'name' => 'Mass Delete Payments',
-            'description' => 'Mass delete payments.',
-            'route' => 'admin.payments.mass_delete',
-            'icon' => 'pi pi-money-bill',
-            'sort' => 4,
-        ],
-        [
-            'key' => 'payments.mass-update',
-            'name' => 'Mass Update Payments',
-            'icon' => 'pi pi-exclamation-circle',
-            'description' => 'Mass update payments.',
-            'route' => 'admin.payments.mass_update',
-            'sort' => 5,
-        ],
-    ],
 
-    'flyers' => [
-        [
-            'key' => 'flyers.index',
-            'name' => 'Flyers',
-            'description' => 'View list of flyers.',
-            'route' => 'admin.flyers.index',
-            'icon' => 'pi pi-image',
-            'sort' => 1,
-        ],
-        [
-            'key' => 'flyers.store',
-            'name' => 'Create Flyer',
-            'description' => 'Create new flyers.',
-            'route' => 'admin.flyers.store',
-            'icon' => 'pi pi-image',
-            'sort' => 2,
-        ],
-        [
-            'key' => 'flyers.update',
-            'name' => 'Update Flyer',
-            'description' => 'Update existing flyers.',
-            'route' => [
-                'admin.flyers.update',
-                'admin.flyers.edit',
-            ],
-            'icon' => 'pi pi-image',
-            'sort' => 3,
-        ],
-        [
-            'key' => 'flyers.delete',
-            'name' => 'Delete Flyer',
-            'description' => 'Delete flyers.',
-            'route' => 'admin.flyers.delete',
-            'icon' => 'pi pi-image',
-            'sort' => 4,
-        ],
-        [
-            'key' => 'flyers.mass-delete',
-            'name' => 'Mass Delete Flyers',
-            'description' => 'Mass delete flyers.',
-            'route' => 'admin.flyers.mass_delete',
-            'icon' => 'pi pi-image',
-            'sort' => 5,
-        ],
-        [
-            'key' => 'flyers.mass-update',
-            'name' => 'Mass Update Flyers',
-            'description' => 'Mass update flyers.',
-            'route' => 'admin.flyers.mass_update',
-            'icon' => 'pi pi-image',
-            'sort' => 6,
-        ],
-    ],
+
+
 
 ];

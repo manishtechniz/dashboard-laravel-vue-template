@@ -32,13 +32,13 @@ class AdminClubController extends Controller
     public function storeClub(Request $request)
     {
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:256',
             'description' => 'nullable|string',
             'address' => 'nullable|string',
-            'city' => 'nullable|string|max:256',
-            'phone' => 'nullable|string|max:255',
-            'whatsapp_no' => 'nullable|string|max:255',
-            'primary_business_whatsapp' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:2000',
+            'phone' => 'nullable|string|max:2000',
+            'whatsapp_no' => 'nullable|string|max:256',
+            'primary_business_whatsapp' => 'nullable|string|max:256',
             'disclaimer' => 'nullable|string|max:2000',
             'opening_time' => 'required|date_format:H:i:s',
             'close_time'   => 'required|date_format:H:i:s',
@@ -55,26 +55,30 @@ class AdminClubController extends Controller
 
         $validated = $request->validate($rules);
 
-        if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('clubs/logos', 'public');
+        try {
+            if ($request->hasFile('logo')) {
+                $validated['logo'] = $request->file('logo')->store('clubs/logos', 'public');
+            }
+
+            if (in_array($request->file_type, ['image', 'video']) && $request->hasFile('file_path')) {
+                $validated['file_path'] = $request->file('file_path')->store('clubs/files', 'public');
+            } else if (in_array($request->file_type, ['image_url', 'video_url'])) {
+                $validated['file_path'] = $request->input('file_path');
+            }
+
+            if ($request->has('file_type')) {
+                $validated['file_type'] = $request->input('file_type');
+            }
+
+            Club::create($validated);
+
+            return response()->json([
+                'message' => 'Club created successfully.',
+                'clubs' => Club::all()
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
         }
-
-        if (in_array($request->file_type, ['image', 'video']) && $request->hasFile('file_path')) {
-            $validated['file_path'] = $request->file('file_path')->store('clubs/files', 'public');
-        } else if (in_array($request->file_type, ['image_url', 'video_url'])) {
-            $validated['file_path'] = $request->input('file_path');
-        }
-
-        if ($request->has('file_type')) {
-            $validated['file_type'] = $request->input('file_type');
-        }
-
-        Club::create($validated);
-
-        return response()->json([
-            'message' => 'Club created successfully.',
-            'clubs' => Club::all()
-        ]);
     }
 
     public function updateClub(Request $request, $id)
@@ -83,14 +87,14 @@ class AdminClubController extends Controller
         $club = Club::findOrFail($id);
 
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:2000',
             'description' => 'nullable|string|max:2000',
             'disclaimer' => 'nullable|string|max:2000',
             'address' => 'nullable|string',
             'city' => 'nullable|string',
-            'phone' => 'nullable|string|max:255',
-            'whatsapp_no' => 'nullable|string|max:255',
-            'primary_business_whatsapp' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:2000',
+            'whatsapp_no' => 'nullable|string|max:2000',
+            'primary_business_whatsapp' => 'nullable|string|max:2000',
             'opening_time' => 'required|date_format:H:i:s',
             'close_time'   => 'required|date_format:H:i:s',
             'is_active' => 'boolean',
@@ -106,41 +110,55 @@ class AdminClubController extends Controller
 
         $validated = $request->validate($rules);
 
-        if (! empty($request->logo)) {
-            ! empty($club->logo) ? Storage::delete($club->logo) : '';
+        try {
+            if (! empty($request->logo)) {
+                ! empty($club->logo) ? Storage::delete($club->logo) : '';
 
-            $validated['logo'] = $request->file('logo')->store('clubs/logos');
-        } else {
-            unset($validated['logo']);
+                $validated['logo'] = $request->file('logo')->store('clubs/logos');
+            } else {
+                unset($validated['logo']);
+            }
+
+            if (in_array($request->file_type, ['image', 'video']) && $request->hasFile('file_path')) {
+                ! empty($club->file_path) ? Storage::delete($club->file_path) : '';
+
+                $validated['file_path'] = $request->file('file_path')->store('clubs/files', 'public');
+            } else if (in_array($request->file_type, ['image_url', 'video_url'])) {
+                $validated['file_path'] = $request->input('file_path');
+            } else {
+                unset($validated['file_path'], $validated['file_type']);
+            }
+
+            $club->update($validated);
+
+            return response()->json([
+                'message' => 'Club updated successfully.',
+                'clubs' => Club::all()
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
         }
-
-        if (in_array($request->file_type, ['image', 'video']) && $request->hasFile('file_path')) {
-            ! empty($club->file_path) ? Storage::delete($club->file_path) : '';
-
-            $validated['file_path'] = $request->file('file_path')->store('clubs/files', 'public');
-        } else if (in_array($request->file_type, ['image_url', 'video_url'])) {
-            $validated['file_path'] = $request->input('file_path');
-        } else {
-            unset($validated['file_path'], $validated['file_type']);
-        }
-
-        $club->update($validated);
-
-        return response()->json([
-            'message' => 'Club updated successfully.',
-            'clubs' => Club::all()
-        ]);
     }
 
     public function destroyClub($id)
     {
-        $club = Club::findOrFail($id);
-        $club->delete();
+        try {
+            $club = Club::findOrFail($id);
+            if (!empty($club->logo)) {
+                Storage::delete($club->logo);
+            }
+            if (!empty($club->file_path)) {
+                Storage::delete($club->file_path);
+            }
+            $club->delete();
 
-        return response()->json([
-            'message' => 'Club deleted successfully.',
-            'clubs' => Club::all()
-        ]);
+            return response()->json([
+                'message' => 'Club deleted successfully.',
+                'clubs' => Club::all()
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function massDestroy(Request $request)
@@ -149,9 +167,22 @@ class AdminClubController extends Controller
             'indices' => 'required|array',
         ]);
 
-        Club::whereIn('id', $validated['indices'])->delete();
+        try {
+            $clubs = Club::whereIn('id', $validated['indices'])->get();
+            foreach ($clubs as $club) {
+                if (!empty($club->logo)) {
+                    Storage::delete($club->logo);
+                }
+                if (!empty($club->file_path)) {
+                    Storage::delete($club->file_path);
+                }
+                $club->delete();
+            }
 
-        return response()->json(['message' => 'Clubs deleted successfully.']);
+            return response()->json(['message' => 'Clubs deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -161,9 +192,12 @@ class AdminClubController extends Controller
             'value' => 'required|boolean',
         ]);
 
-        Club::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
-
-        return response()->json(['message' => 'Clubs status updated successfully.']);
+        try {
+            Club::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+            return response()->json(['message' => 'Clubs status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 
     // Branch Operations
@@ -171,16 +205,19 @@ class AdminClubController extends Controller
     {
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:2000',
             'description' => 'nullable|string',
             'address' => 'nullable|string',
             'phone' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
 
-        Branch::create($validated);
-
-        return response()->json(['message' => 'Branch created successfully.']);
+        try {
+            Branch::create($validated);
+            return response()->json(['message' => 'Branch created successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
+        }
     }
 
     public function updateBranch(Request $request, $id)
@@ -189,24 +226,30 @@ class AdminClubController extends Controller
 
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:2000',
             'description' => 'nullable|string',
             'address' => 'nullable|string',
             'phone' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
 
-        $branch->update($validated);
-
-        return response()->json(['message' => 'Branch updated successfully.']);
+        try {
+            $branch->update($validated);
+            return response()->json(['message' => 'Branch updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     public function destroyBranch($id)
     {
-        $branch = Branch::findOrFail($id);
-        $branch->delete();
-
-        return response()->json(['message' => 'Branch deleted successfully.']);
+        try {
+            $branch = Branch::findOrFail($id);
+            $branch->delete();
+            return response()->json(['message' => 'Branch deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function massDestroyBranch(Request $request)
@@ -215,9 +258,12 @@ class AdminClubController extends Controller
             'indices' => 'required|array',
         ]);
 
-        Branch::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Branches deleted successfully.']);
+        try {
+            Branch::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Branches deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdateBranch(Request $request)
@@ -227,8 +273,11 @@ class AdminClubController extends Controller
             'value' => 'required|boolean',
         ]);
 
-        Branch::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
-
-        return response()->json(['message' => 'Branches status updated successfully.']);
+        try {
+            Branch::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+            return response()->json(['message' => 'Branches status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 }

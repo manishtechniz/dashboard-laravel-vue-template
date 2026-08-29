@@ -141,29 +141,7 @@
                                             value="{{$admin->phone ?? ''}}"
                                             v-model="form.phone" 
                                         />
-                                    </x-admin::form.control-group>
-                                    
-                                    @php
-                                        $roles = [
-                                            ['code' => 1, 'name' => 'All'], 
-                                        ];
-                                    @endphp
-
-                                    <x-admin::form.control-group>
-                                        <x-admin::form.control-group.control
-                                            type="select"
-                                            ::options="{{json_encode($roles)}}"
-                                            optionLabel="name"
-                                            rules="required"
-                                            optionValue="code"
-                                            name="role_id"
-                                            placeholder="Select"
-                                            label="Role" 
-                                            ::value="{{ $admin->role_id ?? '' }}"
-                                        />
                                     </x-admin::form.control-group>  
-
-
                                     <x-admin::form.control-group>
                                         <x-admin::form.control-group.control
                                             type="password"

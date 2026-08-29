@@ -1,4 +1,4 @@
-<x-admin::layouts>
+<x-admin::layouts :hasHeader="$hasHeader ?? true" :hasSidebar="$hasSidebar ?? true">
     <v-dashboard
         analytics-src="{{ route('admin.dashboard.analytics') }}"
         bookings-src="{{ route('admin.dashboard') }}"></v-dashboard>
@@ -91,20 +91,6 @@
                     <div class="text-sm dash-text-muted mt-1">Overview of venues, reservations, guests, user roles, and revenue analytics.</div>
                 </div>
                 <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                    <div class="flex flex-wrap items-center gap-2 p-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                        <Select v-model="filters.date_filter" :options="dateOptions" optionLabel="label" optionValue="value" placeholder="All Time" @change="fetchAnalytics" class="w-36 md:w-40 p-inputtext-sm !border-none !shadow-none" />
-                        
-                        <template v-if="filters.date_filter === 'custom'">
-                            <div class="h-6 w-px bg-gray-200 mx-1"></div>
-                            <DatePicker v-model="filters.start_date" @update:modelValue="fetchAnalytics" dateFormat="yy-mm-dd" placeholder="Start Date" class="w-28 p-inputtext-sm !border-none !shadow-none" />
-                            <span class="text-gray-400">-</span>
-                            <DatePicker v-model="filters.end_date" @update:modelValue="fetchAnalytics" dateFormat="yy-mm-dd" placeholder="End Date" class="w-28 p-inputtext-sm !border-none !shadow-none" />
-                        </template>
-
-                        <div class="h-6 w-px bg-gray-200 mx-1"></div>
-                        <InputText type="number" v-model="filters.client_id" @change="fetchAnalytics" placeholder="Client ID" class="w-24 p-inputtext-sm !border-none !shadow-none" />
-                    </div>
-
                     <Button
                         label="Refresh"
                         icon="pi pi-refresh"
@@ -123,6 +109,21 @@
                             />
                         </a>
                     @endif
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex flex-wrap gap-2" cclass="flex flex-wrap items-center gap-2 p-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <Select v-model="filters.date_filter" :options="dateOptions" optionLabel="label" optionValue="value" placeholder="All Time" size="small" @change="fetchAnalytics" class="" />
+                    
+                    <template v-if="filters.date_filter === 'custom'">
+                        <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                        <DatePicker v-model="filters.start_date" @update:modelValue="fetchAnalytics" dateFormat="yy-mm-dd" placeholder="Start Date" class="w-28 p-inputtext-sm !border-none !shadow-none" />
+                        <span class="text-gray-400">-</span>
+                        <DatePicker v-model="filters.end_date" @update:modelValue="fetchAnalytics" dateFormat="yy-mm-dd" placeholder="End Date" class="w-28 p-inputtext-sm !border-none !shadow-none" />
+                    </template>
+
+                    <Select v-model="filters.client_id" :options="clientOptions" filter optionLabel="name" optionValue="id" placeholder="Select Client" @change="fetchAnalytics" class="w-48 p-inputtext-sm !border-none !shadow-none" showClear :loading="loadingClients" @filter="onClientFilter" :virtualScrollerOptions="{ lazy: true, onLazyLoad: onClientLazyLoad, itemSize: 38, delay: 250 }" />
                 </div>
             </div>
 
@@ -859,6 +860,11 @@
                         end_date: null,
                         client_id: null
                     },
+                    clientOptions: [],
+                    clientPage: 1,
+                    loadingClients: false,
+                    hasMoreClients: true,
+                    clientSearchQuery: '',
                     dateOptions: [{
                             label: 'All Time',
                             value: ''
@@ -945,6 +951,13 @@
             },
 
             mounted() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const clientParam = urlParams.get('client');
+                if (clientParam) {
+                    this.filters.client_id = parseInt(clientParam);
+                }
+
+                this.fetchClientsViaScroll();
                 this.fetchAnalytics();
                 window.addEventListener('resize', this.initCharts);
 
@@ -966,6 +979,74 @@
             },
 
             methods: {
+                onClientFilter(event) {
+                    this.clientSearchQuery = event.value;
+                    this.clientPage = 1;
+                    this.hasMoreClients = true;
+                    this.fetchClientsViaScroll();
+                },
+                onClientLazyLoad(event) {
+                    if (!this.hasMoreClients) {
+                        this.loadingClients = false;
+                        return;
+                    }
+                    const last = event.last;
+                    const count = this.clientOptions.length;
+                    if (last >= count - 2) {
+                        this.clientPage++;
+                        this.fetchClientsViaScroll(true);
+                    }
+                },
+                fetchClientsViaScroll(append = false) {
+                    if (!append) {
+                        this.clientPage = 1;
+                        this.hasMoreClients = true;
+                    }
+                    this.$nextTick(() => {
+                        this.loadingClients = true;
+
+                        const params = new URLSearchParams();
+                        params.append('page', this.clientPage);
+                        if (this.clientSearchQuery) params.append('search', this.clientSearchQuery);
+
+                        if (this.clientPage === 1 && this.filters.client_id) {
+                            params.append('client_id', this.filters.client_id);
+                        }
+
+                        const url = '{{ route("admin.dashboard.clients") }}?' + params.toString();
+                        const request = this.$axios ?
+                            this.$axios.get(url) :
+                            fetch(url, {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            }).then(r => r.json());
+
+                        Promise.resolve(request)
+                            .then(response => {
+                                const data = response?.data || response || {};
+                                const clientsData = data.data || [];
+
+                                if (append) {
+                                    this.clientOptions = [...this.clientOptions, ...clientsData];
+                                } else {
+                                    this.clientOptions = clientsData;
+                                }
+
+                                if ((data.current_page >= data.last_page) || !clientsData || clientsData.length === 0) {
+                                    this.hasMoreClients = false;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Failed to fetch clients', error);
+                            })
+                            .finally(() => {
+                                this.loadingClients = false;
+                            });
+                    });
+                },
+
                 getThemeVars() {
                     const cs = getComputedStyle(document.documentElement);
                     return {

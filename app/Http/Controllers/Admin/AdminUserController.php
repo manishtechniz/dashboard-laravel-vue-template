@@ -23,22 +23,27 @@ class AdminUserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'      => 'required|string|max:255',
-            'email'     => 'nullable|email|unique:users,email',
-            'phone'     => 'nullable|string|unique:users,phone',
-            'role_id'   => 'nullable|exists:roles,id',
+            'name'      => 'required|string|max:256',
+            'email'     => 'nullable|email|unique:users,email|max:256',
+            'phone'     => 'nullable|string|unique:users,phone|max:20',
+            'password'     => 'required|max:100|min:5',
+            'role_id'   => 'nullable|exists:roles,id|max:10',
             'is_active' => 'boolean',
         ]);
 
-        if ($request->filled('password')) {
+        try {
             $validated['password'] = bcrypt($request->password);
+
+            User::create($validated);
+
+            return response()->json([
+                'message' => 'User created successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Encounter error during creating user.',
+            ], 500);
         }
-
-        User::create($validated);
-
-        return response()->json([
-            'message' => 'User created successfully.',
-        ]);
     }
 
     public function update(Request $request, $id)
@@ -46,33 +51,46 @@ class AdminUserController extends Controller
         $user = User::findOrFail($id);
 
         $validated = $request->validate([
-            'name'      => 'required|string|max:255',
-            'email'     => 'nullable|email|unique:users,email,' . $user->id,
-            'phone'     => 'nullable|string|unique:users,phone,' . $user->id,
-            'role_id'   => 'nullable|exists:roles,id',
+            'name'      => 'required|string|max:2000',
+            'email'     => 'nullable|email|max:256|unique:users,email,' . $user->id,
+            'phone'     => 'nullable|string|max:20|unique:users,phone,' . $user->id,
+            'role_id'   => 'nullable|exists:roles,id|max:10',
+            'password'     => 'nullable|max:100|min:5',
             'is_active' => 'boolean',
         ]);
 
-        if ($request->filled('password')) {
-            $validated['password'] = bcrypt($request->password);
+        try {
+            if (! empty($validated['password'])) {
+                $validated['password'] = bcrypt($request->password);
+            } else {
+                unset($validated['password']);
+            }
+
+            $user->update($validated);
+
+            return response()->json([
+                'message' => 'User updated successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Encounter error during updating user.',
+            ], 500);
         }
-
-        $user->update($validated);
-
-        return response()->json([
-            'message' => 'User updated successfully.',
-        ]);
     }
 
     public function destroy($id)
     {
-        $user = User::findOrFail($id); 
-
-        $user->delete();
-
-        return response()->json([
-            'message' => 'User deleted successfully.',
-        ]);
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+            return response()->json([
+                'message' => 'User deleted successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Encounter error during deleting user.',
+            ], 500);
+        }
     }
     public function massDestroy(Request $request)
     {
@@ -80,9 +98,12 @@ class AdminUserController extends Controller
             'indices' => 'required|array',
         ]);
 
-        User::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Users deleted successfully.']);
+        try {
+            User::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Users deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -92,8 +113,11 @@ class AdminUserController extends Controller
             'value' => 'required|boolean',
         ]);
 
-        User::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
-
-        return response()->json(['message' => 'Users status updated successfully.']);
+        try {
+            User::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+            return response()->json(['message' => 'Users status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 }

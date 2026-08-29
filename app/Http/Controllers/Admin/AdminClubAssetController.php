@@ -267,17 +267,21 @@ class AdminClubAssetController extends Controller
         $asset = ClubAsset::findOrFail($id);
 
         $validated = $request->validate([
-            'title'     => 'nullable|string|max:255',
+            'title'     => 'nullable|string|max:2000',
             'is_active' => 'nullable|boolean',
             'club_id'   => 'nullable|exists:clubs,id',
         ]);
 
-        $asset->update($validated);
+        try {
+            $asset->update($validated);
 
-        return response()->json([
-            'message' => 'Asset updated successfully.',
-            'asset'   => $asset->load('club:id,name'),
-        ]);
+            return response()->json([
+                'message' => 'Asset updated successfully.',
+                'asset'   => $asset->load('club:id,name'),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     /**
@@ -285,17 +289,21 @@ class AdminClubAssetController extends Controller
      */
     public function destroy(int $id): JsonResponse
     {
-        $asset = ClubAsset::findOrFail($id);
+        try {
+            $asset = ClubAsset::findOrFail($id);
 
-        if ($asset->file_path && Storage::disk('public')->exists($asset->file_path)) {
-            Storage::disk('public')->delete($asset->file_path);
+            if ($asset->file_path && Storage::disk('public')->exists($asset->file_path)) {
+                Storage::disk('public')->delete($asset->file_path);
+            }
+
+            $asset->delete();
+
+            return response()->json([
+                'message' => 'Asset deleted successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
         }
-
-        $asset->delete();
-
-        return response()->json([
-            'message' => 'Asset deleted successfully.',
-        ]);
     }
 
     /**
@@ -307,18 +315,22 @@ class AdminClubAssetController extends Controller
             'indices' => 'required|array|min:1',
         ]);
 
-        $assets = ClubAsset::whereIn('id', $validated['indices'])->get();
+        try {
+            $assets = ClubAsset::whereIn('id', $validated['indices'])->get();
 
-        foreach ($assets as $asset) {
-            if ($asset->file_path && Storage::disk('public')->exists($asset->file_path)) {
-                Storage::disk('public')->delete($asset->file_path);
+            foreach ($assets as $asset) {
+                if ($asset->file_path && Storage::disk('public')->exists($asset->file_path)) {
+                    Storage::disk('public')->delete($asset->file_path);
+                }
+                $asset->delete();
             }
-            $asset->delete();
-        }
 
-        return response()->json([
-            'message' => count($assets) . ' assets deleted successfully.',
-        ]);
+            return response()->json([
+                'message' => count($assets) . ' assets deleted successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     /**

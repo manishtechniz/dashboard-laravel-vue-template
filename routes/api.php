@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\PromoCodeController;
 use App\Http\Controllers\Api\ClientClubController;
 use App\Http\Controllers\Api\ClientFlyerController;
 use App\Http\Middleware\EncryptToDecryptId;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 | Public Routes
 |--------------------------------------------------------------------------
 */
+
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);

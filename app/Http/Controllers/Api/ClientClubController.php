@@ -66,9 +66,16 @@ class ClientClubController extends Controller
     )]
     public function index(): JsonResponse
     {
-        $clubs = ModelClub::with(['staff' => function ($q) {
-            $q->where('is_active', 1);
-        }])->where('is_active', true)->paginate();
+        try {
+            $clubs = ModelClub::with(['staff' => function ($q) {
+                $q->where('is_active', 1);
+            }])->where('is_active', true)->paginate();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Encounter error during list clubs.',
+                'data' => []
+            ], 500);
+        }
 
         return response()->json([
             'message' => 'Clubs retrieved successfully',

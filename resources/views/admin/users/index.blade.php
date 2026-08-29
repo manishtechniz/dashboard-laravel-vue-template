@@ -58,16 +58,15 @@
 
                             <x-admin::form.control-group>
                                 <x-admin::form.control-group.label label="Role" /> 
-
                                 <x-admin::form.control-group.control
                                     type="select"
                                     ::options="roles" 
                                     optionLabel="name" 
-                                    optionValue="id" 
-                                    rules="required" 
+                                    optionValue="id"  
                                     v-model="user.role_id"
                                     ::value="user.role_id" 
-                                    name="role_id" 
+                                    name="role_id"
+                                    placeholder="Select role"
                                 />
                             </x-admin::form.control-group> 
 
@@ -77,12 +76,13 @@
                                     type="password"
                                     name="password"
                                     v-model="user.password"
-                                    placeholder="Enter password (optional)"
+                                    placeholder="Enter password"
                                 />
                             </x-admin::form.control-group>
 
                             <div class="flex items-center gap-2 pt-2">
                                 <ToggleSwitch v-model="user.is_active" inputId="is_active_toggle" />
+                                
                                 <x-admin::form.control-group.label label="Active Status" for="is_active_toggle" />
                             </div>
 
@@ -193,9 +193,7 @@
                         .catch(error => {
                             this.loading = false;
 
-                            if (error.response.status === 422) {
-                                setErrors(error.response.data.errors);
-                            }
+                            this.$helpers.errorControl(error, setErrors);
                         });
                 }
             }

@@ -23,7 +23,7 @@ class AdminPromoCodeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|unique:promo_codes,code|max:255',
+            'code' => 'required|string|unique:promo_codes,code|max:256',
             'type' => 'required|string|in:fixed,percentage',
             'value' => 'required|numeric|min:0',
             'start_date' => 'nullable|date',
@@ -38,9 +38,12 @@ class AdminPromoCodeController extends Controller
             'description' => 'nullable|string|max:500',
         ]);
 
-        PromoCode::create($validated);
-
-        return response()->json(['message' => 'Promo code created successfully.']);
+        try {
+            PromoCode::create($validated);
+            return response()->json(['message' => 'Promo code created successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -48,7 +51,7 @@ class AdminPromoCodeController extends Controller
         $promoCode = PromoCode::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'required|string|unique:promo_codes,code,' . $promoCode->id . '|max:255',
+            'code' => 'required|string|unique:promo_codes,code,' . $promoCode->id . '|max:2000',
             'type' => 'required|string|in:fixed,percentage',
             'value' => 'required|numeric|min:0',
             'start_date' => 'required|date',
@@ -63,17 +66,23 @@ class AdminPromoCodeController extends Controller
             'description' => 'required|string|max:500',
         ]);
 
-        $promoCode->update($validated);
-
-        return response()->json(['message' => 'Promo code updated successfully.']);
+        try {
+            $promoCode->update($validated);
+            return response()->json(['message' => 'Promo code updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $promoCode = PromoCode::findOrFail($id);
-        $promoCode->delete();
-
-        return response()->json(['message' => 'Promo code deleted successfully.']);
+        try {
+            $promoCode = PromoCode::findOrFail($id);
+            $promoCode->delete();
+            return response()->json(['message' => 'Promo code deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function massDestroy(Request $request)
@@ -82,9 +91,12 @@ class AdminPromoCodeController extends Controller
             'indices' => 'required|array',
         ]);
 
-        PromoCode::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Promo codes deleted successfully.']);
+        try {
+            PromoCode::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Promo codes deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 
     public function massUpdate(Request $request)
@@ -94,8 +106,11 @@ class AdminPromoCodeController extends Controller
             'value' => 'required|boolean',
         ]);
 
-        PromoCode::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
-
-        return response()->json(['message' => 'Promo codes status updated successfully.']);
+        try {
+            PromoCode::whereIn('id', $validated['indices'])->update(['is_active' => $validated['value']]);
+            return response()->json(['message' => 'Promo codes status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 }

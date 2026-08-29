@@ -21,7 +21,7 @@ class AdminFlyerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'nullable|string|max:255',
+            'title' => 'nullable|string|max:256',
             'description' => 'nullable|string',
             'file_type' => 'required|in:image,video',
             'file' => 'required|file|max:102400', // max 100MB
@@ -29,32 +29,36 @@ class AdminFlyerController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        $flyer = new Flyer();
-        $flyer->title = $request->title;
-        $flyer->description = $request->description;
-        $flyer->file_type = $request->file_type;
-        $flyer->is_active = $request->boolean('is_active', true);
+        try {
+            $flyer = new Flyer();
+            $flyer->title = $request->title;
+            $flyer->description = $request->description;
+            $flyer->file_type = $request->file_type;
+            $flyer->is_active = $request->boolean('is_active', true);
 
-        if ($request->hasFile('file')) {
-            $flyer->file_path = $request->file('file')->store('flyers/files', 'public');
+            if ($request->hasFile('file')) {
+                $flyer->file_path = $request->file('file')->store('flyers/files', 'public');
+            }
+
+            if ($request->file_type === 'image' && $request->hasFile('audio')) {
+                $flyer->audio_path = $request->file('audio')->store('flyers/audios', 'public');
+            }
+
+            $flyer->save();
+
+            return response()->json([
+                'message' => 'Flyer created successfully.',
+                'flyer' => $flyer
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
         }
-
-        if ($request->file_type === 'image' && $request->hasFile('audio')) {
-            $flyer->audio_path = $request->file('audio')->store('flyers/audios', 'public');
-        }
-
-        $flyer->save();
-
-        return response()->json([
-            'message' => 'Flyer created successfully.',
-            'flyer' => $flyer
-        ]);
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'title' => 'nullable|string|max:255',
+            'title' => 'nullable|string|max:2000',
             'description' => 'nullable|string',
             'file_type' => 'required|in:image,video',
             'file' => 'nullable|file|max:102400',
@@ -62,40 +66,44 @@ class AdminFlyerController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        $flyer = Flyer::findOrFail($id);
-        $flyer->title = $request->title;
-        $flyer->description = $request->description;
-        $flyer->file_type = $request->file_type;
-        $flyer->is_active = $request->boolean('is_active', true);
+        try {
+            $flyer = Flyer::findOrFail($id);
+            $flyer->title = $request->title;
+            $flyer->description = $request->description;
+            $flyer->file_type = $request->file_type;
+            $flyer->is_active = $request->boolean('is_active', true);
 
-        if ($request->hasFile('file')) {
-            if ($flyer->file_path) {
-                Storage::disk('public')->delete($flyer->file_path);
+            if ($request->hasFile('file')) {
+                if ($flyer->file_path) {
+                    Storage::disk('public')->delete($flyer->file_path);
+                }
+                $flyer->file_path = $request->file('file')->store('flyers/files', 'public');
             }
-            $flyer->file_path = $request->file('file')->store('flyers/files', 'public');
-        }
 
-        if ($request->file_type === 'image') {
-            if ($request->hasFile('audio')) {
+            if ($request->file_type === 'image') {
+                if ($request->hasFile('audio')) {
+                    if ($flyer->audio_path) {
+                        Storage::disk('public')->delete($flyer->audio_path);
+                    }
+                    $flyer->audio_path = $request->file('audio')->store('flyers/audios', 'public');
+                }
+            } else {
+                // If switched to video, delete audio if exists
                 if ($flyer->audio_path) {
                     Storage::disk('public')->delete($flyer->audio_path);
+                    $flyer->audio_path = null;
                 }
-                $flyer->audio_path = $request->file('audio')->store('flyers/audios', 'public');
             }
-        } else {
-            // If switched to video, delete audio if exists
-            if ($flyer->audio_path) {
-                Storage::disk('public')->delete($flyer->audio_path);
-                $flyer->audio_path = null;
-            }
+
+            $flyer->save();
+
+            return response()->json([
+                'message' => 'Flyer updated successfully.',
+                'flyer' => $flyer
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
         }
-
-        $flyer->save();
-
-        return response()->json([
-            'message' => 'Flyer updated successfully.',
-            'flyer' => $flyer
-        ]);
     }
 
     public function massUpdate(Request $request)
@@ -105,13 +113,17 @@ class AdminFlyerController extends Controller
             'value' => 'required|boolean',
         ]);
 
-        Flyer::whereIn('id', $request->indices)->update([
-            'is_active' => $request->value,
-        ]);
+        try {
+            Flyer::whereIn('id', $request->indices)->update([
+                'is_active' => $request->value,
+            ]);
 
-        return response()->json([
-            'message' => 'Flyers updated successfully.',
-        ]);
+            return response()->json([
+                'message' => 'Flyers updated successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass update.'], 500);
+        }
     }
 
     public function massDestroy(Request $request)
@@ -120,19 +132,23 @@ class AdminFlyerController extends Controller
             'indices' => 'required|array',
         ]);
 
-        $flyers = Flyer::whereIn('id', $request->indices)->get();
-        foreach ($flyers as $flyer) {
-            if ($flyer->file_path) {
-                Storage::disk('public')->delete($flyer->file_path);
+        try {
+            $flyers = Flyer::whereIn('id', $request->indices)->get();
+            foreach ($flyers as $flyer) {
+                if ($flyer->file_path) {
+                    Storage::disk('public')->delete($flyer->file_path);
+                }
+                if ($flyer->audio_path) {
+                    Storage::disk('public')->delete($flyer->audio_path);
+                }
+                $flyer->delete();
             }
-            if ($flyer->audio_path) {
-                Storage::disk('public')->delete($flyer->audio_path);
-            }
-            $flyer->delete();
-        }
 
-        return response()->json([
-            'message' => 'Flyers deleted successfully.',
-        ]);
+            return response()->json([
+                'message' => 'Flyers deleted successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 }

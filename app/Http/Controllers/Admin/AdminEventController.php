@@ -26,24 +26,28 @@ class AdminEventController extends Controller
     {
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:256',
             'description' => 'required|string',
             'event_date' => 'required|date',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('events');
+        try {
+            if ($request->hasFile('image')) {
+                $validated['image'] = $request->file('image')->store('events');
+            }
+
+            if ($request->hasFile('featured_image')) {
+                $validated['featured_image'] = $request->file('featured_image')->store('events');
+            }
+
+            Event::create($validated);
+
+            return response()->json(['message' => 'Event created successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during create.'], 500);
         }
-
-        if ($request->hasFile('featured_image')) {
-            $validated['featured_image'] = $request->file('featured_image')->store('events');
-        }
-
-        Event::create($validated);
-
-        return response()->json(['message' => 'Event created successfully.']);
     }
 
     public function update(Request $request, $id)
@@ -52,53 +56,61 @@ class AdminEventController extends Controller
 
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:2000',
             'description' => 'nullable|string',
             'event_date' => 'required|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        if ($request->hasFile('image')) {
-            if ($event->image && Storage::exists($event->image)) {
-                Storage::delete($event->image);
+        try {
+            if ($request->hasFile('image')) {
+                if ($event->image && Storage::exists($event->image)) {
+                    Storage::delete($event->image);
+                }
+
+                $validated['image'] = $request->file('image')->store('events');
+            } else {
+                unset($validated['image']);
             }
 
-            $validated['image'] = $request->file('image')->store('events');
-        } else {
-            unset($validated['image']);
-        }
+            if ($request->hasFile('featured_image')) {
+                if ($event->featured_image && Storage::exists($event->featured_image)) {
+                    Storage::delete($event->featured_image);
+                }
 
-        if ($request->hasFile('featured_image')) {
-            if ($event->featured_image && Storage::exists($event->featured_image)) {
-                Storage::delete($event->featured_image);
+                $validated['featured_image'] = $request->file('featured_image')->store('events');
+            } else {
+                unset($validated['featured_image']);
             }
 
-            $validated['featured_image'] = $request->file('featured_image')->store('events');
-        } else {
-            unset($validated['featured_image']);
+            $event->update($validated);
+
+            return response()->json(['message' => 'Event updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
         }
-
-        $event->update($validated);
-
-        return response()->json(['message' => 'Event updated successfully.']);
     }
 
     public function destroy($id)
     {
-        $event = Event::findOrFail($id);
+        try {
+            $event = Event::findOrFail($id);
 
-        if ($event->image && Storage::exists($event->image)) {
-            Storage::delete($event->image);
+            if ($event->image && Storage::exists($event->image)) {
+                Storage::delete($event->image);
+            }
+
+            if ($event->featured_image && Storage::exists($event->featured_image)) {
+                Storage::delete($event->featured_image);
+            }
+
+            $event->delete();
+
+            return response()->json(['message' => 'Event deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
         }
-
-        if ($event->featured_image && Storage::exists($event->featured_image)) {
-            Storage::delete($event->featured_image);
-        }
-
-        $event->delete();
-
-        return response()->json(['message' => 'Event deleted successfully.']);
     }
 
     public function massDestroy(Request $request)
@@ -107,18 +119,22 @@ class AdminEventController extends Controller
             'indices' => 'required|array',
         ]);
 
-        $events = Event::whereIn('id', $validated['indices'])->get();
+        try {
+            $events = Event::whereIn('id', $validated['indices'])->get();
 
-        foreach ($events as $event) {
-            if ($event->image && Storage::exists($event->image)) {
-                Storage::delete($event->image);
+            foreach ($events as $event) {
+                if ($event->image && Storage::exists($event->image)) {
+                    Storage::delete($event->image);
+                }
+                if ($event->featured_image && Storage::exists($event->featured_image)) {
+                    Storage::delete($event->featured_image);
+                }
+                $event->delete();
             }
-            if ($event->featured_image && Storage::exists($event->featured_image)) {
-                Storage::delete($event->featured_image);
-            }
-            $event->delete();
+
+            return response()->json(['message' => 'Events deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
         }
-
-        return response()->json(['message' => 'Events deleted successfully.']);
     }
 }

@@ -87,8 +87,11 @@ class DashboardBookingDataGrid extends DataGrid
         $this->addFilter('table_name', 'tables.name');
         $this->addFilter('event_name', 'events.name');
         $this->addFilter('booking_date', 'bookings.booking_date');
+        $this->addFilter('guest_count', 'bookings.guest_count');
+        $this->addFilter('total_amount_incl_tax', 'bookings.total_amount_incl_tax');
         $this->addFilter('payment_status', 'bookings.payment_status');
         $this->addFilter('status', 'bookings.status');
+        $this->addFilter('status_html', 'bookings.status');
 
         return $queryBuilder;
     }

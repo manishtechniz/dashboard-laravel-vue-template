@@ -265,17 +265,23 @@ class AdminBookingController extends Controller
             'value' => 'required|string|in:pending,confirmed,cancelled,checked_in',
         ]);
 
-        Booking::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
-
-        return response()->json(['message' => 'Bookings status updated successfully.']);
+        try {
+            Booking::whereIn('id', $validated['indices'])->update(['status' => $validated['value']]);
+            return response()->json(['message' => 'Bookings status updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during update.'], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $booking = Booking::findOrFail($id);
-        $booking->delete();
-
-        return response()->json(['message' => 'Booking deleted successfully.']);
+        try {
+            $booking = Booking::findOrFail($id);
+            $booking->delete();
+            return response()->json(['message' => 'Booking deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during delete.'], 500);
+        }
     }
 
     public function guests($id)
@@ -314,8 +320,11 @@ class AdminBookingController extends Controller
             'indices' => 'required|array',
         ]);
 
-        Booking::whereIn('id', $validated['indices'])->delete();
-
-        return response()->json(['message' => 'Bookings deleted successfully.']);
+        try {
+            Booking::whereIn('id', $validated['indices'])->delete();
+            return response()->json(['message' => 'Bookings deleted successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Encounter error during mass delete.'], 500);
+        }
     }
 }

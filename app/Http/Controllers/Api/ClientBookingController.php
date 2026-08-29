@@ -8,6 +8,7 @@ use App\Model\Booking;
 use App\Model\BookingGuest;
 use App\Model\Client;
 use App\Model\ClientGuest;
+use App\Model\Club;
 use App\Model\ClubTable;
 use App\Model\Event;
 use App\Services\CouponService;
@@ -15,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: "Bookings", description: "API Endpoints for Client Bookings")]
@@ -209,7 +210,7 @@ class ClientBookingController extends Controller
         $validated = $request->validate([
             'club_id' => 'required|exists:clubs,id',
             'table_id' => [
-                'required',
+                'nullable',
                 Rule::exists('tables', 'id')->where('club_id', $clubId),
             ],
             'event_id' => 'nullable|exists:events,id',
@@ -220,6 +221,7 @@ class ClientBookingController extends Controller
             'discount_source' => 'nullable|max:200',
             'discount_note' => 'nullable|max:500',
             'special_requests' => 'nullable|max:2000',
+            'personalised_event' => 'nullable|max:2000',
             'guest_ids' => 'nullable|array',
             'guest_ids.*' => [
                 'nullable',
@@ -234,9 +236,11 @@ class ClientBookingController extends Controller
 
         try {
             $bookingDate = $validated['booking_date'];
-            $tableId = $validated['table_id'];
+            $tableId = $validated['table_id'] ?? null;
             $eventId = $validated['event_id'] ?? null;
             $guestIds = $validated['guest_ids'] ?? [];
+
+            $club = Club::find($clubId);
 
             unset($validated['guest_ids']);
 
@@ -271,13 +275,15 @@ class ClientBookingController extends Controller
                 }, 'club:id,name'])
                 ->first();
 
-            $totalBookings = $clubTable->bookings->count();
-            $remainVipTable = max(0, $clubTable->total_tables - $totalBookings);
-            $isAvailable = $remainVipTable > 0;
+            if (! empty($clubTable)) {
+                $totalBookings = $clubTable->bookings->count();
+                $remainVipTable = max(0, $clubTable->total_tables - $totalBookings);
+                $isAvailable = $remainVipTable > 0;
 
-            // if (!$isAvailable) {
-            //     return response()->json(create422ErrorFormat('table_id', 'Selected table is not available'), 422);
-            // }
+                // if (!$isAvailable) {
+                //     return response()->json(create422ErrorFormat('table_id', 'Selected table is not available'), 422);
+                // }
+            }
 
             // return [$clubTable];
 
@@ -329,7 +335,7 @@ class ClientBookingController extends Controller
                 // 'guest_count' => count($guestIds), // from request
 
                 // Screenshot
-                'club_name' => $clubTable->club->name,
+                'club_name' => $club?->name,
                 'client_name' => $client->name ?? null,
                 'client_phone' => $client->phone ?? null,
                 'client_email' => $client->email ?? null,
@@ -338,10 +344,18 @@ class ClientBookingController extends Controller
                 'base_price' => $basePrice,
 
                 // Discount
-                'discount_type' => $discountType,
-                'discount_amount' => $discount,
-                'max_discount_amount' => $maxDiscountAmount,
-                // discount_code, discount_source, discount_note filled by request
+                // 'discount_type' => $discountType,
+                // 'discount_amount' => $discount,
+                // 'max_discount_amount' => $maxDiscountAmount,
+                // 'discount_code' => $couponCode, 
+                // discount_source, discount_note filled by request
+
+                'discount_type' => null,
+                'discount_amount' => 0,
+                'max_discount_amount' => null,
+                'discount_code' => null,
+                'discount_source' => null,
+                'discount_note' => null,
 
                 // Tax
                 'tax_rate' => $taxRate,
@@ -397,6 +411,8 @@ class ClientBookingController extends Controller
                 'booking' => $booking,
             ], 201);
         } catch (\Throwable $th) {
+            Log::error('Error during booking request: ' . $th->getMessage());
+
             DB::rollBack();
 
             return response()->json([

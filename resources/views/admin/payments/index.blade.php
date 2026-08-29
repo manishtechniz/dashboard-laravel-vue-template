@@ -137,7 +137,7 @@
                                     name="payment_method"
                                     v-model="payment.payment_method"
                                     ::value="payment.payment_method"
-                                    ::options="{{ json_encode($paymentMethodTypes) }}"
+                                    ::options="filteredPaymentMethods"
                                     optionLabel="label"
                                     optionValue="value"
                                     rules="required"
@@ -290,6 +290,9 @@
                             value: 'withdrawal_advance'
                         }
                     ],
+                    paymentMethods: @json($paymentMethodTypes),
+                    allowedValues: [],
+
                     statusOptions: [{
                             label: 'Pending',
                             value: 'pending'
@@ -338,6 +341,31 @@
                     } else if (!val) {
                         this.editMode = false;
                     }
+                }
+            },
+            computed: {
+                filteredPaymentMethods() {
+                    let paymentType = this.payment.payment_type;
+                    let allowedValues = []; // empty means "allow all"
+
+                    if (paymentType === 'advance') {
+                        allowedValues = [
+                            "{{ \App\Enums\PaymentMethod::CASH->value }}",
+                            "{{ \App\Enums\PaymentMethod::ONLINE->value }}"
+                        ];
+                    } else if (paymentType === 'withdrawal_advance') {
+                        allowedValues = [
+                            "{{ \App\Enums\PaymentMethod::WALLET->value }}"
+                        ];
+                    }
+
+                    if (allowedValues.length === 0) {
+                        return this.paymentMethods;
+                    }
+
+                    return this.paymentMethods.filter(type =>
+                        allowedValues.includes(type.value)
+                    );
                 }
             },
             provide() {

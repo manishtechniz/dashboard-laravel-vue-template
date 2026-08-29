@@ -1,0 +1,1 @@
+@include('admin::dashboard.index', ['hasHeader' => false, 'hasSidebar' => false])

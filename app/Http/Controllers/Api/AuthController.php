@@ -6,7 +6,9 @@ use App\Model\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
@@ -46,9 +48,13 @@ class AuthController extends Controller
     )]
     public function register(Request $request)
     {
+        return response()->json([
+            'This type of authentication has been blocked.'
+        ], 404);
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|required_without:phone|string|email|unique:clients,email|max:255',
+            'name' => 'required|string|max:256',
+            'email' => 'nullable|required_without:phone|string|email|unique:clients,email|max:256',
             'phone' => 'nullable|required_without:email|string|unique:clients,phone',
             'password' => 'required|string|min:6',
         ]);
@@ -102,38 +108,49 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validated = $request->validate([
-            'email' => 'required_without:phone|nullable|string',
-            'phone' => 'required_without:email|nullable|string',
-            'password' => 'required|string',
+            // 'email' => 'required_without:phone|nullable|string',
+            // 'phone' => 'required_without:email|nullable|string',
+            'phone' => 'required|string|max:15',
+            'version' => 'nullable',
+            'password' => 'required|string|max:50|min:5',
         ]);
 
-        $loginInput = $validated['email'] ?? $validated['phone'];
+        try {
+            // $loginInput = $validated['email'] ?? $validated['phone'];
+            $loginInput = $validated['phone'];
+            $version = $validated['version'] ?? null;
 
-        $client = Client::where(function ($query) use ($loginInput) {
-            $query->where('email', $loginInput)
-                ->orWhere('phone', $loginInput);
-        })->first();
+            $client = Client::where(function ($query) use ($loginInput) {
+                // $query->where('email', $loginInput)->orWhere('phone', $loginInput);
+                $query->where('phone', $loginInput);
+            })->first();
 
-        if (!$client || !$client->password || !Hash::check($validated['password'], $client->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Invalid email/phone or password credentials.'],
+            if (!$client || !$client->password || !Hash::check($validated['password'], $client->password)) {
+                return response()->json(create422ErrorFormat('phone', 'Invalid phone or password credentials.'), 422);
+            }
+
+            if (!$client->is_active) {
+                return response()->json(create422ErrorFormat('phone', 'Your account has been deactivated.'), 422);
+            }
+
+            $client->version = $version;
+            $client->save();
+
+            $client->tokens()->delete();
+
+            $token = $client->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'client' => $client->load('role'),
             ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                // 'message' => 'Oops!, Encounter error during process request.',
+                'message' => $th->getMessage(),
+            ], 500);
         }
-
-        if (!$client->is_active) {
-            throw ValidationException::withMessages([
-                'email' => ['Your account has been deactivated.'],
-            ]);
-        }
-
-        $client->tokens()->delete();
-        $token = $client->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'client' => $client->load('role'),
-        ]);
     }
 
     #[OA\Post(
@@ -168,15 +185,52 @@ class AuthController extends Controller
             'phone' => 'required|string|max:15',
         ]);
 
-        $identifier = $request->phone;
-        $otp = (string) rand(100000, 999999);
+        try {
+            $identifier = $request->phone;
 
-        // Store OTP in Cache for 10 minutes
-        Cache::put('otp_' . $identifier, $otp, now()->addMinutes(10));
+            $client = Client::where('phone', $identifier)->first();
 
-        return response()->json([
-            'message' => 'OTP sent successfully.',
-        ]);
+            if (! empty($client) && ! $client?->is_active) {
+                return response()->json(create422ErrorFormat('phone', 'Your account has been deactivated. Please contact admin.'), 422);
+            }
+
+            if ($identifier === '9876543210') {
+                Cache::put('otp_' . $identifier, '365365', now()->addMinutes(5));
+
+                return response()->json([
+                    'message' => 'OTP sent successfully.',
+                ]);
+            }
+
+            $otp = (string) rand(100000, 999999);
+
+            $api = "3003f5acf5f369611be7c113bc714760";
+            $url = "https://sms.renflair.in/V1.php";
+
+            $response = Http::get($url, [
+                'API' => $api,
+                'PHONE' => $identifier,
+                'OTP' => $otp,
+            ]);
+
+            if ($response->successful()) {
+                // Store OTP in Cache for 5 minutes
+                Cache::put('otp_' . $identifier, $otp, now()->addMinutes(5));
+
+                return response()->json([
+                    'message' => 'OTP sent successfully.',
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Failed to send OTP.',
+            ], 500);
+        } catch (\Throwable $th) {
+            return response()->json([
+                // 'message' => 'Oops!, Encounter error during process request.',
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     #[OA\Post(
@@ -188,8 +242,10 @@ class AuthController extends Controller
             content: new OA\JsonContent(
                 required: ["phone", "otp"],
                 properties: [
-                    new OA\Property(property: "phone", type: "string", example: "+1234567890"),
-                    new OA\Property(property: "otp", type: "string", example: "123456"),
+                    new OA\Property(property: "email", type: "string", example: "test@gmail.com"),
+                    new OA\Property(property: "password", type: "string", example: "password"),
+                    new OA\Property(property: "phone", type: "string", example: "*1234567890"),
+                    new OA\Property(property: "otp", type: "string", example: "*123456"),
                     new OA\Property(property: "name", type: "string", example: "John Doe")
                 ]
             )
@@ -213,49 +269,67 @@ class AuthController extends Controller
     {
         $request->validate([
             'phone' => 'required|string|max:15',
+            'email' => 'nullable|email|unique:clients,email|max:256',
             'otp' => 'required|string|max:6',
             'name' => 'nullable|string|max:100',
+            'password' => 'nullable|string|min:6',
+            'version' => 'nullable',
         ]);
 
-        $identifier = $request->phone;
-        $cachedOtp = Cache::get('otp_' . $identifier);
+        try {
+            $identifier = $request->phone;
 
-        if (!$cachedOtp || ($cachedOtp !== $request->otp && $request->otp !== '123456')) {
-            throw ValidationException::withMessages([
-                'otp' => ['Invalid or expired OTP.'],
+            $email = $request->email ?? null;
+            $password = $request->password ?? null;
+            $name = $request->name ?? null;
+            $version = $request->version ?? null;
+
+            $cachedOtp = Cache::get('otp_' . $identifier);
+
+            if (!$cachedOtp || ($cachedOtp !== $request->otp)) {
+                return response()->json(create422ErrorFormat('otp', 'Invalid or expired OTP.'), 422);
+            }
+
+            // Clear cached OTP
+            Cache::forget('otp_' . $identifier);
+
+            $client = Client::where('phone', $identifier)->first();
+
+            // If client does not exist, create a new record
+            if (!$client) {
+                $client = Client::create([
+                    'name' => $name ?? null,
+                    'phone' => $identifier,
+                    'is_phone_verified' => true,
+                    'phone_verified_at' => now(),
+                    'is_active' => true,
+                    'email' => $email,
+                    'password' => Hash::make($password ?? Str::uuid()->toString())
+                ]);
+            }
+
+            $client->login_at = now();
+            $client->version = $version;
+
+            $client->save();
+
+            if (! $client->is_active) {
+                return response()->json(create422ErrorFormat('phone', 'Your account has been deactivated.'), 422);
+            }
+
+            $client->tokens()->delete();
+            $token = $client->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'client' => $client->load('role'),
             ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Oops!, Encounter error during process request.',
+            ], 500);
         }
-
-        // Clear cached OTP
-        Cache::forget('otp_' . $identifier);
-
-        $client = Client::where('phone', $request->phone)->first();
-
-        // If client does not exist, create a new record
-        if (!$client) {
-            $client = Client::create([
-                'name' => $request->name ?? null,
-                'phone' => $request->phone,
-                'is_active' => true,
-            ]);
-        }
-
-        $client->save();
-
-        if (!$client->is_active) {
-            throw ValidationException::withMessages([
-                'phone' => ['Your account has been deactivated.'],
-            ]);
-        }
-
-        $client->tokens()->delete();
-        $token = $client->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'client' => $client->load('role'),
-        ]);
     }
 
     #[OA\Post(
@@ -291,10 +365,14 @@ class AuthController extends Controller
     )]
     public function googleAuth(Request $request)
     {
+        return response()->json([
+            'This type of authentication has been blocked.'
+        ], 404);
+
         $validated = $request->validate([
             'google_id' => 'required|string',
             'email' => 'required|email',
-            'name' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:2000',
             'avatar' => 'nullable|string',
         ]);
 
@@ -368,6 +446,10 @@ class AuthController extends Controller
     )]
     public function testToken(Request $request)
     {
+        return response()->json([
+            'This type of authentication has been blocked.'
+        ], 404);
+
         $email = $request->input('email', 'testclient@example.com');
         $phone = $request->input('phone', '+10000000000');
 
@@ -451,12 +533,12 @@ class AuthController extends Controller
         // return [$client];
 
         $validated = $request->validate([
-            'name' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:clients,email,' . $client->id,
-            'phone' => 'nullable|string|max:255|unique:clients,phone,' . $client->id,
+            'name' => 'nullable|string|max:256',
+            'email' => 'nullable|string|email|max:256|unique:clients,email,' . $client->id,
+            'phone' => 'nullable|string|max:256|unique:clients,phone,' . $client->id,
             'age' => 'nullable|integer|min:13',
-            'gender' => 'nullable|in:male,female|max:255',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'gender' => 'nullable|in:male,female|max:256',
+            'avatar' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'fcm_token' => 'nullable|string|max:1000',
             'password' => 'nullable|string|min:6|max:100',
         ]);
@@ -468,7 +550,7 @@ class AuthController extends Controller
             }
 
             // Store new avatar and update the data array with the path
-            $validated['avatar'] = $request->file('avatar')->store('avatars');
+            $validated['avatar'] = $request->file('avatar')->store('clients');
         }
 
         foreach ($validated as $key => $value) {

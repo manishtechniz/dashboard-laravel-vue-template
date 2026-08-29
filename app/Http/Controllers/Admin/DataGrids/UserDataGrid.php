@@ -12,9 +12,13 @@ class UserDataGrid extends DataGrid
     {
         $queryBuilder =  DB::table('users')
             ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
-            ->select('users.id', 'users.name', 'users.email', 'users.phone', 'users.role_id', 'roles.name as role_name', 'users.is_active', 'users.created_at');
+            ->select('users.id', 'users.name', 'users.email', 'users.phone', 'users.role_id', 'roles.name as role_name', 'users.is_active', 'users.is_active as html_is_active', 'users.created_at');
 
+        $this->addFilter('id', 'users.id');
+        $this->addFilter('html_is_active', 'users.is_active');
         $this->addFilter('name', 'users.name');
+        $this->addFilter('email', 'users.email');
+        $this->addFilter('phone', 'users.phone');
         $this->addFilter('role_name', 'roles.name');
 
         return $queryBuilder;
@@ -70,10 +74,12 @@ class UserDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'is_active',
+            'index' => 'html_is_active',
             'label' => 'Status',
             'type' => 'boolean',
+            'searchable' => true,
             'filterable' => true,
+            'sortable' => true,
             'closure' => function ($row) {
                 return $row->is_active
                     ? '<span class="label-active">Active</span>'

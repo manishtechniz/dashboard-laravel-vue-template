@@ -32,8 +32,10 @@ class ReviewDataGrid extends DataGrid
         $this->addFilter('id', 'reviews.id');
         $this->addFilter('client_name', 'clients.name');
         $this->addFilter('club_name', 'clubs.name');
+        $this->addFilter('rating_html', 'reviews.rating');
         $this->addFilter('rating', 'reviews.rating');
         $this->addFilter('comment', 'reviews.comment');
+        $this->addFilter('remark', 'reviews.remark');
         $this->addFilter('is_active', 'reviews.is_active');
         $this->addFilter('is_anonymous', 'reviews.is_anonymous');
 
@@ -96,8 +98,19 @@ class ReviewDataGrid extends DataGrid
         $this->addColumn([
             'index' => 'is_anonymous',
             'label' => 'Anonymous',
-            'type' => 'boolean',
+            'type' => 'string',
+            'filterable_type' => 'dropdown',
             'filterable' => true,
+            'filterable_options' => [
+                [
+                    'label' => 'YES',
+                    'value' => 1,
+                ],
+                [
+                    'label' => 'NO',
+                    'value' => 0,
+                ],
+            ],
             'closure' => function ($row) {
                 return $row->is_anonymous
                     ? '<span class="label-active">Yes</span>'

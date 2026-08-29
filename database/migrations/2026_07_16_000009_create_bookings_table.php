@@ -26,6 +26,8 @@ return new class extends Migration
             $table->decimal('paid_amount', 10, 2)->default(0.00);
             $table->decimal('due_amount', 10, 2)->default(0.00);
 
+            $table->string('personalised_event', 255)->nullable();
+
             // Discount related columns.
             $table->enum('discount_type', ['percentage', 'fixed'])->nullable();
             $table->string('discount_code', 100)->nullable();

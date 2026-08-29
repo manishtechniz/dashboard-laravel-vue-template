@@ -74,11 +74,11 @@ class ClientGuestController extends Controller
     {
         $validated = $request->validate([
             'guests' => 'required|array',
-            'guests.*.name' => 'required|string|max:255',
-            'guests.*.email' => 'nullable|email|max:255',
-            'guests.*.phone' => 'nullable|string|max:255',
-            'guests.*.age' => 'nullable|string|max:255',
-            'guests.*.gender' => 'nullable|string|max:255',
+            'guests.*.name' => 'required|string|max:256',
+            'guests.*.email' => 'nullable|email|max:256',
+            'guests.*.phone' => 'nullable|string|max:256',
+            'guests.*.age' => 'nullable|string|max:256',
+            'guests.*.gender' => 'nullable|string|max:256',
         ]);
 
         $createdGuests = [];
@@ -137,11 +137,11 @@ class ClientGuestController extends Controller
         $validated = $request->validate([
             'guests' => 'required|array',
             'guests.*.id' => 'nullable|integer|exists:client_guests,id',
-            'guests.*.name' => 'required|string|max:255',
-            'guests.*.email' => 'nullable|email|max:255',
-            'guests.*.phone' => 'nullable|string|max:255',
-            'guests.*.age' => 'nullable|string|max:255',
-            'guests.*.gender' => 'nullable|string|max:255',
+            'guests.*.name' => 'required|string|max:2000',
+            'guests.*.email' => 'nullable|email|max:256',
+            'guests.*.phone' => 'nullable|string|max:256',
+            'guests.*.age' => 'nullable|string|max:256',
+            'guests.*.gender' => 'nullable|string|max:256',
         ]);
 
         $client = $request->user();
