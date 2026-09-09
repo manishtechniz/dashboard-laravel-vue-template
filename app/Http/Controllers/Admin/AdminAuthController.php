@@ -49,7 +49,7 @@ class AdminAuthController extends Controller
                 ]);
             }
         } catch (\Throwable $e) {
-            dd($e->getMessage());
+            // dd($e->getMessage());
             return response()->json(['message' => 'Something went wrong'], 500);
         }
     }

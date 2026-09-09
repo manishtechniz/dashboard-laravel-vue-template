@@ -24,7 +24,7 @@ class AdminProfileController extends Controller
 
     public function update(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         // dd($request->file(), $request->all());
         $id = Auth::guard('admin')->id();
 
@@ -83,7 +83,7 @@ class AdminProfileController extends Controller
                 'status' => true,
                 'message' => 'Profile updated successfully'
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'An error occurred while updating the record. Please try again.'

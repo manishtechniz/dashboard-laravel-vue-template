@@ -207,7 +207,7 @@
                                     <div class="flex justify-between items-start mb-2">
                                         <div class="flex flex-col gap-2">
                                             <div class="flex items-center gap-2">
-                                                <span class="text-sm font-bold text-(--text-base)">@{{ txn.type ? txn.type.toUpperCase() : 'PAYMENT' }}</span> 
+                                                <span class="text-sm font-bold text-(--text-base)">@{{ txn.payment && txn.payment.payment_type ? txn.payment.payment_type.replace('_', ' ').toUpperCase() : (txn.type ? txn.type.toUpperCase() : 'PAYMENT') }}</span> 
                                                 <span v-if= "txn.status" class="badge badge-info">@{{ txn.status }}</span>
                                             </div>
                                             <span class="text-xs text-(--text-muted)">@{{ new Date(txn.created_at).toLocaleString() }}</span>
@@ -235,6 +235,18 @@
                                             <span class="font-medium text-(--text-muted)">Method</span>
                                             <span class="text-(--text-base) capitalize">@{{ txn.payment_method || 'N/A' }}</span>
                                         </div> 
+
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-(--text-muted)">Client</span>
+                                            <span class="text-(--text-base) capitalize" v-if="txn.payment && txn.payment.client">@{{ txn.payment.client.name }} (#@{{ txn.payment.client_id }})</span>
+                                            <span class="text-(--text-base) capitalize" v-else>N/A</span>
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-(--text-muted)">Recorded By</span>
+                                            <span class="text-(--text-base) capitalize">@{{ txn.admin ? txn.admin.name : 'N/A' }}</span>
+                                        </div>
+
                                         <div class="flex flex-col col-span-2" v-if="txn.reference">
                                             <span class="font-medium text-(--text-muted)">Reference</span>
                                             <span class="text-(--text-base)">@{{ txn.reference }}</span>

@@ -23,4 +23,9 @@ class Transaction extends Model
     {
         return $this->belongsTo(Booking::class);
     }
+
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'recorded_by');
+    }
 }

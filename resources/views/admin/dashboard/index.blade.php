@@ -122,7 +122,7 @@
                         </div>
                     </div>
 
-                    <div v-if="isLoadingTopBookings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-if="isLoadingTopBookings" class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-3 gap-6">
                         <div v-for="n in 6" :key="'booking-shimmer-' + n" class="p-4 rounded-xl dash-border border">
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex items-center gap-3">
@@ -158,7 +158,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-else class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-3 gap-6">
                         <div v-for="(booking, idx) in topBookings" :key="booking.id" class="p-4 rounded-xl dash-border border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors relative overflow-hidden group">
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex items-center gap-3">

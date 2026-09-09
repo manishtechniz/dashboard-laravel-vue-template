@@ -250,7 +250,7 @@ class AdminBookingController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            dd($th->getMessage());
+            // dd($th->getMessage());
 
             return response()->json([
                 'message' => 'Encounter error during update.',

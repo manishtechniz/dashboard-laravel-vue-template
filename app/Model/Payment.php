@@ -23,4 +23,9 @@ class Payment extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
 }

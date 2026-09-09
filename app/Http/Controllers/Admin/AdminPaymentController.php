@@ -409,7 +409,7 @@ class AdminPaymentController extends Controller
 
     public function transactions(Request $request)
     {
-        $query = Transaction::query()->with('payment');
+        $query = Transaction::query()->with(['payment.client', 'admin']);
 
         if ($request->has('payment_id') && $request->payment_id !== 'all' && $request->payment_id !== null) {
             $query->where('payment_id', $request->payment_id);
