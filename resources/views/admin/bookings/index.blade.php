@@ -298,9 +298,13 @@
                                         <span class="text-xs font-medium text-(--text-muted)">Table</span>
                                         <span class="text-sm text-(--text-base)">@{{ viewingBooking.table_name || 'N/A' }}</span>
                                     </div>
-                                    <div class="flex flex-col col-span-2">
+                                    <div class="flex flex-col">
                                         <span class="text-xs font-medium text-(--text-muted)">Event</span>
                                         <span class="text-sm text-(--text-base)">@{{ viewingBooking.event_name || 'N/A' }}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-medium text-(--text-muted)">Personalised Event</span>
+                                        <span class="text-sm text-(--text-base)">@{{ viewingBooking.personalised_event || 'N/A' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -311,11 +315,15 @@
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="flex flex-col">
                                         <span class="text-xs font-medium text-(--text-muted)">Base Price</span>
-                                        <span class="text-sm text-(--text-base)">₹ @{{ viewingBooking.base_price || '0.00' }}</span>
+                                        <span class="text-sm text-(--text-base)">₹ @{{ viewingBooking.total_amount_incl_tax || '0.00' }}</span>
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs font-medium text-(--text-muted)">Discount</span>
                                         <span class="text-sm text-(--text-base)">₹ @{{ viewingBooking.discount_amount || '0.00' }} <template v-if="viewingBooking.discount_type">(@{{ viewingBooking.discount_type }})</template></span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-medium text-(--text-muted)">Discount Code</span>
+                                        <span class="text-sm text-(--text-base)">@{{ viewingBooking.discount_code || 'N/A' }}</span>
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs font-medium text-(--text-muted)">Tax</span>
@@ -324,6 +332,18 @@
                                     <div class="flex flex-col">
                                         <span class="text-xs font-medium text-(--text-muted)">Total Amount</span>
                                         <span class="text-sm text-(--text-base) font-bold text-green-600" v-html="viewingBooking.total_amount_incl_tax"></span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-medium text-(--text-muted)">Paid Amount</span>
+                                        <span class="text-sm text-(--text-base)">₹ @{{ viewingBooking.paid_amount || '0.00' }}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-medium text-(--text-muted)">Due Amount</span>
+                                        <span class="text-sm text-(--text-base) text-red-500">₹ @{{ viewingBooking.due_amount || '0.00' }}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-medium text-(--text-muted)">Advance Amount</span>
+                                        <span class="text-sm text-(--text-base) text-green-600">₹ @{{ ((viewingBooking.paid_amount || 0) - (viewingBooking.total_amount_incl_tax || 0) > 0) ? ((viewingBooking.paid_amount || 0) - (viewingBooking.total_amount_incl_tax || 0)).toFixed(2) : '0.00' }}</span>
                                     </div>
                                     <div class="flex flex-col col-span-2">
                                         <span class="text-xs font-medium text-(--text-muted)">Payment Status</span>

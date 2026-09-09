@@ -29,5 +29,16 @@ return [
             'route' => ['api.qrcode.scan'],
             'sort' => 1,
         ],
+    ],
+
+    'realtime_table' => [
+        [
+            'key' => 'can_realtime_table',
+            'name' => 'Can realtime table',
+            'description' => 'Can realtime table',
+            'icon' => 'pi pi-users',
+            'route' => [],
+            'sort' => 1,
+        ],
     ]
 ];

@@ -146,6 +146,12 @@ return new class extends Migration
                             guest_name
                         ),
 
+                    remark =
+                        COALESCE(
+                            p_updates->>'remark',
+                            remark
+                        ),
+
                     is_locked =
                         COALESCE(
                             (p_updates->>'is_locked')::boolean,

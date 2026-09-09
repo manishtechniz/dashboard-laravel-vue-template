@@ -112,6 +112,133 @@
                 </div>
             </div>
 
+
+            <div class="grid grid-cols-1 gap-6 mt-6">
+                <div class="dash-card p-6 flex flex-col h-full">
+                    <div class="flex justify-between items-center pb-3 mb-4 dash-border-b">
+                        <div>
+                            <h3 class="text-sm font-bold dash-text-base">Top Recent Bookings</h3>
+                            <p class="text-[10px] dash-text-muted mt-0.5">Most recent high-value or active bookings</p>
+                        </div>
+                    </div>
+
+                    <div v-if="isLoadingTopBookings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div v-for="n in 6" :key="'booking-shimmer-' + n" class="p-4 rounded-xl dash-border border">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full shimmer flex-shrink-0"></div>
+                                    <div class="space-y-1.5">
+                                        <div class="h-4 w-24 rounded shimmer"></div>
+                                        <div class="h-3 w-16 rounded shimmer"></div>
+                                    </div>
+                                </div>
+                                <div class="h-5 w-16 rounded-full shimmer"></div>
+                            </div>
+                            <div class="space-y-3 mt-4 pt-3 dash-border-t">
+                                <div class="flex justify-between">
+                                    <div class="h-3 w-10 rounded shimmer"></div>
+                                    <div class="h-3 w-20 rounded shimmer"></div>
+                                </div>
+                                <div class="flex justify-between">
+                                    <div class="h-3 w-12 rounded shimmer"></div>
+                                    <div class="h-3 w-8 rounded shimmer"></div>
+                                </div>
+                                <div class="flex justify-between">
+                                    <div class="h-3 w-10 rounded shimmer"></div>
+                                    <div class="h-4 w-16 rounded shimmer"></div>
+                                </div>
+                                <div class="flex justify-between">
+                                    <div class="h-3 w-14 rounded shimmer"></div>
+                                    <div class="h-3 w-24 rounded shimmer"></div>
+                                </div>
+                                <div class="space-y-1.5 pt-2">
+                                    <div class="h-3 w-20 rounded shimmer"></div>
+                                    <div class="h-3 w-full rounded shimmer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div v-for="(booking, idx) in topBookings" :key="booking.id" class="p-4 rounded-xl dash-border border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors relative overflow-hidden group">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center gap-3">
+                                    <img onerror="this.src='{{ previewProfileURL() }}'" v-if="booking.client_avatar" :src="booking.client_avatar" class="w-10 h-10 rounded-full object-cover shadow-sm">
+                                    <div v-else class="w-10 h-10 rounded-full dash-subtle-box flex items-center justify-center flex-shrink-0">
+                                        <i class="pi pi-user dash-text-muted"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold dash-text-base truncate max-w-[150px]" :title="booking.client_name">
+                                            @{{ booking.client_name || 'Walk-in Guest' }}
+                                        </div>
+                                        <div class="text-[11px] dash-text-muted flex flex-col">
+                                            <span v-if="booking.client_phone"><i class="pi pi-phone mr-1 text-[9px]"></i>@{{ booking.client_phone }}</span>
+                                            <span><i class="pi pi-calendar mr-1 text-[9px]"></i>@{{ booking.booking_date }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end gap-1.5">
+                                    <span :class="'badge badge-' + (getSeverity(booking.status) === 'warn' ? 'warning' : getSeverity(booking.status))" class="uppercase text-[9px] font-bold tracking-wider">
+                                        @{{ String(booking.status || '').replace(/_/g, ' ') }}
+                                    </span>
+                                    <span v-if="booking.personalised_event" class="badge badge-info uppercase text-[8px] font-bold tracking-wider cursor-pointer" @click="openEventPopup(booking.personalised_event)">
+                                        <i class="pi pi-star-fill text-[8px] mr-0.5"></i> Personalised
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mt-4 pt-3 dash-border-t">
+                                <div v-if="booking.personalised_event" class="flex justify-between items-center text-xs">
+                                    <span class="dash-text-muted">Personalised</span>
+                                    <span class="font-bold dash-text-base truncate max-w-[150px] cursor-pointer hover:underline text-blue-500" @click="openEventPopup(booking.personalised_event)" :title="booking.personalised_event">@{{ booking.personalised_event }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="dash-text-muted">Venue</span>
+                                    <span class="font-bold dash-text-base truncate max-w-[150px]">@{{ booking.club_name || 'N/A' }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="dash-text-muted">Guests</span>
+                                    <span class="font-bold dash-text-base">@{{ booking.guest_count }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="dash-text-muted">Coupon Code</span>
+                                    <span v-if="booking.discount_code" class="inline-flex items-center font-bold px-1.5 py-0.5 rounded text-[10px] dash-accent-bg">
+                                        <i class="pi pi-ticket mr-1"></i>@{{ booking.discount_code }}
+                                    </span>
+                                    <span v-else class="text-[10px] dash-text-muted italic">None</span>
+                                </div>
+                                <div v-if="booking.discount_amount > 0" class="flex justify-between items-center text-xs">
+                                    <span class="dash-text-muted">Discount <span v-if="booking.discount_type" class="text-[9px] uppercase">(@{{ booking.discount_type }})</span></span>
+                                    <span class="font-bold text-[11px]" style="color: var(--danger)">-@{{ $helpers.formatRupee(booking.discount_amount) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="dash-text-muted">Total Value</span>
+                                    <span class="font-extrabold dash-text-base">@{{ $helpers.formatRupee(booking.total_amount_incl_tax) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="dash-text-muted">Paid / Due</span>
+                                    <div class="text-right">
+                                        <span class="font-bold text-[11px]" style="color: var(--success)">@{{ $helpers.formatRupee(booking.paid_amount || 0) }}</span>
+                                        <span class="mx-1 dash-text-muted text-[10px]">/</span>
+                                        <span class="font-bold text-[11px]" style="color: var(--danger)">@{{ $helpers.formatRupee(booking.due_amount || 0) }}</span>
+                                    </div>
+                                </div>
+                                <div v-if="booking.special_requests" class="pt-2 mt-2 dash-border-t">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider dash-text-muted mb-1 block">
+                                        <i class="pi pi-info-circle mr-1"></i>Special Request
+                                    </span>
+                                    <p class="text-[11px] dash-text-base bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded-lg border border-yellow-100 dark:border-yellow-800 line-clamp-2" :title="booking.special_requests">
+                                        @{{ booking.special_requests }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="absolute inset-x-0 bottom-0 h-1" :class="idx % 3 === 0 ? 'dash-accent-bg' : (idx % 3 === 1 ? 'dash-success-bg' : 'dash-warning-bg')"></div>
+                        </div>
+                        <div v-if="topBookings.length === 0" class="col-span-1 md:col-span-2 lg:col-span-3 text-xs dash-text-muted flex items-center justify-center w-full py-8 border-2 border-dashed rounded-xl dash-border">
+                            No recent bookings found.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="flex flex-wrap gap-2" cclass="flex flex-wrap items-center gap-2 p-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                     <Select v-model="filters.date_filter" :options="dateOptions" optionLabel="label" optionValue="value" placeholder="All Time" size="small" @change="fetchAnalytics" class="" />
@@ -223,6 +350,8 @@
                         </div>
                     </div>
                 </div>
+
+
             </template>
 
             {{-- ACTUAL LOADED DASHBOARD VIEW --}}
@@ -728,59 +857,18 @@
                     </div>
                 </div>
 
-                {{-- 5. Mobile App Roles & Client Ledgers --}}
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                    
-
-                    {{-- Latest Client Ledgers --}}
-                    <div class="lg:col-span-2 dash-card p-6 flex flex-col h-full">
-                        <div class="flex justify-between items-center pb-3 mb-4 dash-border-b">
-                            <div>
-                                <h3 class="text-sm font-bold dash-text-base">Latest Client History</h3>
-                                <p class="text-[10px] dash-text-muted mt-0.5">Recent financial transactions from client ledgers</p>
-                            </div>
-                        </div>
-
-                        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                            <ul class="space-y-3">
-                                <li v-for="ledger in latestLedgers" :key="ledger.id" class="flex justify-between items-center p-3 rounded-xl dash-border border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                    <div class="flex items-center gap-3">
-                                        <img onerror="this.src='{{ previewProfileURL() }}'" v-if="ledger.avatar" :src="ledger.avatar" class="w-10 h-10 rounded-full object-cover shadow-sm">
-                                        <div v-else class="w-10 h-10 rounded-full dash-subtle-box flex items-center justify-center flex-shrink-0">
-                                            <i class="pi pi-user dash-text-muted"></i>
-                                        </div>
-                                        <div>
-                                            <div class="text-sm font-bold dash-text-base">@{{ ledger.client_name }}</div>
-                                            <div class="text-[11px] dash-text-muted mt-0.5">
-                                                <span class="capitalize font-semibold">@{{ ledger.action_for || 'Transaction' }}</span>
-                                                <span class="opacity-75"> - @{{ ledger.description || 'Ledger update' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div v-if="ledger.advance_amount > 0" class="text-sm font-bold" style="color: var(--success)">
-                                            +@{{ $helpers.formatRupee(ledger.advance_amount) }}
-                                        </div>
-                                        <div v-else-if="ledger.due_amount > 0" class="text-sm font-bold" style="color: var(--danger)">
-                                            -@{{ $helpers.formatRupee(ledger.due_amount) }}
-                                        </div>
-                                        <div v-else class="text-sm font-bold dash-text-muted">
-                                            @{{ $helpers.formatRupee(0) }}
-                                        </div>
-                                        <div class="text-[10px] dash-text-muted mt-1">@{{ new Date(ledger.created_at).toLocaleString() }}</div>
-                                    </div>
-                                </li>
-                                <li v-if="latestLedgers.length === 0" class="text-xs dash-text-muted text-center py-6 border-2 border-dashed rounded-xl dash-border">
-                                    No recent ledger activity.
-                                </li>
-                            </ul>
-                        </div>
+                <Dialog v-model:visible="showEventPopupVisible" header="Personalised Event" :style="{ width: '400px', maxWidth: '95vw' }" modal>
+                    <div class="p-4 text-center">
+                        <i class="pi pi-star-fill text-4xl mb-4" style="color: var(--accent)"></i>
+                        <h2 class="text-xl font-bold dash-text-base mb-2">@{{ selectedEventName }}</h2>
                     </div>
-                </div>
-            </template>
-
-            {{-- 5. Live DataGrid Section: Recent Bookings --}}
-            <div class="dash-card">
+                    <template #footer>
+                        <Button label="Close" severity="secondary" @click="showEventPopupVisible = false" autofocus />
+                    </template>
+                </Dialog>
+            </template> 
+ 
+            <!-- <div class="dash-card">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 dash-border-b gap-3 pt-3 px-6 -mb-4">
                     <div>
                         <h3 class="text-lg font-bold dash-text-base">Recent Bookings & Reservations</h3>
@@ -816,7 +904,7 @@
                         src="{{ route('admin.dashboard') }}"
                     />
                 </div>
-            </div>
+            </div> -->
 
             <Toast />
         </div>
@@ -846,6 +934,7 @@
             data() {
                 return {
                     isLoading: true,
+                    isLoadingTopBookings: true,
                     stats: {},
                     charts: {},
                     statusBreakdown: [],
@@ -853,6 +942,7 @@
                     paymentMethods: [],
                     rolesBreakdown: [],
                     totalUsers: 0,
+                    topBookings: [],
 
                     filters: {
                         date_filter: '',
@@ -911,7 +1001,9 @@
                     activityChart: null,
                     statusChart: null,
                     selectedBooking: {},
-                    themeObserver: null
+                    themeObserver: null,
+                    showEventPopupVisible: false,
+                    selectedEventName: ''
                 };
             },
 
@@ -959,6 +1051,7 @@
 
                 this.fetchClientsViaScroll();
                 this.fetchAnalytics();
+                this.fetchTopBookings();
                 window.addEventListener('resize', this.initCharts);
 
                 // Observe html class changes (e.g. switching between light, dark, ocean, rose)
@@ -979,6 +1072,10 @@
             },
 
             methods: {
+                openEventPopup(eventName) {
+                    this.selectedEventName = eventName;
+                    this.showEventPopupVisible = true;
+                },
                 onClientFilter(event) {
                     this.clientSearchQuery = event.value;
                     this.clientPage = 1;
@@ -1115,6 +1212,27 @@
                         });
                 },
 
+                fetchTopBookings() {
+                    this.isLoadingTopBookings = true;
+                    const url = '{{ route("admin.dashboard.top_bookings") }}';
+                    const request = this.$axios ? this.$axios.get(url) : fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }).then(r => r.json());
+
+                    Promise.resolve(request)
+                        .then(response => {
+                            const res = response?.data || response || {};
+                            if (res.success) {
+                                this.topBookings = res.topBookings || [];
+                            }
+                        })
+                        .catch(err => console.error('Failed to load top bookings:', err))
+                        .finally(() => this.isLoadingTopBookings = false);
+                },
+
                 // formatRupee(val, decimals = 1) {
                 //     const num = Math.abs(Number(val)) || 0;
                 //     const sign = Number(val) < 0 ? '-' : '';
@@ -1184,6 +1302,7 @@
 
                 refreshDashboard() {
                     this.fetchAnalytics();
+                    this.fetchTopBookings();
                 },
 
                 refreshDataGrid() {

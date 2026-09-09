@@ -63,8 +63,17 @@
       <div class="bg-slate-800 border border-slate-700 text-yellow-500 font-mono px-6 py-2 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.2)] text-glow">
         @{{ currentDateTime }}
       </div>
-      <div v-if="userName" class="text-sm font-bold text-slate-400 mt-2 tracking-widest uppercase">
-        Operator: <span class="text-slate-200">@{{ userName }}</span>
+      <div class="flex flex-col md:flex-row items-center gap-4 mt-2">
+        <div v-if="userName" class="text-sm font-bold text-slate-400 tracking-widest uppercase">
+          Operator: <span class="text-slate-200">@{{ userName }}</span>
+        </div>
+        <button @click="resetAllTables" :disabled="isResettingAll" class="bg-red-900/50 hover:bg-red-900 text-xs px-4 py-1.5 rounded-full border border-red-700 text-red-200 transition-colors flex items-center shadow-lg">
+            <span v-if="isResettingAll" class="w-3 h-3 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-2 inline-block">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+            RESET ALL TABLES
+        </button>
       </div>
     </div>
 
@@ -79,7 +88,7 @@
         <h2 class="text-2xl font-black text-slate-100 uppercase tracking-widest mb-6 border-b-2 border-slate-700 pb-2">Standard Tables</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
             <template v-for="table in regularTables" :key="table.id">
-                <table-card :table="table" :user-name="userName" :updating-status="updatingStatus" :local-unlocked="localUnlockedTables" @update-field="updateTableField" @broadcast="broadcastUpdating" @toggle-lock="toggleLock" @unlock-locally="unlockLocally"></table-card>
+                <table-card :table="table" :user-name="userName" :updating-status="updatingStatus" :local-unlocked="localUnlockedTables" @update-field="updateTableField" @broadcast="broadcastUpdating" @toggle-lock="toggleLock" @unlock-locally="unlockLocally" @open-transfer="openTransferModal" @reset-table="resetTable"></table-card>
             </template>
         </div>
 
@@ -87,11 +96,36 @@
         <h2 class="text-2xl font-black text-slate-100 uppercase tracking-widest mb-6 border-b-2 border-slate-700 pb-2">Standing Tables</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
             <template v-for="table in specialTables" :key="table.id">
-                <table-card :table="table" :user-name="userName" :updating-status="updatingStatus" :local-unlocked="localUnlockedTables" @update-field="updateTableField" @broadcast="broadcastUpdating" @toggle-lock="toggleLock" @unlock-locally="unlockLocally"></table-card>
+                <table-card :table="table" :user-name="userName" :updating-status="updatingStatus" :local-unlocked="localUnlockedTables" @update-field="updateTableField" @broadcast="broadcastUpdating" @toggle-lock="toggleLock" @unlock-locally="unlockLocally" @open-transfer="openTransferModal" @reset-table="resetTable"></table-card>
             </template>
         </div>
     </div>
-  </div>
+
+        <!-- Transfer Modal -->
+        <div v-if="transferModalOpen" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-md shadow-2xl">
+                <h3 class="text-xl font-bold text-yellow-500 mb-4">Transfer Table @{{ transferringFromTable?.table_number }}</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Select Destination Table:</label>
+                    <select v-model="transferToTableId" class="w-full bg-slate-800 text-slate-200 rounded border border-slate-600 px-3 py-2 focus:ring-2 focus:ring-yellow-500 outline-none">
+                        <option value="">-- Select Table --</option>
+                        <option v-for="t in availableTransferTables" :key="t.id" :value="t.id">
+                            Table @{{ t.table_number }} - @{{ t.status }} (@{{ t.table_type }})
+                        </option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button @click="closeTransferModal" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded transition-colors">Cancel</button>
+                    <button @click="executeTransfer" :disabled="!transferToTableId || isTransferring" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white rounded transition-colors flex items-center gap-2">
+                        <span v-if="isTransferring" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        Transfer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </script>
 
     <!-- Table Card Component Template -->
@@ -102,16 +136,37 @@
         <!-- Top Header -->
         <div class="bg-black text-yellow-400 font-black text-xl px-4 py-3 flex justify-between items-center border-b border-slate-800">
             <span class="tracking-widest">TABLE @{{ table.table_number }}</span>
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-center">
+                <button v-if="!isEffectivelyLocked" @click="$emit('reset-table', table)" class="bg-red-900/40 hover:bg-red-900 text-[10px] px-2 py-1 rounded border border-red-700 text-red-200 transition-colors flex items-center" title="Reset Table">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    Reset
+                </button>
+                <button v-if="!isEffectivelyLocked" @click="$emit('open-transfer', table)" class="bg-indigo-900/50 hover:bg-indigo-900 text-[10px] px-2 py-1 rounded border border-indigo-700 text-indigo-200 transition-colors flex items-center" title="Transfer Table">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                    </svg>
+                    Transfer
+                </button>
                 <!-- If locked, show local unlock button or permanent unlock button based on state -->
-                <button v-if="table.is_locked && !localUnlocked[table.id]" @click="$emit('unlock-locally', table)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded border border-slate-600 transition-colors" title="Unlock for Editing">
-                    🔒 Edit
+                <button v-if="table.is_locked && !localUnlocked[table.id]" @click="$emit('unlock-locally', table)" class="bg-slate-800 hover:bg-slate-700 text-[10px] px-2 py-1 rounded border border-slate-600 transition-colors flex items-center" title="Unlock for Editing">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                    Edit
                 </button>
-                <button v-if="table.is_locked && localUnlocked[table.id]" @click="$emit('toggle-lock', table)" class="bg-red-900/50 hover:bg-red-900 text-xs px-2 py-1 rounded border border-red-700 text-red-200 transition-colors" title="Remove Lock Completely">
-                    🔓 Remove Lock
+                <button v-if="table.is_locked && localUnlocked[table.id]" @click="$emit('toggle-lock', table)" class="bg-red-900/50 hover:bg-red-900 text-[10px] px-2 py-1 rounded border border-red-700 text-red-200 transition-colors flex items-center" title="Remove Lock Completely">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                    Remove Lock
                 </button>
-                <button v-if="!table.is_locked" @click="$emit('toggle-lock', table)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded border border-slate-600 transition-colors" title="Lock Table">
-                    🔓 Lock
+                <button v-if="!table.is_locked" @click="$emit('toggle-lock', table)" class="bg-slate-800 hover:bg-slate-700 text-[10px] px-2 py-1 rounded border border-slate-600 transition-colors flex items-center" title="Lock Table">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                    Lock
                 </button>
             </div>
         </div>
@@ -259,6 +314,11 @@
                     userName: '',
                     tables: [],
                     updatingStatus: {},
+                    transferModalOpen: false,
+                    transferringFromTable: null,
+                    transferToTableId: '',
+                    isTransferring: false,
+                    isResettingAll: false,
                     localUnlockedTables: {}, // { id: 'password' }
                     updateTimeouts: {},
                     currentDateTime: '',
@@ -283,6 +343,10 @@
                             let numB = parseInt(b.table_number.replace('S', ''));
                             return numA - numB;
                         });
+                },
+                availableTransferTables() {
+                    if (!this.transferringFromTable) return [];
+                    return this.tables.filter(t => t.id !== this.transferringFromTable.id);
                 }
             },
             async mounted() {
@@ -500,6 +564,133 @@
 
                             if (error) alert("Failed to lock table.");
                         }
+                    }
+                },
+                openTransferModal(table) {
+                    this.transferringFromTable = table;
+                    this.transferToTableId = '';
+                    this.transferModalOpen = true;
+                },
+                closeTransferModal() {
+                    this.transferModalOpen = false;
+                    this.transferringFromTable = null;
+                    this.transferToTableId = '';
+                },
+                async executeTransfer() {
+                    if (!this.transferToTableId || !this.transferringFromTable) return;
+
+                    this.isTransferring = true;
+
+                    const sourceTable = this.transferringFromTable;
+                    const destTable = this.tables.find(t => t.id === this.transferToTableId);
+
+                    const destUpdates = {
+                        table_type: sourceTable.table_type,
+                        service_staff: sourceTable.service_staff,
+                        booking_time: sourceTable.booking_time,
+                        status: sourceTable.status,
+                        bill_amount: sourceTable.bill_amount,
+                        guest_name: sourceTable.guest_name
+                    };
+
+                    const sourceUpdates = {
+                        table_type: 'Empty Table',
+                        service_staff: 'None',
+                        booking_time: null,
+                        status: 'Empty',
+                        bill_amount: 0,
+                        guest_name: ''
+                    };
+
+                    try {
+                        let res = await supabase.rpc('secure_update_club_table', {
+                            p_table_id: destTable.id,
+                            p_updates: destUpdates,
+                            p_provided_password: this.localUnlockedTables[destTable.id] || null
+                        });
+
+                        if (res.error) throw res.error;
+
+                        res = await supabase.rpc('secure_update_club_table', {
+                            p_table_id: sourceTable.id,
+                            p_updates: sourceUpdates,
+                            p_provided_password: this.localUnlockedTables[sourceTable.id] || null
+                        });
+
+                        if (res.error) throw res.error;
+
+                        this.closeTransferModal();
+                    } catch (error) {
+                        console.error("Transfer error:", error);
+                        alert("Transfer failed: " + error.message);
+                    } finally {
+                        this.isTransferring = false;
+                    }
+                },
+                async resetTable(table) {
+                    if (!confirm(`Are you sure you want to reset Table ${table.table_number}?`)) return;
+
+                    const resetUpdates = {
+                        table_type: 'Empty Table',
+                        service_staff: 'None',
+                        booking_time: null,
+                        status: 'Empty',
+                        bill_amount: 0,
+                        guest_name: ''
+                    };
+
+                    try {
+                        const {
+                            error
+                        } = await supabase.rpc('secure_update_club_table', {
+                            p_table_id: table.id,
+                            p_updates: resetUpdates,
+                            p_provided_password: this.localUnlockedTables[table.id] || null
+                        });
+
+                        if (error) throw error;
+                    } catch (error) {
+                        console.error("Reset error:", error);
+                        alert("Reset failed: " + error.message);
+                    }
+                },
+                async resetAllTables() {
+                    if (!confirm("Are you sure you want to RESET ALL TABLES? This action cannot be undone.")) return;
+
+                    this.isResettingAll = true;
+
+                    const resetUpdates = {
+                        table_type: 'Empty Table',
+                        service_staff: 'None',
+                        booking_time: null,
+                        status: 'Empty',
+                        bill_amount: 0,
+                        guest_name: ''
+                    };
+
+                    try {
+                        const promises = this.tables.map(table => {
+                            if (table.is_locked && !this.localUnlockedTables[table.id]) {
+                                return Promise.resolve(); // Skip
+                            }
+                            return supabase.rpc('secure_update_club_table', {
+                                p_table_id: table.id,
+                                p_updates: resetUpdates,
+                                p_provided_password: this.localUnlockedTables[table.id] || null
+                            });
+                        });
+
+                        await Promise.all(promises);
+
+                        let skippedCount = this.tables.filter(t => t.is_locked && !this.localUnlockedTables[t.id]).length;
+                        if (skippedCount > 0) {
+                            alert(`Reset complete. ${skippedCount} locked tables were skipped.`);
+                        }
+                    } catch (error) {
+                        console.error("Global Reset error:", error);
+                        alert("Some tables failed to reset.");
+                    } finally {
+                        this.isResettingAll = false;
                     }
                 }
             },

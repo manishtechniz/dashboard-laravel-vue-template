@@ -107,6 +107,7 @@ class AuthController extends Controller
     )]
     public function login(Request $request)
     {
+        return [];
         $validated = $request->validate([
             // 'email' => 'required_without:phone|nullable|string',
             // 'phone' => 'required_without:email|nullable|string',
@@ -133,7 +134,10 @@ class AuthController extends Controller
                 return response()->json(create422ErrorFormat('phone', 'Your account has been deactivated.'), 422);
             }
 
-            $client->version = $version;
+            if (! empty($version)) {
+                $client->version = $version;
+            }
+
             $client->save();
 
             $client->tokens()->delete();
@@ -143,7 +147,7 @@ class AuthController extends Controller
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
-                'client' => $client->load('role'),
+                'client' => $client->load(['role', 'client_balances']),
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -229,6 +233,71 @@ class AuthController extends Controller
             return response()->json([
                 // 'message' => 'Oops!, Encounter error during process request.',
                 'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    #[OA\Post(
+        path: "/api/auth/verify-otp",
+        summary: "Verify OTP without logging in",
+        tags: ["Authentication"],
+        security: [["bearerAuth" => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["phone", "otp"],
+                properties: [
+                    new OA\Property(property: "phone", type: "string", example: "+1234567890"),
+                    new OA\Property(property: "otp", type: "string", example: "123456")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "OTP verified successfully",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "OTP verified successfully.")
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: "Invalid or expired OTP")
+        ]
+    )]
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|unique:clients,phone|max:15',
+            'otp' => 'required|string|max:6',
+        ], [
+            'phone.unique' => 'This phone number is already registered to another account.',
+        ]);
+
+        try {
+            $identifier = $request->phone;
+            $cachedOtp = Cache::get('otp_' . $identifier);
+
+            if (!$cachedOtp || ($cachedOtp !== $request->otp)) {
+                return response()->json(create422ErrorFormat('otp', 'Invalid or expired OTP.'), 422);
+            }
+
+            $client = $request->user();
+            $client->is_phone_verified = true;
+            $client->phone_verified_at = now();
+            $client->phone = $identifier;
+
+            $client->save();
+
+            Cache::forget('otp_' . $identifier);
+
+            return response()->json([
+                'message' => 'OTP verified successfully.',
+                'client' => $client->fresh()->load(['role', 'client_balances']),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Encounter error during verify otp',
             ], 500);
         }
     }
@@ -323,7 +392,7 @@ class AuthController extends Controller
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
-                'client' => $client->load('role'),
+                'client' => $client->load(['role', 'client_balances']),
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -365,15 +434,16 @@ class AuthController extends Controller
     )]
     public function googleAuth(Request $request)
     {
-        return response()->json([
-            'This type of authentication has been blocked.'
-        ], 404);
+        // return response()->json([
+        //     'This type of authentication has been blocked.'
+        // ], 404);
 
         $validated = $request->validate([
             'google_id' => 'required|string',
             'email' => 'required|email',
             'name' => 'nullable|string|max:2000',
             'avatar' => 'nullable|string',
+            'version' => 'nullable',
         ]);
 
         // Find existing client by google_id or email
@@ -386,9 +456,15 @@ class AuthController extends Controller
             if (!$client->google_id) {
                 $client->google_id = $validated['google_id'];
             }
+
             if (!empty($validated['avatar']) && !$client->avatar) {
                 $client->avatar = $validated['avatar'];
             }
+
+            if (!empty($validated['version'])) {
+                $client->version = $validated['version'];
+            }
+
             $client->save();
         } else {
             // Create new client from Google credentials
@@ -397,7 +473,10 @@ class AuthController extends Controller
                 'email' => $validated['email'],
                 'google_id' => $validated['google_id'],
                 'avatar' => $validated['avatar'] ?? null,
+                'is_email_verified' => true,
+                'email_verified_at' => now(),
                 'is_active' => true,
+                'version' => $validated['version'] ?? null
             ]);
         }
 
@@ -413,7 +492,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'client' => $client->load('role'),
+            'client' => $client->load(['role', 'client_balances']),
         ]);
     }
 
@@ -468,7 +547,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'client' => $client->load('role'),
+            'client' => $client->load(['role', 'client_balances']),
         ]);
     }
 
@@ -488,7 +567,7 @@ class AuthController extends Controller
     )]
     public function profile(Request $request)
     {
-        return response()->json($request->user()->load('role'));
+        return response()->json($request->user()->load(['role', 'client_balances']));
     }
 
     #[OA\Put(
@@ -534,12 +613,13 @@ class AuthController extends Controller
 
         $validated = $request->validate([
             'name' => 'nullable|string|max:256',
-            'email' => 'nullable|string|email|max:256|unique:clients,email,' . $client->id,
-            'phone' => 'nullable|string|max:256|unique:clients,phone,' . $client->id,
+            // 'email' => 'nullable|string|email|max:256|unique:clients,email,' . $client->id,
+            // 'phone' => 'nullable|string|max:256|unique:clients,phone,' . $client->id,
             'age' => 'nullable|integer|min:13',
             'gender' => 'nullable|in:male,female|max:256',
             'avatar' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'fcm_token' => 'nullable|string|max:1000',
+            'version' => 'nullable',
             'password' => 'nullable|string|min:6|max:100',
         ]);
 
@@ -563,7 +643,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Profile updated successfully.',
-            'client' => $client->fresh()->load('role'),
+            'client' => $client->fresh()->load(['role', 'client_balances']),
         ]);
     }
 

@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/send-otp', [AuthController::class, 'sendOtp']);
+
 Route::post('/auth/login-otp', [AuthController::class, 'loginOtp']);
 Route::post('/auth/google', [AuthController::class, 'googleAuth']);
 Route::post('/auth/test-token', [AuthController::class, 'testToken']);
@@ -41,6 +42,8 @@ Route::post('/auth/test-token', [AuthController::class, 'testToken']);
 Route::middleware(['auth:sanctum', EncryptToDecryptId::class])
     ->name('api.')
     ->group(function () {
+        Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp']);
+
         // Auth or Profile
         Route::get('/auth/profile', [AuthController::class, 'profile']);
         Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
@@ -64,7 +67,11 @@ Route::middleware(['auth:sanctum', EncryptToDecryptId::class])
         Route::get('/promo-codes', [PromoCodeController::class, 'index']);
 
         // Payments
+        Route::get('/payments', [ClientPaymentController::class, 'index']);
         Route::post('/payments/pay', [ClientPaymentController::class, 'pay']);
+
+        // Ledgers
+        Route::get('/ledgers', [\App\Http\Controllers\Api\ClientLedgerController::class, 'index']);
 
         // Notifications
         Route::get('/notifications', [ClientNotificationController::class, 'index']);

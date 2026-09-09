@@ -25,6 +25,8 @@ class Client extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_phone_verified' => 'boolean',
+        'is_email_verified' => 'boolean',
         'created_at' => 'date:Y-m-d h:i A',
         'updated_at' => 'date:Y-m-d h:i A',
     ];
@@ -95,5 +97,20 @@ class Client extends Model
     public function bookingGuest(): HasMany
     {
         return $this->hasMany(BookingGuest::class);
+    }
+
+    public function client_balances()
+    {
+        return $this->hasOne(ClientBalance::class);
+    }
+
+    public function client_ledgers()
+    {
+        return $this->hasMany(ClientLedger::class);
+    }
+
+    public function client_payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

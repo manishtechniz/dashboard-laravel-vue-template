@@ -202,6 +202,9 @@ class ClientBookingController extends Controller
     )]
     public function store(Request $request)
     {
+        if (! $request->user()->is_phone_verified) {
+            return response()->json(create422ErrorFormat('phone', 'Phone number should be verified.'));
+        }
 
         $clubId = $request['club_id'] ?? null;
         $client = $request->user();

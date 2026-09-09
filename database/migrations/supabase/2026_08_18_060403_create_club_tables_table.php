@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('club_tables', function (Blueprint $table) {
             $table->id();
-            
+
             // Core Table Identification
-            $table->string('table_number')->unique(); 
+            $table->string('table_number')->unique();
             $table->string('table_type');
 
             // Staff & Time
@@ -24,7 +25,7 @@ return new class extends Migration
 
             // Guest Details
             $table->string('guest_name')->nullable();
-            
+
             // --- NEW: Club-Specific Fields ---
             $table->integer('guest_count')->nullable()->comment('Total number of people allowed/arrived');
             $table->boolean('is_vip')->default(false)->comment('Flags if this is a VIP table');
@@ -35,6 +36,7 @@ return new class extends Migration
             $table->string('locked_by_name')->nullable();
             $table->boolean('is_locked')->default(false);
             $table->string('lock_password')->nullable();
+            $table->text('remark')->nullable();
 
             $table->timestamps();
         });

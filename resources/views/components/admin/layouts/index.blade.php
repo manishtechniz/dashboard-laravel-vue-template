@@ -248,7 +248,7 @@
 
                     {{-- Theme Switcher --}}
                     <div style="display:flex; gap:4px;">
-                        <button
+                        <!-- <button
                             v-for="t in themes"
                             :key="t.key"
                             class="header-icon-btn"
@@ -256,7 +256,7 @@
                             @click="applyTheme(t.key)"
                             :title="t.label">
                             <i :class="t.icon" style="font-size:13px;"></i>
-                        </button>
+                        </button> -->
                     </div>
 
                     <!-- <button class="header-icon-btn">

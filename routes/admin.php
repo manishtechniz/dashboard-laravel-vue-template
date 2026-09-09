@@ -44,6 +44,7 @@ Route::get('/', function () {
 Route::get('test', [AdminTestController::class, 'test']);
 
 Route::get('/dashboard/analytic', [AdminDashboardController::class, 'analytics'])->name('dashboard.analytics');
+Route::get('/dashboard/top-bookings', [AdminDashboardController::class, 'topBookings'])->name('dashboard.top_bookings');
 Route::get('/dashboard/clients', [AdminDashboardController::class, 'clients'])->name('dashboard.clients');
 Route::get('/dashboard/{view?}', [AdminDashboardController::class, 'index'])->name('dashboard');
 

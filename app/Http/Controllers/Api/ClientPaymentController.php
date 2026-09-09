@@ -11,6 +11,60 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: "Payments", description: "API Endpoints for Client Payments")]
 class ClientPaymentController extends Controller
 {
+    #[OA\Get(
+        path: "/api/payments",
+        summary: "Get client payments with pagination",
+        tags: ["Payments"],
+        security: [["bearerAuth" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "per_page",
+                in: "query",
+                required: false,
+                description: "Number of items per page",
+                schema: new OA\Schema(type: "integer", default: 10)
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Client payments retrieved successfully",
+                content: new OA\JsonContent(type: "object")
+            ),
+            new OA\Response(response: 401, description: "Unauthenticated"),
+            new OA\Response(response: 500, description: "Server Error")
+        ]
+    )]
+    public function index(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 10);
+
+            $paymentType = [
+                'withdrawal_advance' => 'Withdrawal',
+                'advance' => 'Deposit',
+                'due_clearance' => 'Due Clearance',
+            ];
+
+            $payments = $request->user()->client_payments()
+                ->orderBy('id', 'desc')
+                ->paginate(min(100, $perPage));
+
+            return response()->json([
+                'success' => true,
+                'paymentType' => $paymentType,
+                'data' => $payments,
+                'message' => 'Client payments retrieved successfully.'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Oops! Encountered an error during processing the request.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
     #[OA\Post(
         path: "/api/payments/pay",
         summary: "Process payment for a booking",
@@ -46,46 +100,6 @@ class ClientPaymentController extends Controller
     )]
     public function pay(Request $request)
     {
-        $validated = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
-            'amount' => 'required|numeric|min:0',
-            'payment_method' => 'required|string',
-            'token' => 'required|string', // stripe token simulation
-        ]);
-
-        $booking = Booking::findOrFail($validated['booking_id']);
-
-        // Create Payment record
-        $payment = Payment::create([
-            'booking_id' => $booking->id,
-            'amount' => $validated['amount'],
-            'payment_method' => $validated['payment_method'],
-            'status' => 'completed',
-            'transaction_reference' => 'ch_' . uniqid()
-        ]);
-
-        // Create Transaction log
-        $transaction = Transaction::create([
-            'payment_id' => $payment->id,
-            'booking_id' => $booking->id,
-            'amount' => $payment->amount,
-            'type' => 'charge',
-            'status' => 'success',
-            'reference' => $payment->transaction_reference,
-            'response_payload' => [
-                'gateway' => 'stripe_simulated',
-                'status' => 'paid',
-                'fee_collected' => 0.50
-            ]
-        ]);
-
-        // Update booking status
-        $booking->update(['status' => 'confirmed']);
-
-        return response()->json([
-            'message' => 'Payment processed and booking confirmed.',
-            'payment' => $payment,
-            'transaction' => $transaction
-        ]);
+        return [];
     }
 }

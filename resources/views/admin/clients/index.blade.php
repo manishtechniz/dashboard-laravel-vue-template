@@ -179,9 +179,20 @@
                                                 <span class="text-xs font-medium text-(--text-muted)">
                                                     @{{ new Date(ledger.created_at).toLocaleString('en-IN', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) }}
                                                 </span>
-                                                <span class="text-sm font-bold" :class="ledger.type === 'credit' ? 'text-(--success)' : 'text-(--danger)'">
-                                                    @{{ ledger.type === 'credit' ? '+' : '-' }} ₹@{{ parseFloat(ledger.amount).toFixed(2) }}
-                                                </span>
+                                                <div class="flex flex-col items-end gap-1">
+                                                    <div v-if="parseFloat(ledger.due_amount) > 0" class="flex items-center gap-1">
+                                                        <span class="text-xs text-(--text-muted)">Due:</span>
+                                                        <span class="text-sm font-bold" :class="ledger.due_type === 'credit' ? 'text-(--success)' : 'text-(--danger)'">
+                                                            ₹@{{ parseFloat(ledger.due_amount).toFixed(2) }} <span class="text-xs font-normal">(@{{ ledger.due_type === 'credit' ? 'Cr' : 'Dr' }})</span>
+                                                        </span>
+                                                    </div>
+                                                    <div v-if="parseFloat(ledger.advance_amount) > 0" class="flex items-center gap-1">
+                                                        <span class="text-xs text-(--text-muted)">Advance:</span>
+                                                        <span class="text-sm font-bold" :class="ledger.advance_type === 'credit' ? 'text-(--success)' : 'text-(--danger)'">
+                                                            ₹@{{ parseFloat(ledger.advance_amount).toFixed(2) }} <span class="text-xs font-normal">(@{{ ledger.advance_type === 'credit' ? 'Cr' : 'Dr' }})</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <p class="text-sm text-(--text-base) mb-3">
                                                 @{{ ledger.description || 'No description provided' }}

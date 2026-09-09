@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\DataGrids\DashboardBookingDataGrid;
+use App\Model\Booking;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -252,20 +253,21 @@ class AdminDashboardController extends Controller
         $stats['total_client_advance'] = (float) ($clientBalances->total_advance ?? 0);
 
         // Fetch 10 Latest Client Ledgers History
-        $latestLedgers = DB::table('client_ledgers')
-            ->leftJoin('clients', 'clients.id', '=', 'client_ledgers.client_id')
-            ->select('client_ledgers.*', 'clients.name as client_name', 'clients.avatar')
-            ->orderByDesc('client_ledgers.created_at')
-            ->limit(5)
-            ->get()
-            ->map(function ($ledger) {
-                // Create the avatar_url if an avatar exists, otherwise set to null
-                $ledger->avatar_url = $ledger->avatar
-                    ? Storage::url($ledger->avatar)
-                    : null;
+        // $latestLedgers = DB::table('client_ledgers')
+        //     ->leftJoin('clients', 'clients.id', '=', 'client_ledgers.client_id')
+        //     ->select('client_ledgers.*', 'clients.name as client_name', 'clients.avatar')
+        //     ->orderByDesc('client_ledgers.created_at')
+        //     ->limit(5)
+        //     ->get()
+        //     ->map(function ($ledger) {
+        //         // Create the avatar_url if an avatar exists, otherwise set to null
+        //         $ledger->avatar_url = $ledger->avatar
+        //             ? Storage::url($ledger->avatar)
+        //             : null;
 
-                return $ledger;
-            });
+        //         return $ledger;
+        //     });
+        $latestLedgers = [];
 
         // Fetch Mobile App Roles Breakdown
         $mobileTotalUsers = DB::table('clients')->count();
@@ -301,6 +303,39 @@ class AdminDashboardController extends Controller
             'latestLedgers'         => $latestLedgers,
             'mobileRolesBreakdown'  => $mobileRolesBreakdown,
             'mobileTotalUsers'      => $mobileTotalUsers,
+        ]);
+    }
+
+    public function topBookings(Request $request)
+    {
+        $topBookingsQuery = DB::table('bookings')
+            ->leftJoin('clients', 'bookings.client_id', '=', 'clients.id')
+            ->leftJoin('clubs', 'bookings.club_id', '=', 'clubs.id')
+            ->select(
+                'bookings.id',
+                'bookings.booking_date',
+                'bookings.status',
+                'bookings.total_amount_incl_tax',
+                'bookings.guest_count',
+                'bookings.created_at',
+                'bookings.discount_code',
+                'bookings.special_requests',
+                'bookings.personalised_event',
+                'bookings.paid_amount',
+                'bookings.due_amount',
+                'bookings.discount_amount',
+                'bookings.discount_type',
+                'clients.name as client_name',
+                'clients.phone as client_phone',
+                'clients.avatar as client_avatar',
+                'clubs.name as club_name'
+            );
+
+        $topBookings = $topBookingsQuery->orderByDesc('bookings.created_at')->limit(6)->get();
+
+        return response()->json([
+            'success' => true,
+            'topBookings' => $topBookings,
         ]);
     }
 

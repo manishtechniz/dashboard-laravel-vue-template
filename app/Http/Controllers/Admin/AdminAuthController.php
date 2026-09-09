@@ -48,7 +48,7 @@ class AdminAuthController extends Controller
                     'redirectTo' => session('redirectTo', route('admin.dashboard')),
                 ]);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             dd($e->getMessage());
             return response()->json(['message' => 'Something went wrong'], 500);
         }
