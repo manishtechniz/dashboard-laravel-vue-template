@@ -609,11 +609,9 @@ class AuthController extends Controller
     {
         $client = $request->user();
 
-        // return [$client];
-
         $validated = $request->validate([
             'name' => 'nullable|string|max:256',
-            // 'email' => 'nullable|string|email|max:256|unique:clients,email,' . $client->id,
+            'email' => 'nullable|string|email|max:256|unique:clients,email,' . $client->id,
             // 'phone' => 'nullable|string|max:256|unique:clients,phone,' . $client->id,
             'age' => 'nullable|integer|min:13',
             'gender' => 'nullable|in:male,female|max:256',
@@ -623,28 +621,38 @@ class AuthController extends Controller
             'password' => 'nullable|string|min:6|max:100',
         ]);
 
-        if ($request->hasFile('avatar')) {
-            // Delete old avatar from storage if it exists
-            if ($client->avatar && Storage::exists($client->avatar)) {
-                Storage::delete($client->avatar);
+        try {
+            if ($request->hasFile('avatar')) {
+                // Delete old avatar from storage if it exists
+                if ($client->avatar && Storage::exists($client->avatar)) {
+                    Storage::delete($client->avatar);
+                }
+
+                // Store new avatar and update the data array with the path
+                $validated['avatar'] = $request->file('avatar')->store('clients');
             }
 
-            // Store new avatar and update the data array with the path
-            $validated['avatar'] = $request->file('avatar')->store('clients');
-        }
-
-        foreach ($validated as $key => $value) {
-            if (! empty($value)) {
-                $client->$key = $value;
+            if (! empty($validated['password'])) {
+                $validated['password'] = Hash::make($validated['password']);
             }
+
+            foreach ($validated as $key => $value) {
+                if ($request->has($key)) {
+                    $client->$key = $value;
+                }
+            }
+
+            $client->save();
+
+            return response()->json([
+                'message' => 'Profile updated successfully.',
+                'client' => $client->fresh()->load(['role', 'client_balances']),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Profile updated failed.',
+            ], 500);
         }
-
-        $client->save();
-
-        return response()->json([
-            'message' => 'Profile updated successfully.',
-            'client' => $client->fresh()->load(['role', 'client_balances']),
-        ]);
     }
 
     #[OA\Post(

@@ -43,7 +43,9 @@ class Client extends Model
     {
         return Attribute::make(
             get: fn($avatar) => $this->getFileUrl(
-                $avatar
+                $avatar,
+                'image',
+                previewProfileURL()
             )
         );
     }

@@ -8,15 +8,18 @@ use App\Http\Controllers\Admin\AdminMobileRoleController;
 use App\Http\Controllers\Admin\AdminTestController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\UploadFileController;
+use App\Http\Middleware\AuthorizeActionMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /**
  * Without Authentication, the following routes will be accessible to everyone. 
  */
-Route::withoutMiddleware(['auth:admin'])->group(function () {
+Route::withoutMiddleware(['auth:admin', AuthorizeActionMiddleware::class])->group(function () {
     Route::get('auth/login', [AdminAuthController::class, 'index'])->name('login');
     Route::post('auth/login', [AdminAuthController::class, 'login'])->name('verify_login');
 });
+
+Route::post('auth/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
 /**
  * User Management Routes

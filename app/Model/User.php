@@ -33,7 +33,9 @@ class User extends Authenticatable
     {
         return Attribute::make(
             get: fn() => $this->getFileUrl(
-                $this->avatar
+                $this->avatar,
+                'image',
+                previewProfileURL()
             )
         );
     }

@@ -331,7 +331,12 @@ class AdminDashboardController extends Controller
                 'clubs.name as club_name'
             );
 
-        $topBookings = $topBookingsQuery->orderByDesc('bookings.created_at')->limit(6)->get();
+        $topBookings = $topBookingsQuery->orderByDesc('bookings.created_at')->limit(6)
+            ->get()
+            ->map(function ($row) {
+                $row->client_avatar_url = $row->client_avatar ? Storage::url($row->client_avatar) : previewProfileURL();
+                return $row;
+            });
 
         return response()->json([
             'success' => true,

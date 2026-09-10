@@ -53,4 +53,14 @@ class AdminAuthController extends Controller
             return response()->json(['message' => 'Something went wrong'], 500);
         }
     }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('admin')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login');
+    }
 }

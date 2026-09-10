@@ -13,6 +13,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/x-icon" href="{{ Vite::asset('resources/images/icon.ico') }}">
 
     <!-- Link the PWA Manifest -->
     <!-- <link rel="manifest" href="{{ asset('web.dev/manifest.json') }}">
@@ -187,10 +188,15 @@
             {{-- Sidebar --}}
             <aside :class="['admin-sidebar', { collapsed: sidebarCollapsed, 'mobile-open': mobileSidebarOpen }]">
                 <div class="relative">
-                    <div class="sidebar-logo">
-                        <div class="logo-mark">A</div>
-                        <span class="logo-text">AdminPanel</span>
+                    <div class="sidebar-logo" style="height: 60px;">
+                        <img style="width: 143px;
+    height: 66px;margin-left: 42px;" src="{{ Storage::url('logo.png') }}" alt="Logo" class="max-h-10 w-auto" />
                     </div>
+
+                    <!-- <div class="sidebar-logo" style="height: 60px;">
+                        <img style="width: 143px;
+    height: 66px;margin-left: 42px;" src="{{ Storage::url('icon.png') }}" alt="Logo" class="max-h-10 w-auto" />
+                    </div> -->
 
                     <button class=" lg:hidden absolute top-4 right-4 text-(--sidebar-text)" @click="toggleMobile">
                         <i class="pi pi-times  "></i>
@@ -215,6 +221,14 @@
                         <span class="nav-label">My Profile</span>
                     </a>
                     @endif
+
+                    <form method="POST" action="{{ route('admin.logout') }}" id="sidebar-logout-form" class="hidden">
+                        @csrf
+                    </form>
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();" class="nav-item mt-1" style="color: #ef4444 !important;">
+                        <i class="pi pi-sign-out nav-icon" style="color: #ef4444 !important;"></i>
+                        <span class="nav-label">Logout</span>
+                    </a>
                 </nav>
 
                 <div class="sidebar-footer">
@@ -263,8 +277,17 @@
                         <i class="pi pi-bell" style="font-size:14px;"></i>
                         <span class="badge">@{{ notifCount }}</span>
                     </button> -->
+                    <!-- <div class="avatar" title="My Profile">AU</div> -->
+                    <div class="flex items-center gap-3">
+                        <img onerror="this.src='{{ previewProfileURL() }}'" src="{{ Auth::guard('admin')->user()->avatar_url }}" class="w-10 h-10 rounded-full object-cover shadow-sm">
 
-                    <div class="avatar" title="My Profile">AU</div>
+                        <form method="POST" action="{{ route('admin.logout') }}" class="m-0 p-0 flex">
+                            @csrf
+                            <button type="submit" class=" hover:bg-red-600 text-white p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center shadow-sm" title="Logout" style="width: 36px; height: 36px;">
+                                <i class="pi pi-sign-out text-lg"></i>
+                            </button>
+                        </form>
+                    </div>
                 </header>
                 @endif
 

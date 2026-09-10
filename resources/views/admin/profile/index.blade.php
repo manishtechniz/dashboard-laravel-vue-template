@@ -385,17 +385,7 @@
                             window.location.reload();
                         })
                         .catch(error => {
-                            if (error.response.status === 422) {
-                                if (error.response.data.errors?.avatar) {
-                                    this.$emitter.emit('add-flash', {
-                                        type: 'error',
-                                        message: error.response.data.errors?.avatar[0]
-                                    });
-                                }
-
-                                setErrors(error.response.data.errors);
-                                return;
-                            }
+                            this.$helpers.errorControl(error, setErrors);
                         }).then(() => {
                             this.isLoading = false;
                         });

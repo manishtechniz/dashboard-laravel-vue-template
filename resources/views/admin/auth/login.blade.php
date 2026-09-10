@@ -837,12 +837,7 @@
                     <!-- Brand Top Header -->
                     <div class="brand-header">
                         <div class="brand-lockup">
-                            <div class="brand-crown-mark">
-                                <i class="pi pi-crown"></i>
-                            </div>
-                            <div class="brand-text-block">
-                                <h3>Mid Night</h3> 
-                            </div>
+                             <img src="{{ Vite::asset('resources/images/logo.png') }}" style="width: 125px;" alt="logo" class="rounded-full object-cover shadow-sm">
                         </div> 
                     </div>
 

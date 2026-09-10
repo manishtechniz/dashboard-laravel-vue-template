@@ -162,7 +162,7 @@
                         <div v-for="(booking, idx) in topBookings" :key="booking.id" class="p-4 rounded-xl dash-border border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors relative overflow-hidden group">
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex items-center gap-3">
-                                    <img onerror="this.src='{{ previewProfileURL() }}'" v-if="booking.client_avatar" :src="booking.client_avatar" class="w-10 h-10 rounded-full object-cover shadow-sm">
+                                    <img onerror="this.src='{{ previewProfileURL() }}'" v-if="booking.client_avatar" :src="booking.client_avatar_url" class="w-10 h-10 rounded-full object-cover shadow-sm">
                                     <div v-else class="w-10 h-10 rounded-full dash-subtle-box flex items-center justify-center flex-shrink-0">
                                         <i class="pi pi-user dash-text-muted"></i>
                                     </div>

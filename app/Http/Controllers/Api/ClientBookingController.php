@@ -98,7 +98,7 @@ class ClientBookingController extends Controller
                 ->when($bookingDate, function ($query) use ($bookingDate) {
                     $query->whereDate('booking_date', $bookingDate);
                 })
-                ->with(['table:id,name,image', 'club:id,name', 'guests', 'event:id,name'])
+                ->with(['table:id,name,image', 'club:id,name,logo', 'guests', 'event:id,name'])
                 ->latest('id')
                 ->paginate();
 
@@ -136,7 +136,7 @@ class ClientBookingController extends Controller
         try {
             $booking = $request->user()->bookings()
                 ->where('id', $id)
-                ->with(['table:id,name', 'club:id,name', 'guests'])
+                ->with(['table:id,name,image', 'club:id,name,logo', 'guests'])
                 ->first();
 
             if (!$booking) {
@@ -203,7 +203,7 @@ class ClientBookingController extends Controller
     public function store(Request $request)
     {
         if (! $request->user()->is_phone_verified) {
-            return response()->json(create422ErrorFormat('phone', 'Phone number should be verified.'));
+            return response()->json(create422ErrorFormat('phone', 'Phone number should be verified.'), 422);
         }
 
         $clubId = $request['club_id'] ?? null;

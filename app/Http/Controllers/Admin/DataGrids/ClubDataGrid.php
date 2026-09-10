@@ -107,7 +107,7 @@ class ClubDataGrid extends DataGrid
 
     public function prepareActions()
     {
-        if (hasPermission('admin.clubs.update_club')) {
+        if (hasPermission('admin.clubs.staff.index')) {
             $this->addAction([
                 'type' => 'custom',
                 'icon' => 'd-pi pi pi-users',
@@ -117,7 +117,9 @@ class ClubDataGrid extends DataGrid
                     return '';
                 }
             ]);
+        }
 
+        if (hasPermission('admin.clubs.update_club')) {
             $this->addAction([
                 'type' => 'custom',
                 'icon' => 'icon-edit',

@@ -330,8 +330,12 @@
                             <div v-else class="flex flex-col gap-3">
                                 <div v-for="(staff, index) in staffList" :key="staff.id" class="p-4 border border-(--border) rounded-md bg-(--bg-subtle) relative">
                                     <div class="absolute top-4 right-4 flex gap-2">
+                                        @if(hasPermission('admin.clubs.staff.update'))
                                         <Button icon="pi pi-pencil" text rounded size="small" @click="onEditStaff(staff)" />
+                                        @endif
+                                        @if(hasPermission('admin.clubs.staff.delete'))
                                         <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click="deleteStaff(staff.id)" />
+                                        @endif  
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <div v-if="staff.avatar" class="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden border border-(--border)">
@@ -341,7 +345,11 @@
                                             @{{ staff.name.charAt(0).toUpperCase() }}
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-base font-bold text-(--text-base)">@{{ staff.name }}</span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-base font-bold text-(--text-base)">@{{ staff.name }}</span>
+                                                <span v-if="staff.is_active" class="label-active !text-[10px] !px-1.5 !py-0.5">Active</span>
+                                                <span v-else class="label-inactive !text-[10px] !px-1.5 !py-0.5">Inactive</span>
+                                            </div>
                                             <span class="text-xs uppercase font-semibold text-(--accent)">@{{ staff.role }}</span>
                                         </div>
                                     </div>

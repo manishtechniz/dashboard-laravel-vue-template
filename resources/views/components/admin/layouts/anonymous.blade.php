@@ -6,6 +6,7 @@
     <title>{{ $title ?? '' }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/x-icon" href="{{ Vite::asset('resources/images/icon.ico') }}">
 
     @php
     // Tells Laravel Vite to apply these attributes to the generated
