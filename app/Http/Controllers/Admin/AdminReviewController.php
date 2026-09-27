@@ -69,8 +69,8 @@ class AdminReviewController extends Controller
     public function destroy($id)
     {
         try {
-            $review = Review::findOrFail($id);
-            $review->delete();
+            Review::destroy($id);
+
             return response()->json(['message' => 'Review deleted successfully.']);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Encounter error during delete.'], 500);
@@ -84,7 +84,10 @@ class AdminReviewController extends Controller
         ]);
 
         try {
-            Review::whereIn('id', $validated['indices'])->delete();
+            foreach ($validated['indices'] as $id) {
+                Review::destroy($id);
+            }
+
             return response()->json(['message' => 'Reviews deleted successfully.']);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Encounter error during mass delete.'], 500);

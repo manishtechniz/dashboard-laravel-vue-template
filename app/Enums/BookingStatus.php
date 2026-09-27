@@ -37,11 +37,11 @@ enum BookingStatus: string
     public function notificationDescription(): string
     {
         return match ($this) {
-            self::PENDING => 'Your reservation has been received and is currently being processed.',
+            self::PENDING => 'Your booking has been received and is currently being processed.',
             self::CONFIRMED => 'Your reservation is successfully confirmed.',
             self::CHECKED_IN => 'Check-in is complete. Thank you for choosing our services.',
             self::COMPLETED => 'Check-in is complete. Thank you for choosing our services.',
-            self::CANCELLED => 'Your reservation has been cancelled as requested.',
+            self::CANCELLED => 'Your booking has been cancelled as requested.',
         };
     }
 

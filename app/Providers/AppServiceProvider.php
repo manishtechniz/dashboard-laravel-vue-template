@@ -30,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang/admin', 'admin');
 
+        // Admin
         Blade::anonymousComponentPath(
             __DIR__ . '/../../resources/views/components/admin',
             'admin'
@@ -40,6 +41,18 @@ class AppServiceProvider extends ServiceProvider
             'admin'
         );
 
+        // Frontend 
+        Blade::anonymousComponentPath(
+            __DIR__ . '/../../resources/views/components/frontend',
+            'frontend'
+        );
+
+        $this->loadViewsFrom(
+            __DIR__ . '/../../resources/views/frontend',
+            'frontend'
+        );
+
+        // Webscoket
         $this->loadViewsFrom(
             __DIR__ . '/../../resources/views/websocket',
             'websocket'

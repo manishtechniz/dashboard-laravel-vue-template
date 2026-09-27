@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
 
 trait ResolvesFileUrls
@@ -28,6 +29,7 @@ trait ResolvesFileUrls
      */
     protected function imagePreviewURL()
     {
+        return Vite::asset('resources/images/preview-image.webp');
         return Storage::disk('public')->url('preview-image.webp');
     }
 

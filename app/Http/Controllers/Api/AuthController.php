@@ -186,7 +186,7 @@ class AuthController extends Controller
     public function sendOtp(Request $request)
     {
         $request->validate([
-            'phone' => 'required|string|max:15',
+            'phone' => 'required|string|max:10|min:10',
         ]);
 
         try {
@@ -208,31 +208,11 @@ class AuthController extends Controller
 
             $otp = (string) rand(100000, 999999);
 
-            $api = "3003f5acf5f369611be7c113bc714760";
-            $url = "https://sms.renflair.in/V1.php";
-
-            $response = Http::get($url, [
-                'API' => $api,
-                'PHONE' => $identifier,
-                'OTP' => $otp,
-            ]);
-
-            if ($response->successful()) {
-                // Store OTP in Cache for 5 minutes
-                Cache::put('otp_' . $identifier, $otp, now()->addMinutes(5));
-
-                return response()->json([
-                    'message' => 'OTP sent successfully.',
-                ]);
-            }
-
-            return response()->json([
-                'message' => 'Failed to send OTP.',
-            ], 500);
+            return sendSMSOtp($identifier, $otp);
         } catch (\Throwable $th) {
             return response()->json([
-                // 'message' => 'Oops!, Encounter error during process request.',
-                'message' => $th->getMessage(),
+                'message' => 'Oops!, Encounter error during process request.',
+                // 'message' => $th->getMessage(),
             ], 500);
         }
     }
@@ -268,8 +248,8 @@ class AuthController extends Controller
     public function verifyOtp(Request $request)
     {
         $request->validate([
-            'phone' => 'required|unique:clients,phone|max:15',
-            'otp' => 'required|string|max:6',
+            'phone' => 'required|unique:clients,phone|max:10|min:10',
+            'otp' => 'required|string|max:6|min:6',
         ], [
             'phone.unique' => 'This phone number is already registered to another account.',
         ]);
@@ -340,7 +320,7 @@ class AuthController extends Controller
             'phone' => 'required|string|max:15',
             'email' => 'nullable|email|unique:clients,email|max:256',
             'otp' => 'required|string|max:6',
-            'name' => 'nullable|string|max:100',
+            'name' => 'nullable|string|max:100|min:4',
             'password' => 'nullable|string|min:6',
             'version' => 'nullable',
         ]);
@@ -375,6 +355,17 @@ class AuthController extends Controller
                     'email' => $email,
                     'password' => Hash::make($password ?? Str::uuid()->toString())
                 ]);
+
+                // If client presnet
+            } else {
+                if (! empty($name)) {
+                    $client->name = $name;
+                }
+
+                if (! $client->is_phone_verified) {
+                    $client->is_phone_verified = true;
+                    $client->phone_verified_at = now();
+                }
             }
 
             $client->login_at = now();

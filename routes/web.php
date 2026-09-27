@@ -1,34 +1,84 @@
 <?php
 
-use App\Model\Booking;
-use App\Model\Client;
-use App\Model\ClubTable as ModelClubTable;
-use App\Model\MobileAppRole;
-use App\Models\Supabase\ClubTable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Http;
 
 Route::withoutMiddleware(['auth'])->group(function () {
-    Route::get('/', function (Request $request) {
-        return "Bro, Yaha kuch nhi hai. Aage 100 kilometer jaker left lene, Happy journey.";
-        // $data = ClubTable::all();
-        // $data = DB::connection('supabase')->table('club_tables')->get();
-        // $data = Booking::all();
+    Route::get('/', fn() => view('frontend::home.index'))
+        ->name('frontend.home');
 
-        // return 1;
+    Route::get('/gem', fn() => view('frontend::home.gemni-index'))
+        ->name('frontend.gem');
 
-        // $data = Http::withHeaders([
-        //     'apikey' => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzbWJ2cmVyZ3F3eXh6ZnFjcXJjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjkyODU0MCwiZXhwIjoyMTAyNTA0NTQwfQ.MXYrOWT-mzZlmZiqN3RiZzO-1XGGWZzGiaVayl4MBdg",
-        //     'Authorization' => 'Bearer ' . "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzbWJ2cmVyZ3F3eXh6ZnFjcXJjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjkyODU0MCwiZXhwIjoyMTAyNTA0NTQwfQ.MXYrOWT-mzZlmZiqN3RiZzO-1XGGWZzGiaVayl4MBdg",
-        //     'Content-Type' => 'application/json',
-        //     'Prefer' => 'return=representation', // Returns created/updated rows
-        // ])->get('https://wsmbvrergqwyxzfqcqrc.supabase.co/rest/v1/club_tables');
+    Route::get('/cla', fn() => view('frontend::home.claude-index'))
+        ->name('frontend.cla');
 
-        // $data = json_decode($data->body());
+    Route::get('/about-us', function (Request $request) {
+        return view('frontend::about.index');
+    })->name('frontend.about');
 
-        return $data;
+    Route::get('/privacy-policy', function (Request $request) {
+        return view('frontend::privacy.index');
+    })->name('frontend.privacy');
+
+    Route::get('/disclaimer', function (Request $request) {
+        return view('frontend::disclaimer.index');
+    })->name('frontend.disclaimer');
+
+    // SEO Landing Pages
+    $seoRoutes = [
+        'best-club-in-gurugram',
+        'night-club-gurugram',
+        'best-nightclub-in-gurgaon',
+        'best-clubs-in-gurugram',
+        'best-clubs-in-gurgaon',
+        'night-clubs-in-gurugram',
+        'night-clubs-in-gurgaon',
+        'club-booking-gurugram',
+        'club-booking-gurgaon',
+        'nightlife-in-gurugram',
+        'nightlife-in-gurgaon',
+        'clubs-in-sector-29',
+        'clubs-near-cyber-hub',
+        'clubs-on-mg-road-gurgaon',
+        'gurgaon-weekend-party'
+    ];
+    foreach ($seoRoutes as $route) {
+        Route::get('/' . $route, function () use ($route) {
+            return view('frontend::seo.' . $route);
+        })->name('frontend.seo.' . str_replace('-', '_', $route));
+    }
+
+    Route::prefix('frontend')->group(function () {
+        Route::get('/club-assets', [App\Http\Controllers\Frontend\FrontendDataController::class, 'clubAssets'])->name('frontend.api.club_assets');
+        Route::get('/testimonials', [App\Http\Controllers\Frontend\FrontendDataController::class, 'testimonials'])->name('frontend.api.testimonials');
     });
+
+    /**
+     * Sitemap XML
+     */
+    Route::get('/sitemap.xml', function () {
+        $xml = cache()->remember('sitemap.xml', now()->addDay(), function () {
+            // $xml = cache()->remember('sitemap.xml', 0, function () { 
+            $urls = collect(config('sitemap.static'))
+                ->map(function ($data, $route) {
+                    return [
+                        'url' => route($route),
+                        'lastmod' => sitemapLastModified($data['file_slug']),
+                    ];
+                })
+                ->merge(
+                    collect(config('sitemap.seo'))
+                        ->map(fn($slug) => [
+                            'url' => url($slug),
+                            'lastmod' => sitemapLastModified('seo/' . $slug),
+                        ])
+                )->values();
+            // dd($urls);
+            return view('frontend::sitemap', compact('urls'))->render();
+        });
+
+        return response($xml)
+            ->header('Content-Type', 'application/xml');
+    })->name('frontend.sitemap');
 });

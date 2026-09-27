@@ -17,7 +17,7 @@ class Booking extends Model
     ];
 
     // Append this to the JSON response automatically
-    protected $appends = [''];
+    protected $appends = ['plain_qr_code'];
 
     protected function casts(): array
     {
@@ -27,6 +27,24 @@ class Booking extends Model
             'created_at' => 'date:Y-m-d',
             'updated_at' => 'date:Y-m-d',
         ];
+    }
+
+    public function getPlainQrCodeAttribute(): ?string
+    {
+        // Using getRawOriginal() reads the true value from the database without triggering getQrCodeAttribute()
+        return $this->getRawOriginal('qr_code');
+    }
+
+    /**
+     * Intercept the physical qr_code column and encrypt it on output.
+     */
+    public function getQrCodeAttribute($value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return Crypt::encryptString((string) $value);
     }
 
     public function client(): BelongsTo

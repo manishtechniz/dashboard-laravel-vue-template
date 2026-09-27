@@ -1042,21 +1042,21 @@
                             description: "Interactive reservation controls for stage-side VIP tables, DJ sound booths, and custom celebrations."
                         },
                         {
-                            src: "{{ asset('images/club1.jpg') }}",
+                            src: "{{ Vite::asset('resources/images/club1.jpg') }}",
                             shortName: "Dance Floor",
                             badge: "Central Arena & DJ Stage",
                             title: "Real-Time Venue Floor Plan",
                             description: "Visual table layout allocation with live availability status, guest count tracking, and minimum spend limits."
                         },
                         {
-                            src: "{{ asset('images/club2.webp') }}",
+                            src: "{{ Vite::asset('resources/images/club2.webp') }}",
                             shortName: "VIP Lounge",
                             badge: "Upper Level • VIP Section",
                             title: "Midnight VIP Lounge & Bottle Service",
                             description: "Dedicated guestlist concierge, bottle pre-orders, and personalized VIP hospitality service."
                         },
                         {
-                            src: "{{ asset('images/club4.webp') }}",
+                            src: "{{ Vite::asset('resources/images/club4.webp') }}",
                             shortName: "Booths & Seating",
                             badge: "Exclusive Guest Seating",
                             title: "Seamless Guest & Booking Operations",

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('client_balances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('set null');
             $table->decimal('total_due', 10, 2)->default(0.00);
             $table->decimal('total_advance', 10, 2)->default(0.00);
             $table->timestamps();

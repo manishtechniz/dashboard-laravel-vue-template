@@ -72,6 +72,7 @@ class ClientBookingController extends Controller
     )]
     public function index(Request $request)
     {
+        // return 1;
         $validated = $request->validate([
             'club_id' => 'nullable|exists:clubs,id',
             'event_id' => 'nullable|exists:events,id',
@@ -225,6 +226,7 @@ class ClientBookingController extends Controller
             'discount_note' => 'nullable|max:500',
             'special_requests' => 'nullable|max:2000',
             'personalised_event' => 'nullable|max:2000',
+            'guest_count' => 'nullable|max:10|min:1|numeric',
             'guest_ids' => 'nullable|array',
             'guest_ids.*' => [
                 'nullable',

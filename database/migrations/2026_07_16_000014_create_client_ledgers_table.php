@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('client_ledgers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
+            $table->foreignId('client_balance_id')->constrained()->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('set null');
             $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('set null');
             $table->foreignId('payment_id')->nullable()->constrained('payments')->onDelete('set null');
             $table->string('due_type');

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('set null');
-            $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('cascade');
+            $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('set null');
             $table->decimal('amount', 10, 2);
             $table->string('payment_type')->nullable(); // booking, advance, due_clearance, other
             $table->string('payment_method'); // cash, card, online, upi, bank_transfer

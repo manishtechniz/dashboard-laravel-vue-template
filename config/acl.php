@@ -618,6 +618,57 @@ return [
         ],
     ],
 
+    'testimonials' => [
+        [
+            'key' => 'testimonials.index',
+            'name' => 'Testimonials',
+            'description' => 'View testimonials.',
+            'route' => 'admin.testimonials.index',
+            'icon' => 'pi pi-comment',
+            'sort' => 1,
+        ],
+        [
+            'key' => 'testimonials.store',
+            'name' => 'Create Testimonial',
+            'description' => 'Create new testimonials.',
+            'route' => 'admin.testimonials.store',
+            'icon' => 'pi pi-comment',
+            'sort' => 2,
+        ],
+        [
+            'key' => 'testimonials.update',
+            'name' => 'Update Testimonial',
+            'description' => 'Update existing testimonials.',
+            'route' => 'admin.testimonials.update',
+            'icon' => 'pi pi-comment',
+            'sort' => 2,
+        ],
+        [
+            'key' => 'testimonials.delete',
+            'name' => 'Delete Testimonial',
+            'description' => 'Delete testimonials.',
+            'route' => 'admin.testimonials.delete',
+            'icon' => 'pi pi-comment',
+            'sort' => 3,
+        ],
+        [
+            'key' => 'testimonials.mass-delete',
+            'name' => 'Mass Delete Testimonials',
+            'description' => 'Mass delete testimonials.',
+            'route' => 'admin.testimonials.mass_delete',
+            'icon' => 'pi pi-comment',
+            'sort' => 4,
+        ],
+        [
+            'key' => 'testimonials.mass-update',
+            'name' => 'Mass Update Testimonials',
+            'description' => 'Mass update testimonials.',
+            'route' => 'admin.testimonials.mass_update',
+            'icon' => 'pi pi-comment',
+            'sort' => 5,
+        ],
+    ],
+
     'complaints' => [
         [
             'key' => 'complaints.index',
@@ -837,24 +888,24 @@ return [
         ],
     ],
 
-    // 'settings' => [
-    //     [
-    //         'key' => 'settings.index',
-    //         'name' => 'Settings',
-    //         'description' => 'View application settings.',
-    //         'route' => 'admin.settings.index',
-    //         'icon' => 'pi pi-cog',
-    //         'sort' => 1,
-    //     ],
-    //     [
-    //         'key' => 'settings.store',
-    //         'name' => 'Update Settings',
-    //         'description' => 'Update application settings.',
-    //         'route' => 'admin.settings.store',
-    //         'icon' => 'pi pi-cog',
-    //         'sort' => 2,
-    //     ],
-    // ], 
+    'settings' => [
+        [
+            'key' => 'settings.index',
+            'name' => 'Settings',
+            'description' => 'View application settings.',
+            'route' => 'admin.settings.index',
+            'icon' => 'pi pi-cog',
+            'sort' => 1,
+        ],
+        [
+            'key' => 'settings.store',
+            'name' => 'Update Settings',
+            'description' => 'Update application settings.',
+            'route' => 'admin.settings.store',
+            'icon' => 'pi pi-cog',
+            'sort' => 2,
+        ],
+    ],
 
     'profile' => [
         [

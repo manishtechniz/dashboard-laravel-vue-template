@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payment_id')->nullable()->constrained('payments')->onDelete('cascade');
-            $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('cascade');
+            $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('set null');
             $table->decimal('amount', 10, 2);
             $table->string('type'); // charge, refund, payment
             $table->string('payment_method')->nullable(); // cash, card, online, upi

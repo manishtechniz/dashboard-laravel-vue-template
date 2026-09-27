@@ -218,6 +218,18 @@ Route::group(['prefix' => 'reviews'], function () {
 });
 
 /**
+ * Testimonial Routes
+ */
+Route::group(['prefix' => 'testimonials'], function () {
+    Route::get('/', [App\Http\Controllers\Admin\AdminTestimonialController::class, 'index'])->name('testimonials.index');
+    Route::post('/mass-delete', [App\Http\Controllers\Admin\AdminTestimonialController::class, 'massDestroy'])->name('testimonials.mass_delete');
+    Route::post('/mass-update', [App\Http\Controllers\Admin\AdminTestimonialController::class, 'massUpdate'])->name('testimonials.mass_update');
+    Route::post('/', [App\Http\Controllers\Admin\AdminTestimonialController::class, 'store'])->name('testimonials.store');
+    Route::post('/{id}', [App\Http\Controllers\Admin\AdminTestimonialController::class, 'update'])->name('testimonials.update');
+    Route::delete('/{id}', [App\Http\Controllers\Admin\AdminTestimonialController::class, 'destroy'])->name('testimonials.delete');
+});
+
+/**
  * Complaint Routes
  */
 Route::group(['prefix' => 'complaints'], function () {

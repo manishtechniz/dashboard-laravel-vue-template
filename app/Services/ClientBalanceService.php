@@ -87,6 +87,7 @@ class ClientBalanceService
             $balance->save();
 
             ClientLedger::create([
+                'client_balance_id' => $balance->id,
                 'client_id' => $clientId,
                 'booking_id' => $bookingId,
                 'payment_id' => $paymentId,

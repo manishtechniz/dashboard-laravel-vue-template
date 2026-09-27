@@ -6,8 +6,22 @@ club
 club
 Club@123(#);
 SpnGTwZmNsPy?3.
+
+SMS:
+Test@928(#);
+ys0yEnqODtXujmq4iFchriQ2PyUu4pdgSYQxGlAOa_Y
+
 /home/u598407524/domains/sunoyaar.com/public_html/midnightclub/
+/home/u598407524/domains/mymidnight1515.com/public_html/
+/home/u598407524/domains/bestclubnightpartyingururam.com/public_html/
+
+OS:renflair,apitext
+
 ssh -p 65002 u598407524@217.21.90.71
+
+Install node in hostinger
+---------------------------
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
 By the way, entry fee is ₹500 per person but if you late reach out then ₹1000 per person will be charged.
 

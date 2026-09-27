@@ -11,6 +11,9 @@ export default defineConfig({
                 'resources/admin/css/app.css',
                 'resources/admin/js/app.js',
 
+                'resources/frontend/css/app.css',
+                'resources/frontend/js/app.js',
+
                 // Websocket
                 // 'resources/websocket/css/app.css',
                 // 'resources/websocket/js/app.js',
