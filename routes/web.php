@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Controllers\Frontend\FrontendDataController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::withoutMiddleware(['auth'])->group(function () {
-    Route::get('/', fn() => view('frontend::home.index'))
+    Route::get('/', [FrontendDataController::class, 'index'])
         ->name('frontend.home');
 
     Route::get('/gem', fn() => view('frontend::home.gemni-index'))

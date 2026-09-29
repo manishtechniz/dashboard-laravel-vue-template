@@ -8,6 +8,20 @@ use Illuminate\Http\Request;
 
 class FrontendDataController extends Controller
 {
+
+    public function index()
+    {
+        // if (request()->ajax() || request()->wantsJson()) {
+        //     return response()->json([
+        //         'data' => $settings,
+        //     ]);
+        // }
+
+        $data = getSystemConfigArray('website');
+
+        return view('frontend::home.index', compact('data'));
+    }
+
     /**
      * Fetch club assets (gallery items) with pagination.
      */

@@ -1,5 +1,6 @@
 <?php
 
+use App\Model\Setting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
@@ -146,4 +147,28 @@ function sitemapLastModified(string $slug): ?string
     }
 
     return date(DATE_ATOM, filemtime($path));
+}
+
+function getSystemConfig($key, $default = null)
+{
+    $config = Setting::where('key', $key)->first();
+
+    if (empty($config)) {
+        return $default;
+    }
+
+    return $config->value;
+}
+
+function getSystemConfigArray($key)
+{
+    $configs = Setting::select('key', 'value', 'type')->where('key', 'LIKE', $key . '%')
+        ->get()->toArray();
+
+    $newConfigs = [];
+    foreach ($configs as $config) {
+        $newConfigs[$config['key']] = $config;
+    }
+
+    return $newConfigs;
 }

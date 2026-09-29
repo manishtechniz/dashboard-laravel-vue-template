@@ -47,7 +47,7 @@
     @pushOnce('scripts')
     <script type="text/x-template" id="v-home-template">
         <div class="relative bg-midnight text-gray-100 min-h-screen overflow-x-hidden selection:bg-pink-500 selection:text-white font-sans">
-            
+            @php $isAudioActive = !! ($data['website.music.is_default_on']['value'] ?? false); @endphp 
             <!-- Floating Action Buttons -->
             <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
                 <!-- Pass History FAB (Only if passes exist) -->
@@ -161,8 +161,10 @@
                                 <div class="w-12 h-6 flex items-end justify-between">
                                     <canvas ref="visualizerCanvas" class="w-full h-full opacity-80"></canvas>
                                 </div>
+
+                                @php $clubAudio = $data['website.music.music'] ?? null;  @endphp
                                 <p class="text-xs text-white/60">Live now · DJ Kaayan <span class="text-[9px] font-bold text-pink-400 ml-1">@{{ bpmLabel }}</span></p>
-                                <audio ref="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3?filename=electronic-future-beats-117997.mp3" loop preload="none"></audio>
+                                <audio ref="bgMusic" src="{{ ! empty($clubAudio['value']) ? Storage::url($clubAudio['value']) : 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3?filename=electronic-future-beats-117997.mp3' }} " loop preload="none"></audio>
                             </div>
                             <span class="tmc-glint absolute top-4 right-6 w-2 h-2 rounded-full bg-white"></span>
                             <span class="tmc-glint absolute top-16 right-0 w-1.5 h-1.5 rounded-full bg-white" style="animation-delay:.8s"></span>
@@ -516,7 +518,7 @@
                     <div v-if="nextPageUrl" class="text-center mt-12">
                         <button @click="fetchGalleryApi(nextPageUrl)" :disabled="isApiLoading" class="px-8 py-3 rounded-2xl bg-dark-card border border-white/10 hover:border-purple-500 text-xs font-bold uppercase text-white transition inline-flex items-center justify-center gap-2">
                             <span v-if="isApiLoading"><i class="fas fa-spinner fa-spin"></i> Loading...</span>
-                            <span v-else>Load More Moments <i class="fas fa-arrow-down text-pink-400"></i></span>
+                            <span v-else>Load More <i class="fas fa-arrow-down text-pink-400"></i></span>
                         </button>
                     </div>
                 </section>
@@ -565,7 +567,7 @@
 
             <!-- Infinite Carousel -->
             <div v-else class="relative overflow-hidden w-full select-none -mx-6 px-6 lg:-mx-0 lg:px-0">
-                <div class="flex w-max animate-marquee hover:[animation-play-state:paused]">
+                <div class="flex w-max animate-marquee hover:[animation-play-state:paused]" style="animation-duration: 60s;">
                     <!-- Track 1 -->
                     <div class="flex items-center gap-6 pr-6 shrink-0">
                         <div v-for="(review, i) in testimonials" :key="'t1-' + (review.id || i)" 
@@ -766,7 +768,7 @@
                     <div v-if="filteredFaqs.length > faqLimit" class="text-center mt-10">
                         <button @click="loadMoreFaqs" :disabled="faqLoading" class="px-8 py-3 rounded-2xl bg-dark-card border border-white/10 hover:border-purple-500 text-xs font-bold uppercase text-white transition inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-500/20">
                             <span v-if="faqLoading"><i class="fas fa-spinner fa-spin mr-2"></i> Loading...</span>
-                            <span v-else>Load More FAQs <i class="fas fa-arrow-down text-pink-400 ml-1"></i></span>
+                            <span v-else>Load More <i class="fas fa-arrow-down text-pink-400 ml-1"></i></span>
                         </button>
                     </div>
                 </section> 
@@ -852,8 +854,9 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <button @click="downloadPass(viewBooking)" class="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-white font-bold text-xs uppercase transition shadow-[0_0_15px_rgba(236,72,153,0.4)]">
-                            <i class="fas fa-download mr-1"></i> Download Pass
+                        <button @click="downloadPass(viewBooking)" :disabled="isDownloadingPass" class="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-white font-bold text-xs uppercase transition shadow-[0_0_15px_rgba(236,72,153,0.4)] disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span v-if="isDownloadingPass"><i class="fas fa-spinner fa-spin mr-1"></i> Generating Pass...</span>
+                            <span v-else><i class="fas fa-download mr-1"></i> Download Pass</span>
                         </button>
                         <button @click="copyPassInfo(viewBooking)" class="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase transition">
                             <i class="fas fa-copy mr-1"></i> Copy Info
@@ -885,6 +888,7 @@
                     isApiLoading: false,
                     isTestimonialsLoading: true,
                     isLoading: false,
+                    isDownloadingPass: false,
                     isOtpSending: false,
                     ticketModalOpen: false,
                     faqLimit: 6,
@@ -1328,7 +1332,7 @@
                     this.cursor.y = e.clientY;
                 },
 
-                toggleAudioMode() {
+                async toggleAudioMode() {
                     this.isAudioActive = !this.isAudioActive;
                     this.bpmLabel = this.isAudioActive ? '138 BPM' : 'MUTED';
                     const audio = this.$refs.bgMusic;
@@ -1459,48 +1463,76 @@
                         if (target) {
                             target.innerHTML = '';
                             new QRCode(target, {
-                                // text: JSON.stringify({
-                                //     qr_code_id: this.passCode,
-                                // }),
                                 text: this.passCode,
-                                width: 120,
-                                height: 120,
+                                width: 1024,
+                                height: 1024,
                                 colorDark: "#0b0c10",
                                 colorLight: "#ffffff",
                                 correctLevel: QRCode.CorrectLevel.H
                             });
+
+
+                            const canvas = target.querySelector('canvas');
+                            const img = target.querySelector('img');
+                            if (canvas) {
+                                canvas.style.width = '100%';
+                                canvas.style.height = '100%';
+                            }
+                            if (img) {
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                            }
                         }
                     });
                 },
 
                 downloadPass(data) {
+                    if (this.isDownloadingPass) return;
+                    this.isDownloadingPass = true;
+
                     const qrcodeTarget = document.getElementById('vue-qrcode-target');
-                    const img = qrcodeTarget?.querySelector('img');
+                    const img = qrcodeTarget.querySelector('img');
+                    const qrCanvas = qrcodeTarget.querySelector('canvas');
+
+                    let qrSrc = null;
+                    if (img && img.src) {
+                        qrSrc = img.src;
+                    } else if (qrCanvas) {
+                        qrSrc = qrCanvas.toDataURL('image/png');
+                    }
 
                     if (!data?.plainPassCode) {
                         alert('Invalid qr code found.');
+                        this.isDownloadingPass = false;
                         return;
                     }
 
-                    if (!img?.src) {
+                    if (!qrSrc) {
                         alert('QR code image not found.');
+                        this.isDownloadingPass = false;
                         return;
                     }
+
+                    const logicalWidth = 400;
+                    const logicalHeight = 650;
+                    const scaleFactor = 3; // 3x resolution for Full HD
 
                     const canvas = document.createElement('canvas');
-                    canvas.width = 400;
-                    canvas.height = 650;
+                    canvas.width = logicalWidth * scaleFactor;
+                    canvas.height = logicalHeight * scaleFactor;
                     const ctx = canvas.getContext('2d');
 
-                    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    ctx.scale(scaleFactor, scaleFactor);
+
+                    const gradient = ctx.createLinearGradient(0, 0, 0, logicalHeight);
                     gradient.addColorStop(0, '#0b0c10');
                     gradient.addColorStop(1, '#1f293d');
                     ctx.fillStyle = gradient;
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillRect(0, 0, logicalWidth, logicalHeight);
 
                     ctx.strokeStyle = '#ec4899';
                     ctx.lineWidth = 2;
-                    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+                    ctx.strokeRect(20, 20, logicalWidth - 40, logicalHeight - 40);
 
                     const logoSrc = "<?php echo logo(); ?>";
 
@@ -1516,17 +1548,17 @@
                     };
 
                     // Load both images and draw to canvas
-                    Promise.all([loadImage(logoSrc), loadImage(img.src)])
+                    Promise.all([loadImage(logoSrc), loadImage(qrSrc)])
                         .then(([logoImg, qrImg]) => {
                             // --- Enlarged Top Header Logo ---
                             // Fits within max dimensions (220x65) while preserving natural aspect ratio
                             const maxLogoWidth = 220;
                             const maxLogoHeight = 65;
-                            const scale = Math.min(maxLogoWidth / logoImg.naturalWidth, maxLogoHeight / logoImg.naturalHeight);
-                            const logoWidth = logoImg.naturalWidth * scale;
-                            const logoHeight = logoImg.naturalHeight * scale;
+                            const logoScale = Math.min(maxLogoWidth / logoImg.naturalWidth, maxLogoHeight / logoImg.naturalHeight);
+                            const logoWidth = logoImg.naturalWidth * logoScale;
+                            const logoHeight = logoImg.naturalHeight * logoScale;
 
-                            const logoX = (canvas.width - logoWidth) / 2;
+                            const logoX = (logicalWidth - logoWidth) / 2;
                             const logoY = 32; // Top offset
                             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
@@ -1534,7 +1566,7 @@
                             ctx.fillStyle = '#ec4899';
                             ctx.font = 'bold 13px Arial';
                             ctx.textAlign = 'center';
-                            ctx.fillText('DIGITAL PASS', canvas.width / 2, logoY + logoHeight + 18);
+                            ctx.fillText('DIGITAL PASS', logicalWidth / 2, logoY + logoHeight + 18);
 
                             // --- QR Code Section ---
                             ctx.fillStyle = '#ffffff';
@@ -1545,7 +1577,7 @@
                             ctx.textAlign = 'center';
                             ctx.fillStyle = '#a8a8a8';
                             ctx.font = 'bold 12px monospace';
-                            ctx.fillText(data?.plainPassCode || '', canvas.width / 2, 355);
+                            ctx.fillText(data?.plainPassCode || '', logicalWidth / 2, 355);
 
                             // --- Pass Holder ---
                             ctx.textAlign = 'left';
@@ -1560,10 +1592,10 @@
                             ctx.textAlign = 'right';
                             ctx.fillStyle = '#a8a8a8';
                             ctx.font = '12px Arial';
-                            ctx.fillText('GUESTS', canvas.width - 50, 420);
+                            ctx.fillText('GUESTS', logicalWidth - 50, 420);
                             ctx.fillStyle = '#ffffff';
                             ctx.font = 'bold 14px Arial';
-                            ctx.fillText(data?.guests || '-', canvas.width - 50, 440);
+                            ctx.fillText(data?.guests || '-', logicalWidth - 50, 440);
 
                             // --- Date ---
                             ctx.textAlign = 'left';
@@ -1578,16 +1610,16 @@
                             ctx.textAlign = 'right';
                             ctx.fillStyle = '#a8a8a8';
                             ctx.font = '12px Arial';
-                            ctx.fillText('ARRIVAL', canvas.width - 50, 500);
+                            ctx.fillText('ARRIVAL', logicalWidth - 50, 500);
                             ctx.fillStyle = '#ffffff';
                             ctx.font = 'bold 14px Arial';
-                            ctx.fillText(data?.time || '-', canvas.width - 50, 520);
+                            ctx.fillText(data?.time || '-', logicalWidth - 50, 520);
 
                             // --- Footer ---
                             ctx.textAlign = 'center';
                             ctx.fillStyle = '#666666';
                             ctx.font = '10px Arial';
-                            ctx.fillText('Thank you for booking with The Midnight Club', canvas.width / 2, 600);
+                            ctx.fillText('Thank you for booking with The Midnight Club', logicalWidth / 2, 600);
 
                             // --- Trigger Download ---
                             const a = document.createElement('a');
@@ -1599,6 +1631,9 @@
                         })
                         .catch((err) => {
                             console.error('Error loading pass assets:', err);
+                        })
+                        .finally(() => {
+                            this.isDownloadingPass = false;
                         });
                 },
                 startResendTimer() {

@@ -74,7 +74,7 @@
 
             <!-- Book VIP Button -->
             <a href="{{ $isHome ? '#reserve' : route('frontend.home') . '#reserve' }}" class="hidden sm:block px-8 py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-xs font-bold text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_20px_rgba(236,72,153,0.7)] hover:scale-105 active:scale-95 transition text-center whitespace-nowrap">
-                BOOK VIP
+                <i class="fas fa-crown text-amber-300 mr-1.5 animate-pulse"></i> BOOK Now
             </a>
             <button @click="mobileMenuOpen = true" class="lg:hidden text-gray-300 hover:text-white px-8 py-2.5 ">
                 <i class="fas fa-bars"></i>
@@ -148,8 +148,8 @@
 
         <a href="{{ $isHome ? '#reserve' : $homeUrl . '#reserve' }}"
             @click="mobileMenuOpen = false"
-            class="px-8 py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-sm">
-            Book Table Now
+            class="px-8 py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-sm shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+            <i class="fas fa-crown text-amber-300 mr-1.5 animate-pulse"></i> Book Now
         </a>
     </div>
 </header>

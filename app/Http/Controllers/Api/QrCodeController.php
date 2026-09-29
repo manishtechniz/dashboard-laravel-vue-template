@@ -43,11 +43,15 @@ class QrCodeController extends Controller
         ]);
 
         try {
+            $originalQrCode = Crypt::decryptString($validated['qr_code_id']);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Sorry, Corrupted QR code found.'], 404);
+        }
+
+        try {
             if (! $request->user()->hasAppPermission('can_qr_scan')) {
                 return response()->json(['message' => 'You do not have permission to perform this action.'], 403);
             }
-
-            $originalQrCode = Crypt::decryptString($validated['qr_code_id']);
 
             $booking = Booking::where('qr_code', $originalQrCode)
                 ->with(['table:id,name', 'club:id,name', 'guests', 'event:id,name'])

@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Model\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminSettingController extends Controller
 {
     public function index()
     {
+        $activeGroup = request('active_group', null);
+
         $settings = Setting::all()->pluck('value', 'key')->toArray();
 
         if (request()->ajax() || request()->wantsJson()) {
@@ -17,35 +20,50 @@ class AdminSettingController extends Controller
             ]);
         }
 
-        // dd(1);
+        $configurations = config('configuration') ?? [];
 
-        return view('admin::global-config.index', compact('settings'));
+        $configurations = array_filter($configurations, function ($config) {
+            return !empty($config['is_active']);
+        });
+
+        return view('admin::global-config.index', compact('settings', 'configurations', 'activeGroup'));
     }
 
     public function store(Request $request)
     {
-        $inputSettings = $request->except('_token');
+        $settings = $request->input('settings', []);
 
-        try {
-            foreach ($inputSettings as $key => $value) {
-                $valueToSave = is_array($value) || is_object($value)
-                    ? json_encode($value)
-                    : (string)$value;
-
-                Setting::updateOrCreate(
-                    ['key' => $key],
-                    ['value' => $valueToSave]
-                );
-            }
-
-            $allSettings = Setting::all()->pluck('value', 'key')->toArray();
-
-            return response()->json([
-                'message' => 'Settings updated successfully.',
-                'data'    => $allSettings,
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json(['message' => 'Encounter error during update.'], 500);
+        foreach ($settings as $key => $value) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value]
+            );
         }
+
+        if ($request->hasFile('settings')) {
+            $files = $request->file('settings');
+            foreach ($files as $configKey => $file) {
+                if ($file) {
+                    $value = getSystemConfig($configKey);
+
+                    if (! empty($value) && Storage::exists($value)) {
+                        Storage::delete($value);
+                    }
+
+                    $path = $file->store('settings/' . $configKey);
+
+                    Setting::updateOrCreate(
+                        ['key' => $configKey],
+                        ['value' => $path]
+                    );
+                }
+            }
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['message' => 'Settings updated successfully.']);
+        }
+
+        return redirect()->back()->with('success', 'Settings updated successfully.');
     }
 }
