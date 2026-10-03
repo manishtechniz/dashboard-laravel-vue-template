@@ -11,6 +11,8 @@ class FrontendDataController extends Controller
 
     public function index()
     {
+        // dd(url('/'));
+        // return dd(app()->environment('APP_ENV'), app()->environment('production'), env('APP_ENV'));
         // if (request()->ajax() || request()->wantsJson()) {
         //     return response()->json([
         //         'data' => $settings,

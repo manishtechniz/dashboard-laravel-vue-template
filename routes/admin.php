@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminMobileRoleController;
 use App\Http\Controllers\Admin\AdminTestController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\GlobalConfig\CacheManagementController;
 use App\Http\Controllers\UploadFileController;
 use App\Http\Middleware\AuthorizeActionMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -285,3 +286,9 @@ Route::group(['prefix' => 'club-assets'], function () {
  * Upload file.
  */
 Route::post('/upload-url', [UploadFileController::class, 'getUploadUrl']);
+
+/**
+ * Global Config
+ */
+Route::post('configuration/cache-management/execute', [CacheManagementController::class, 'execute'])
+    ->name('configuration.cache-management.execute');

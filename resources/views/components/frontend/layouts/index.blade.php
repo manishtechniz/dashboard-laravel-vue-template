@@ -4,7 +4,8 @@
 'hasSidebar' => true,
 'title' => 'The Midnight Club | Premier Nightlife Destination',
 'description' => 'Reserve your spot at Gurugram’s most exclusive clubs, high-energy dance floors, and rooftop lounges. Experience ultimate VIP nightlife at The Midnight Club.',
-'keywords' => 'nightclub, gurgaon, midnight club, party, vip table, bottle service, nightlife'
+'keywords' => 'nightclub, gurgaon, midnight club, party, vip table, bottle service, nightlife',
+'ogImage' => logo()
 ])
 
 <!DOCTYPE html>
@@ -17,9 +18,29 @@
     <meta name="keywords" content="{{ $keywords }}">
     <meta name="robots" content="index, follow">
 
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ url()->current() }}" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $title }}">
+    <meta property="og:description" content="{{ $description }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="{{ $title }}">
+    <meta property="twitter:description" content="{{ $description }}">
+    <meta property="twitter:image" content="{{ $ogImage }}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/x-icon" href="{{ Vite::asset('resources/images/icon.ico') }}">
+
+    <!-- Add Schema Markup Scripts -->
+    @stack('schema_scripts')
 
     {{-- Optimize Laravel Vite CSS --}}
     @php

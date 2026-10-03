@@ -14,10 +14,19 @@ ys0yEnqODtXujmq4iFchriQ2PyUu4pdgSYQxGlAOa_Y
 /home/u598407524/domains/sunoyaar.com/public_html/midnightclub/
 /home/u598407524/domains/mymidnight1515.com/public_html/
 /home/u598407524/domains/bestclubnightpartyingururam.com/public_html/
+/home/u598407524/domains/themidnightclub.in/public_html/
 
 OS:renflair,apitext
 
 ssh -p 65002 u598407524@217.21.90.71
+
+
+Check Server performance:
+------------------------------------
+free -h
+nproc
+ulimit -u
+ps aux --sort=-%mem | head -20
 
 Install node in hostinger
 ---------------------------

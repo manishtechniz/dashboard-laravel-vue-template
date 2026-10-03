@@ -26,7 +26,25 @@ class AdminSettingController extends Controller
             return !empty($config['is_active']);
         });
 
-        return view('admin::global-config.index', compact('settings', 'configurations', 'activeGroup'));
+        // Collect all custom Blade paths that need to be loaded
+        $customViews = [];
+        foreach ($configurations as $group) {
+            if (!empty($group['sections'])) {
+                foreach ($group['sections'] as $section) {
+                    if (!empty($section['fields'])) {
+                        foreach ($section['fields'] as $field) {
+                            if (($field['type'] ?? '') === 'blade' && isset($field['path'])) {
+                                $customViews[] = $field['path'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // dd($configurations);
+
+        return view('admin::global-config.index', compact('settings', 'configurations', 'activeGroup', 'customViews'));
     }
 
     public function store(Request $request)

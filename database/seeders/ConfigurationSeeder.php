@@ -20,7 +20,7 @@ class ConfigurationSeeder extends Seeder
         }
 
         foreach ($configurations as $configGroup) {
-            if (isset($configGroup['sections']) && is_array($configGroup['sections'])) {
+            if (isset($configGroup['sections']) && is_array($configGroup['sections']) && $configGroup['is_active']) {
                 foreach ($configGroup['sections'] as $section) {
                     if (isset($section['fields']) && is_array($section['fields'])) {
                         foreach ($section['fields'] as $field) {

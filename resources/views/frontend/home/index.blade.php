@@ -10,6 +10,189 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+    @endPushOnce
+
+    @pushOnce('schema_scripts')
+    <!-- Schema.org Markup for NightClub, FAQ, and WebSite -->
+    <script type="application/ld+json">
+        {!! json_encode([
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'WebSite',
+                'name' => 'The Midnight Club',
+                'url' => url('/'),
+                'description' => 'Book your VIP table and digital passes at The Midnight Club. Experience Midnight Club Gurugram - nightlife, DJs, events, parties, drinks, table booking and unforgettable nights in Gurgaon.',
+                'publisher' => [
+                    '@type' => 'Organization',
+                    'name' => 'The Midnight Club',
+                    'logo' => [
+                        '@type' => 'ImageObject',
+                        'url' => logo()
+                    ]
+                ],
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => url('/') . '/search?q={search_term_string}',
+                    'query-input' => 'required name=search_term_string'
+                ]
+            ],
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'Organization',
+                'name' => 'The Midnight Club',
+                'url' => url('/'),
+                'logo' => logo(),
+                'description' => "Gurugram's premier nightlife destination. Experience world-class DJs, VIP table bookings, and high-energy dance floors.",
+                'contactPoint' => [
+                    '@type' => 'ContactPoint',
+                    'telephone' => '+91-9899281515',
+                    'contactType' => 'customer service',
+                    'areaServed' => 'IN',
+                    'availableLanguage' => ['English', 'Hindi']
+                ],
+                'sameAs' => [
+                    'https://facebook.com/themidnightclub',
+                    'https://instagram.com/themidnightclub',
+                    'https://twitter.com/themidnightclub'
+                ]
+            ],
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'NightClub',
+                'name' => 'The Midnight Club',
+                'image' => logo(),
+                '@id' => url('/'),
+                'url' => url('/'),
+                'telephone' => '+91-9899281515',
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'streetAddress' => '3rd floor, Plaza Mall, R-02, Mehrauli-Gurgaon Rd, Indian Airlines Pilots Society, Sushant Lok Phase I, Gurugram, Haryana 122002',
+                    'addressLocality' => 'Gurugram',
+                    'addressRegion' => 'HR',
+                    'postalCode' => '122002',
+                    'addressCountry' => 'IN'
+                ],
+                'geo' => [
+                    '@type' => 'GeoCoordinates',
+                    'latitude' => 28.5996936,
+                    'longitude' => 78.0680023
+                ],
+                'openingHoursSpecification' => [
+                    '@type' => 'OpeningHoursSpecification',
+                    'dayOfWeek' => [
+                        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+                    ],
+                    'opens' => '20:00',
+                    'closes' => '06:00'
+                ],
+                'priceRange' => '₹ 10,000 - ₹ 1,00,000+ (approx)',
+                'description' => 'Book your VIP table and digital passes at The Midnight Club. Experience Midnight Club Gurugram - nightlife, DJs, events, parties, drinks, table booking and unforgettable nights in Gurgaon.'
+            ],
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'SoftwareApplication',
+                'name' => 'The Midnight Club App',
+                'applicationCategory' => 'EntertainmentApplication',
+                'operatingSystem' => 'All',
+                'offers' => [
+                    [
+                        '@type' => 'Offer',
+                        'price' => '1000',
+                        'priceCurrency' => 'INR',
+                        'name' => 'General Entry (Ladies enter free)',
+                        'description' => 'General entry is ₹1000 per person. Ladies enjoy completely free entry.'
+                    ],
+                    [
+                        '@type' => 'Offer',
+                        'price' => '0',
+                        'priceCurrency' => 'INR',
+                        'name' => 'Advance Booking Cashback',
+                        'description' => 'Book online in advance and receive 10-20% commission/cashback on your in-club spending.'
+                    ]
+                ],
+                'description' => 'The official app for The Midnight Club. Book VIP tables, get digital passes, and stay updated on the latest events and guest DJs.',
+                'aggregateRating' => [
+                    '@type' => 'AggregateRating',
+                    'ratingValue' => '4.9',
+                    'reviewCount' => '4250'
+                ]
+            ],
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'FAQPage',
+                'mainEntity' => [
+                    [
+                        '@type' => 'Question',
+                        'name' => 'What is the dress code for The Midnight Club?',
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => 'We strictly enforce a smart casual and party wear dress code. Upscale club attire is required. Athletic wear, sports jerseys, flip-flops, and sleeveless shirts for men are not permitted. Management reserves the right to refuse entry.'
+                        ]
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Is there a cover charge or entry fee?',
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => 'Entry fees vary depending on the night, the event, and guest list status. Couples and ladies often enjoy free or discounted entry on certain nights if on the guest list. Please check our upcoming events or contact us for tonight\'s specific cover charge.'
+                        ]
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Are stags allowed at The Midnight Club Gurugram?',
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => 'Stag entry is strictly profiled and subject to club policy. We highly recommend booking a VIP table or arriving accompanied by couples to guarantee entry. Single gentlemen are advised to contact management in advance.'
+                        ]
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'How can I book a VIP table or bottle service?',
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => 'You can reserve a VIP table and premium bottle service by calling our reservations team at +91-9899281515, or by using the direct table booking feature on our website. VIP tables include priority entry, a dedicated hostess, and exclusive seating.'
+                        ]
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'What are the opening hours of the club?',
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => 'The Midnight Club is open 7 days a week. Our doors open at 8:00 PM and the party continues until 6:00 AM, making us the ultimate late-night destination in Gurugram.'
+                        ]
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'What type of music is played?',
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => 'Our state-of-the-art sound system features a mix of high-energy EDM, Techno, Commercial Hits, Hip-Hop, and Bollywood. We host top resident DJs and renowned international guest DJs every weekend.'
+                        ]
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Is there an age limit for entry?',
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => 'Yes, all guests must be 21 years of age or older to enter the club and consume alcohol. A valid government-issued physical ID (Aadhar Card, Passport, or Driving License) is strictly required at the door.'
+                        ]
+                    ],
+                    [
+                        '@type' => 'Question',
+                        'name' => 'Do you offer valet parking?',
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => 'Yes, we provide secure valet parking services for all our guests directly at the entrance of Plaza Mall to ensure a seamless and premium experience from the moment you arrive.'
+                        ]
+                    ]
+                ]
+            ]
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
+    @endPushOnce
+
+    @pushOnce('styles')
+
     <style>
         @keyframes music-bar {
             0% {
@@ -737,7 +920,8 @@
                         <div class="inline-block bg-purple-900/30 border border-purple-500/30 text-neon-purple px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
                             Protocol & Policies
                         </div>
-                        <h2 class=" text-4xl sm:text-5xl font-bold text-white mb-4">Got Questions?</h2>
+                        <h2 class="hidden md:block text-4xl sm:text-5xl font-bold text-white mb-4">Frequent <span class="gradient-text">Ask Questions</span> (FAQs)</h2>
+                        <h2 class="md:hidden text-4xl sm:text-5xl font-bold text-white mb-4"><span class="gradient-text">FAQs</span></h2>
                         <p class="text-gray-400 text-sm">Everything you need to know before stepping into The Midnight Club.</p>
                     </div>
 

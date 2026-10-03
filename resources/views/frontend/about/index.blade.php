@@ -1,4 +1,32 @@
 <x-frontend::layouts title="About Us | The Midnight Club Gurgaon" description="Discover the history, premium services, and exclusive VIP experience at The Midnight Club. The gold standard for nightlife in Gurgaon." keywords="about midnight club, midnight club history, premium club services, gurgaon club security, club cloak room">
+    @pushOnce('schema_scripts') 
+    <script type="application/ld+json">
+        {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'AboutPage',
+                'name' => 'About The Midnight Club Gurgaon',
+                'url' => url()->current(),
+                'description' => "Step into The Midnight Club, Gurgaon's most exclusive and electrifying nightlife destination.",
+                'mainEntity' => [
+                    '@type' => 'NightClub',
+                    'name' => 'The Midnight Club',
+                    'image' => logo(),
+                    '@id' => url('/'),
+                    'url' => url('/'),
+                    'telephone' => '+91-9899281515',
+                    'address' => [
+                        '@type' => 'PostalAddress',
+                        'streetAddress' => '3rd floor, Plaza Mall, R-02, Mehrauli-Gurgaon Rd, Indian Airlines Pilots Society, Sushant Lok Phase I, Gurugram, Haryana 122002',
+                        'addressLocality' => 'Gurugram',
+                        'addressRegion' => 'HR',
+                        'postalCode' => '122002',
+                        'addressCountry' => 'IN',
+                    ],
+                ],
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
+    @endPushOnce
+
     <div class="relative bg-[#0b0c10] text-gray-100 min-h-screen  px-6 font-sans overflow-hidden selection:bg-pink-500 selection:text-white">
 
         <!-- Background Ambient Glows & Lasers -->
@@ -22,10 +50,13 @@
                     <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(236,72,153,0.3)]">The Midnight Club</span> Gurgaon
                 </h1>
                 <p class="text-gray-400 max-w-3xl mx-auto text-lg leading-relaxed mb-6">
-                    Welcome to The Midnight Club, Gurgaon's premier nightlife destination. Open until 7 AM, we offer an unparalleled after-hours experience featuring world-class dance floors, state-of-the-art light shows, and a curated selection of music to match every vibe. Whether you're looking for high-energy beats or an intimate VIP experience, we set the gold standard for nightlife in the city.
+                    Step into <strong class="text-white">The Midnight Club</strong>, Gurgaon's most exclusive and electrifying nightlife destination. Designed for the city's elite, our venue redefines the after-hours experience, keeping the energy pulsating until 6 AM. From the moment you walk through our doors, you are transported into a world of sensory perfection—where world-class acoustics meet state-of-the-art visual light shows, creating an atmosphere that is nothing short of legendary.
+                </p>
+                <p class="text-gray-400 max-w-3xl mx-auto text-lg leading-relaxed mb-6">
+                    Whether you are commanding the sprawling, high-energy dance floor or seeking the intimate luxury of our premium VIP lounges, we cater to your every desire. Our curated musical journeys—steered by renowned resident and international guest DJs—blend the very best of EDM, Techno, Commercial, and Bollywood beats, ensuring that the rhythm never drops and the vibe is always immaculate.
                 </p>
                 <p class="text-gray-400 max-w-3xl mx-auto text-lg leading-relaxed mb-8">
-                    Our most electrifying nights are Thursdays, Fridays, and Saturdays, where the city's elite gather to celebrate. We pride ourselves on pairing premium food and top-shelf beverages with an unforgettable sonic journey. If you're searching for the ultimate clubbing experience in Gurgaon, you've already found it.
+                    Our signature nights on Thursdays, Fridays, and Saturdays are the undisputed heartbeat of Gurgaon’s party scene. We pride ourselves on delivering an uncompromising standard of hospitality, pairing an exquisite menu of gourmet bites with top-shelf, artisanal beverages crafted by our master mixologists. If you are searching for the ultimate, unapologetic clubbing experience—where every night becomes a story to tell—you have finally found your sanctuary.
                 </p>
                 <div class="mt-8 flex justify-center">
                     <a href="{{ url('/#reserve') }}" class="group relative inline-flex items-center justify-center gap-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-lg px-10 py-5 rounded-full shadow-[0_0_30px_rgba(236,72,153,0.5)] hover:shadow-[0_0_50px_rgba(236,72,153,0.7)] hover:scale-105 transition-all duration-300 overflow-hidden">

@@ -5,6 +5,10 @@
         <div class="page-breadcrumb">Home / Settings</div>
     </div>
 
+    @foreach($customViews as $viewPath)
+    @include($viewPath)
+    @endforeach
+
     <v-config :initial-settings="{{ json_encode($settings ?? (object)[]) }}" :configurations="{{ json_encode($configurations ?? (object)[]) }}"></v-config>
 
     @pushOnce('scripts')
@@ -48,11 +52,12 @@
                                                 <div class="text-[14px] font-semibold text-[var(--text-base)]">@{{ group.title }}</div>
                                                 <div v-if="group.info" class="text-[11px] text-[var(--text-muted)] mt-0.5">@{{ group.info }}</div>
                                             </div>
-                                            <Button label="Save Settings" size="small" type="submit" :loading="isSaving" class="w-full sm:w-auto" />
+                                            <Button label="Save" size="small" type="submit" :loading="isSaving" class="w-full sm:w-auto" />
                                         </div>
                                         <div class="p-5 flex flex-col gap-6">
-                                            <div v-for="section in group.sections" :key="section.name" class="flex flex-col rounded-lg border border-[var(--border)]/60 shadow-sm overflow-hidden mb-2">
-                                                <div class="flex items-center gap-3 bg-[var(--surface-50)] p-3 border-b border-[var(--border)]/60">
+                                            <div v-for="section in group.sections" :key="section.name" class="flex flex-col rounded-lg border-[var(--border)]/60 shadow-sm overflow-hidden mb-2" :class="{border: ! group.is_full_section}">
+                                                
+                                                <div v-if="! group.is_full_section" class="flex items-center gap-3 bg-[var(--surface-50)] p-3 border-b border-[var(--border)]/60">
                                                     <div class="w-8 h-8 rounded-md bg-[var(--surface-0)] border border-[var(--border)] text-[var(--accent)] flex items-center justify-center flex-shrink-0 shadow-sm">
                                                         <i :class="section.icon || 'pi pi-folder'" class="text-[14px]"></i>
                                                     </div>
@@ -62,7 +67,7 @@
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="p-4 flex flex-col gap-4 bg-[var(--surface-0)]">
+                                                <div class="flex flex-col gap-4 bg-[var(--surface-0)]" :class="{'p-4': ! group.is_full_section}">
                                                     <div v-for="field in section.fields" :key="field.name" class="flex flex-col gap-1">
                                                     <template v-if="field.type === 'boolean'">
                                                         <div class="flex items-center justify-between py-2">
@@ -106,6 +111,10 @@
                                                                 <a v-else :href="'/storage/' + initialSettings[field.name]" target="_blank" class="text-sm font-medium text-blue-600 hover:underline">View Current File</a>
                                                             </div>
                                                         </div>
+                                                    </template>
+                                                    <template v-else-if="field.type == 'blade'"> 
+                                                        <!-- Vue will dynamically mount <v-cache-management> here --> 
+                                                        <component :is="field.component_name"></component>
                                                     </template>
                                                     <template v-else>
                                                         <div v-if="field.title" class="text-[11px] text-[var(--text-muted)] mt-1">@{{ field.title }}</div> 

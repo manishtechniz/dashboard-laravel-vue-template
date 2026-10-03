@@ -9,6 +9,7 @@ return [
         'sort' => 1,
         'icon' => 'pi pi-flag',
         'is_active' => false,
+        'is_full_section' => false,
         'sections' => [
             [
                 'title' => 'Featured Flag2',
@@ -36,6 +37,7 @@ return [
         'sort' => 1,
         'icon' => 'pi pi-link',
         'is_active' => false,
+        'is_full_section' => false,
         'sections' => [
             [
                 'title' => 'Mobile SMS',
@@ -93,6 +95,7 @@ return [
         'sort' => 1,
         'icon' => 'pi pi-globe',
         'is_active' => true,
+        'is_full_section' => false,
         'sections' => [
             [
                 'title' => 'Club Music',
@@ -115,6 +118,34 @@ return [
                         'validation' => 'ext:mp3,wav,aac|max:102400',
                         'accept' => 'audio/*',
                     ]
+                ],
+            ]
+        ]
+    ],
+
+    // Cache Management
+    'cache_management' => [
+        'name' => 'cache_management',
+        'title' => 'Cache Management',
+        'info' => 'Manage application cache, clear or rebuild cached data for configuration, routes, views, and more.',
+        'sort' => 1,
+        'icon' => 'pi pi-flag',
+        'is_active' => true,
+        'is_full_section' => true,
+        'sections' => [
+            [
+                'title' => 'Cache Management',
+                'info' => 'Manage application cache, clear or rebuild cached data for configuration, routes, views, and more.',
+                'name' => null,
+                'icon' => 'pi pi-palette',
+                'fields' => [
+                    [
+                        'name' => 'cache_management_ui',
+                        'title' => 'Cache Actions',
+                        'type' => 'blade',
+                        'component_name' => 'v-cache-management',
+                        'path' => 'admin::global-config.custom-views.cache-management',
+                    ],
                 ],
             ]
         ]
